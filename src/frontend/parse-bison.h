@@ -64,13 +64,13 @@
 
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 typedef union YYSTYPE
-#line 50 "parse-bison.y"
+#line 50 "./parse-bison.y"
 {
   double num;
   const char  *str;
   struct pnode *pnode;
 }
-/* Line 1489 of yacc.c.  */
+/* Line 1529 of yacc.c.  */
 #line 75 "parse-bison.h"
 	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */

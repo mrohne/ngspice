@@ -22,6 +22,7 @@ extern int vasprintf(char **out, const char *fmt, va_list ap);
 
 #include <setjmp.h>
 #include <signal.h>
+#include <fenv.h>
 
 /* MINGW: random, srandom in libiberty.a, but not in libiberty.h */
 #if defined(__MINGW32__) && defined(HAVE_RANDOM)
@@ -465,6 +466,17 @@ SIMinit(IFfrontEnd *frontEnd, IFsimulator **simulator)
     CONSTvt0 = CONSTboltz * (27 /* deg c */ + CONSTCtoK ) / CHARGE;
     CONSTKoverQ = CONSTboltz / CHARGE;
     CONSTe = exp((double)1.0);
+
+#ifdef EXPERIMENTAL_CODE   
+    /* Set up floating point environment */
+    {
+      fenv_t fenv;
+      fegetenv(&fenv);
+      fenv.__control &= ~((FE_OVERFLOW|FE_INVALID) << 0);
+      fenv.__mxcsr &= ~((FE_OVERFLOW|FE_INVALID) << 7);
+      fesetenv(&fenv);
+    }
+#endif /* EXPERIMENTAL_CODE */
     return(OK);
 }
 

@@ -38,7 +38,7 @@ int TRANinit(CKTcircuit	*ckt, JOB *job)
 
    
     
-    ckt->CKTdelmin = 1e-11*ckt->CKTmaxStep;	/* XXX */
+    ckt->CKTdelmin = 1e-14*ckt->CKTmaxStep;	/* XXX */
     ckt->CKTmode = ((TRANan*)job)->TRANmode;
 
     return OK;
