@@ -1,0 +1,9 @@
+Makefile
+Makefile.in
+.deps
+autoconf.h
+*.cache
+config.log
+config.status
+stamp-h*
+xgraph

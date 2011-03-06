@@ -1,0 +1,15 @@
+Makefile.in
+Makefile
+.deps
+.libs
+nghelp
+ngsconvert
+ngproc2mod
+multidec
+ngmakeidx
+ngspice
+ngnutmeg
+ngmultidec
+spinit
+ngspice.idx
+
