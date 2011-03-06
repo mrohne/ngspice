@@ -999,6 +999,7 @@ dnl ------------
 AC_CONFIG_FILES([Makefile
                  man/Makefile
                  man/man1/Makefile
+                 doc/Makefile
                  src/Makefile
                  src/spinit
                  src/tclspinit
