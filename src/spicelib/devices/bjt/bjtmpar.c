@@ -10,12 +10,12 @@ Author: 1985 Thomas L. Quarles
  * BJTs in the circuit.
  */
 
-#include "ngspice.h"
-#include "const.h"
-#include "ifsim.h"
+#include <ngspice/ngspice.h>
+#include <ngspice/const.h>
+#include <ngspice/ifsim.h>
 #include "bjtdefs.h"
-#include "sperror.h"
-#include "suffix.h"
+#include <ngspice/sperror.h>
+#include <ngspice/suffix.h>
 
 
 int
@@ -425,6 +425,10 @@ BJTmParam(int param, IFvalue *value, GENmodel *inModel)
         case BJT_MOD_TNS2:
             mods->BJTtns2 = value->rValue;
             mods->BJTtns2Given = TRUE;
+            break;
+        case BJT_MOD_NKF:
+            mods->BJTnkf = value->rValue;
+            mods->BJTnkfGiven = TRUE;
             break;
         default:
             return(E_BADPARM);

@@ -4,14 +4,14 @@ Author:	1991 David A. Gates, U. C. Berkeley CAD Group
 Modified: 2001 Paolo Nenzi
 **********/
 
-#include "ngspice.h"
-#include "numcards.h"
-#include "numgen.h"
-#include "numenum.h"
-#include "mobdefs.h"
-#include "sperror.h"
-#include "devdefs.h"
-#include "suffix.h"
+#include <ngspice/ngspice.h>
+#include <ngspice/numcards.h>
+#include <ngspice/numgen.h>
+#include <ngspice/numenum.h>
+#include <ngspice/mobdefs.h>
+#include <ngspice/sperror.h>
+#include <ngspice/devdefs.h>
+#include <ngspice/suffix.h>
 
 extern int MOBnewCard(void**,void*);
 extern int MOBparam(int,IFvalue*,void*);
@@ -57,10 +57,10 @@ MOBnewCard(void **inCard, void *inModel)
 
     newCard = NEW( MOBcard );
     if (!newCard) {
-        *inCard = (void *)NULL;
+        *inCard = NULL;
         return(E_NOMEM);
     }
-    newCard->MOBnextCard = (MOBcard *)NULL;
+    newCard->MOBnextCard = NULL;
     *inCard = (void *)newCard;
 
     tmpCard = model->GENmobility;

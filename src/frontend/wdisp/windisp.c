@@ -3,18 +3,18 @@
  * Wolfgang Muees 27.10.97
  * Holger Vogt  07.12.01
  * Holger Vogt  05.12.07
- $Id: windisp.c,v 1.33 2010/11/19 18:52:45 rlar Exp $
+ $Id: windisp.c,v 1.39 2011/08/20 17:27:11 rlar Exp $
  */
 
 #define STRICT
-#include "ngspice.h"
+#include <ngspice/ngspice.h>
 
 #ifdef HAS_WINDOWS
 
-#include "graph.h"
-#include "ftedev.h"
-#include "ftedbgra.h"
-#include "fteext.h"
+#include <ngspice/graph.h>
+#include <ngspice/ftedev.h>
+#include <ngspice/ftedbgra.h>
+#include <ngspice/fteext.h>
 #include "../plotting/graf.h"
 #include "../plotting/graphdb.h"
 #include "windisp.h"
@@ -30,7 +30,7 @@
 
 #include <windows.h>
 #include <windowsx.h>
-#include "suffix.h"
+#include <ngspice/suffix.h>
 
 /* Typen */
 typedef struct {     /* Extra window data */
@@ -79,12 +79,12 @@ static COLORREF      ColorTable[NumWinColors];     /* color memory */
 static char *        WindowName = "Spice Plot";    /* window name */
 static WNDCLASS      TheWndClass;                  /* Plot-window class */
 static HFONT         PlotFont;                     /* which font */
-#define              ID_DRUCKEN  0xEFF0            /* System Menue: print */
+#define              ID_DRUCKEN      0xEFF0        /* System Menue: print */
 #define              ID_DRUCKEINR    0xEFE0        /* System Menue: printer setup */
 #define              ID_HARDCOPY     0xEFD0        /* System Menue: hardcopy color*/
-#define              ID_HARDCOPY_BW     0xEFB0     /* System Menue: hardcopy b&w*/
+#define              ID_HARDCOPY_BW  0xEFB0        /* System Menue: hardcopy b&w*/
+#define              ID_MASK         0xFFF0;       /* System-Menue: mask */
 
-static const int     ID_MASK        = 0xFFF0;      /* System-Menue: mask */
 static char *        STR_DRUCKEN   = "Printer..."; /* System menue strings */
 static char *        STR_DRUCKEINR = "Printer setup...";
 static char *        STR_HARDCOPY = "Postscript file, color";
@@ -220,7 +220,7 @@ int WIN_Init(void)
 /* (attach to window) */
 static GRAPH * pGraph( HWND hwnd)
 {
-   return (GRAPH *) GetWindowLong( hwnd, 0);
+   return (GRAPH *) GetWindowLongPtr( hwnd, 0);
 }
 
 /* return line style for plotting */
@@ -237,6 +237,7 @@ static int LType( int ColorIndex)
 static LRESULT HcpyPlot( HWND hwnd)
 {
     int colorval = isblack? 0 : 1;
+    NG_IGNORE(hwnd);
     cp_vset("hcopypscolor", CP_NUM, &colorval);
     com_hardcopy(NULL); 
     return 0;
@@ -245,6 +246,7 @@ static LRESULT HcpyPlot( HWND hwnd)
 static LRESULT HcpyPlotBW( HWND hwnd)
 {
    int bgcolor;
+   NG_IGNORE(hwnd);
    if (cp_getvar("hcopypscolor", CP_NUM, &bgcolor))
        cp_remvar("hcopypscolor");
 	com_hardcopy(NULL); 
@@ -326,7 +328,7 @@ LRESULT CALLBACK PlotWindowProc( HWND hwnd,
    case WM_SYSCOMMAND:
    {
       /* test command */
-      int cmd = wParam & ID_MASK;
+      WPARAM cmd = wParam & ID_MASK;
       switch(cmd) {
          case ID_DRUCKEN:  return PrintPlot( hwnd);
          case ID_DRUCKEINR:      return PrintInit( hwnd);
@@ -434,7 +436,7 @@ LRESULT CALLBACK PlotWindowProc( HWND hwnd,
             angle = RAD_TO_DEG * atan2( fy0, fx0 );
             fprintf(stdout, "r0 = %g, a0 = %g\n",
             sqrt( fx0*fx0 + fy0*fy0 ),
-            (angle>0)?angle:(double) 360+angle);
+            (angle>0)?angle:360.0+angle);
          }
       } else  {    
          /* need to print info about two points */
@@ -503,10 +505,9 @@ LRESULT CALLBACK PlotWindowProc( HWND hwnd,
       GRAPH * g = pGraph( hwnd);
 
       if (g) {
-         /* if g equals currentgraph, set a new currentgraph. 
-            Otherwise gr_resize(g) might fail. */
+         /* if g equals currentgraph, reset currentgraph. */
          if (g == currentgraph)
-            currentgraph = FindGraph(g->graphid - 1);
+            currentgraph = NULL;
          DestroyGraph(g->graphid);
       }
    }
@@ -536,10 +537,15 @@ LRESULT CALLBACK PlotWindowProc( HWND hwnd,
                   /* switch DC */
                   saveDC = wd->hDC;
                   wd->hDC = newDC;
-//                currentgraph = g;
                   
                   /* plot anew */
-                  gr_resize(g);
+                  {
+                      GRAPH *tmp = currentgraph;
+                      currentgraph = g;
+                      gr_resize(g);
+                      currentgraph = tmp;
+                  }
+
                   /* switch DC */
                   wd->hDC = saveDC;
                   /* ready */
@@ -598,13 +604,13 @@ int WIN_NewViewport( GRAPH * graph)
    /* change the background color of all windows (both new and already plotted) 
       by assessing the registered window class */
    if (isblack)
-      SetClassLong(window, GCLP_HBRBACKGROUND, (long)GetStockObject( BLACK_BRUSH));
+      SetClassLongPtr(window, GCLP_HBRBACKGROUND, (LONG_PTR)GetStockObject(BLACK_BRUSH));
    else
-      SetClassLong(window, GCLP_HBRBACKGROUND, (long)GetStockObject( WHITE_BRUSH));	   
+      SetClassLongPtr(window, GCLP_HBRBACKGROUND, (LONG_PTR)GetStockObject(WHITE_BRUSH));
    
    
    wd->wnd = window;
-   SetWindowLong( window, 0, (long)graph);
+   SetWindowLongPtr(window, 0, (LONG_PTR)graph);
 
    /* show window */
    ShowWindow( window, SW_SHOWNORMAL);
@@ -762,10 +768,10 @@ int WIN_Arc(int x0, int y0, int radius, double theta, double delta_theta)
    r = radius;
    dx0 = x0;
    dy0 = y0;
-   xs = (dx0 + (r * cos(theta)));
-   ys = (dy0 + (r * sin(theta)));
-   xe = (dx0 + (r * cos(theta + delta_theta)));
-   ye = (dy0 + (r * sin(theta + delta_theta)));
+   xs = (int)(dx0 + (r * cos(theta)));
+   ys = (int)(dy0 + (r * sin(theta)));
+   xe = (int)(dx0 + (r * cos(theta + delta_theta)));
+   ye = (int)(dy0 + (r * sin(theta + delta_theta)));
 
    /* plot */
    NewPen = CreatePen( LType(wd->ColorIndex), linewidth, ColorTable[wd->ColorIndex] );
@@ -821,7 +827,7 @@ int WIN_Text( char * text, int x, int y)
    if (!cp_getvar("wfont", CP_STRING, lf.lfFaceName)) {
       (void) lstrcpy(lf.lfFaceName, DEF_FONTW);
    }
-   if (!cp_getvar("wfont_size", CP_NUM, (char *) &(lf.lfHeight))) {
+   if (!cp_getvar("wfont_size", CP_NUM, &(lf.lfHeight))) {
       lf.lfHeight  = (int) (1.1 * currentgraph->fontheight) ;
    }
      
@@ -831,7 +837,7 @@ int WIN_Text( char * text, int x, int y)
    SelectObject(wd->hDC, hfont);
 
    SetTextColor( wd->hDC, ColorTable[wd->ColorIndex]);
-   TextOut( wd->hDC, x, wd->Area.bottom - y - currentgraph->fontheight, text, strlen(text));
+   TextOut( wd->hDC, x, wd->Area.bottom - y - currentgraph->fontheight, text, (int)strlen(text));
 
    DeleteObject(SelectObject(wd->hDC, GetStockObject(SYSTEM_FONT)));
 
@@ -842,19 +848,26 @@ int WIN_Text( char * text, int x, int y)
 int WIN_DefineColor(int colorid, double red, double green, double blue)
 {
    /* nothing */
-   return (0);
+    NG_IGNORE(colorid);
+    NG_IGNORE(red);
+    NG_IGNORE(green);
+    NG_IGNORE(blue);
+    return (0);
 }
 
 int WIN_DefineLinestyle(int num, int mask)
 {
    /* nothing */
-   return (0);
+    NG_IGNORE(num);
+    NG_IGNORE(mask);
+    return (0);
 }
 
 int WIN_SetLinestyle(int style)
 {
    /* nothing */
-   return (0);
+    NG_IGNORE(style);
+    return (0);
 }
 
 int WIN_SetColor( int color)

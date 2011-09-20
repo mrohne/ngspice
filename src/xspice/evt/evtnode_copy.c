@@ -38,17 +38,17 @@ NON-STANDARD FEATURES
 
 ============================================================================*/
 
-#include "ngspice.h"
-#include "cktdefs.h"
+#include <ngspice/ngspice.h>
+#include <ngspice/cktdefs.h>
 //#include "util.h"
 
-#include "mif.h"
-#include "evt.h"
-#include "evtudn.h"
+#include <ngspice/mif.h>
+#include <ngspice/evt.h>
+#include <ngspice/evtudn.h>
 
-#include "mifproto.h"
-#include "evtproto.h"
-#include "cm.h"
+#include <ngspice/mifproto.h>
+#include <ngspice/evtproto.h>
+#include <ngspice/cm.h>
 
 /*
 EVTnode_copy
@@ -123,17 +123,17 @@ void EVTnode_copy(
                 
 				for(i = 0; i < num_outputs; i++) 
 				{
-                    (*(g_evt_udn_info[udn_index]->create))
+                    g_evt_udn_info[udn_index]->create
                             ( &(here->output_value[i]) );
                 }
             }
  
 			here->node_value = NULL;
 
-            (*(g_evt_udn_info[udn_index]->create)) ( &(here->node_value) );
+            g_evt_udn_info[udn_index]->create ( &(here->node_value) );
 
             if(invert)
-                (*(g_evt_udn_info[udn_index]->create)) ( &(here->inverted_value) );
+                g_evt_udn_info[udn_index]->create ( &(here->inverted_value) );
 
 			
         }
@@ -146,14 +146,14 @@ void EVTnode_copy(
 	{
         for(i = 0; i < num_outputs; i++) 
 		{
-            (*(g_evt_udn_info[udn_index]->copy)) (from->output_value[i],
+            g_evt_udn_info[udn_index]->copy (from->output_value[i],
                                                   here->output_value[i]);
         }
     }
-    (*(g_evt_udn_info[udn_index]->copy)) (from->node_value, here->node_value);
+    g_evt_udn_info[udn_index]->copy (from->node_value, here->node_value);
     if(invert) 
 	{
-        (*(g_evt_udn_info[udn_index]->copy)) (from->inverted_value,
+        g_evt_udn_info[udn_index]->copy (from->inverted_value,
                                               here->inverted_value);
     }
 }

@@ -1,18 +1,18 @@
 /**********
 Copyright 1990 Regents of the University of California.  All rights reserved.
 Author: 1985 Wayne A. Christopher, U. C. Berkeley CAD Group
-$Id: breakp.c,v 1.12 2011/01/01 14:38:48 h_vogt Exp $
+$Id: breakp.c,v 1.13 2011/08/20 17:27:10 rlar Exp $
 **********/
 
 /*
  * Code to deal with breakpoints and tracing.
  */
 
-#include "ngspice.h"
-#include "cpdefs.h"
-#include "ftedefs.h"
-#include "dvec.h"
-#include "ftedebug.h"
+#include <ngspice/ngspice.h>
+#include <ngspice/cpdefs.h>
+#include <ngspice/ftedefs.h>
+#include <ngspice/dvec.h>
+#include <ngspice/ftedebug.h>
 #include "breakp.h"
 #include "breakp2.h"
 #include "runcoms2.h"

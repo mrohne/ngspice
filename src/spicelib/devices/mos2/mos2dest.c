@@ -5,9 +5,9 @@ Author: 1985 Thomas L. Quarles
 /*
  */
 
-#include "ngspice.h"
+#include <ngspice/ngspice.h>
 #include "mos2defs.h"
-#include "suffix.h"
+#include <ngspice/suffix.h>
 
 
 void
@@ -22,7 +22,7 @@ MOS2destroy(GENmodel **inModel)
     for( ; mod ; mod = mod->MOS2nextModel) {
         if(oldmod) FREE(oldmod);
         oldmod = mod;
-        prev = (MOS2instance *)NULL;
+        prev = NULL;
         for(here = mod->MOS2instances ; here ; here = here->MOS2nextInstance) {
             if(prev){
           if(prev->MOS2sens) FREE(prev->MOS2sens);

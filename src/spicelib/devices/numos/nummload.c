@@ -8,16 +8,16 @@ Author:	1987 Kartikeya Mayaram, U. C. Berkeley CAD Group
  * MOSFETs in the circuit and load them into the matrix as appropriate
  */
 
-#include "ngspice.h"
-#include "devdefs.h"
-#include "cktdefs.h"
+#include <ngspice/ngspice.h>
+#include <ngspice/devdefs.h>
+#include <ngspice/cktdefs.h>
 #include "numosdef.h"
-#include "trandefs.h"
-#include "sperror.h"
+#include <ngspice/trandefs.h>
+#include <ngspice/sperror.h>
 #include "../../../ciderlib/twod/twoddefs.h"
 #include "../../../ciderlib/twod/twodext.h"
-#include "cidersupt.h"
-#include "suffix.h"
+#include <ngspice/cidersupt.h>
+#include <ngspice/suffix.h>
 
 
 
@@ -409,8 +409,8 @@ NUMOSload(GENmodel *inModel, CKTcircuit *ckt)
 	devConverged = pDevice->converged;
 	if (devConverged && finite(pDevice->rhsNorm)) {
 	  /* compute the currents */
-	  NUMOScurrent(pDevice, FALSE, (double *) NULL, &id, &is, &ig);
-	  NUMOSconductance(pDevice, FALSE, (double *) NULL, &g);
+	  NUMOScurrent(pDevice, FALSE, NULL, &id, &is, &ig);
+	  NUMOSconductance(pDevice, FALSE, NULL, &g);
 	  /*
 	   * Add gmin to the gate conductance terms since they will be zero.
 	   * XXX This messes up the gXY output values, but we choose not to

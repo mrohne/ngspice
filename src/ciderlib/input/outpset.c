@@ -2,15 +2,15 @@
 Copyright 1992 Regents of the University of California.  All rights reserved.
 Author: 1992 David A. Gates, U. C. Berkeley CAD Group
 Modified: 2001 Paolo Nenzi
-$Id: outpset.c,v 1.3 2010/11/19 18:51:03 rlar Exp $
+$Id: outpset.c,v 1.4 2011/08/20 17:27:10 rlar Exp $
 **********/
 
-#include "ngspice.h"
-#include "cktdefs.h"
-#include "numenum.h"
-#include "outpdefs.h"
-#include "sperror.h"
-#include "suffix.h"
+#include <ngspice/ngspice.h>
+#include <ngspice/cktdefs.h>
+#include <ngspice/numenum.h>
+#include <ngspice/outpdefs.h>
+#include <ngspice/sperror.h>
+#include <ngspice/suffix.h>
 
 extern int OUTPcheck( OUTPcard * );
 extern int OUTPsetup( OUTPcard * );

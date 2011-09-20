@@ -61,7 +61,7 @@
 
 #define spINSIDE_SPARSE
 #include "spconfig.h"
-#include "spmatrix.h"
+#include <ngspice/spmatrix.h>
 #include "spdefs.h"
 
 
@@ -969,7 +969,7 @@ EnlargeMatrix(MatrixPtr Matrix, int  NewSize)
         return;
 
     /* Expand the matrix frame. */
-    NewSize = MAX( NewSize, EXPANSION_FACTOR * OldAllocatedSize );
+    NewSize = (int)MAX( NewSize, EXPANSION_FACTOR * OldAllocatedSize );
     Matrix->AllocatedSize = NewSize;
 
     if (( SP_REALLOC(Matrix->IntToExtColMap, int, NewSize+1)) == NULL)
@@ -1059,7 +1059,7 @@ ExpandTranslationArrays(MatrixPtr Matrix, int  NewSize)
         return;
 
     /* Expand the translation arrays ExtToIntRowMap and ExtToIntColMap. */
-    NewSize = MAX( NewSize, EXPANSION_FACTOR * OldAllocatedSize );
+    NewSize = (int)MAX( NewSize, EXPANSION_FACTOR * OldAllocatedSize );
     Matrix->AllocatedExtSize = NewSize;
 
     if (( SP_REALLOC(Matrix->ExtToIntRowMap, int, NewSize+1)) == NULL)
@@ -1183,7 +1183,7 @@ spInitialize(MatrixPtr eMatrix, int (*pInit)(RealNumber*, void *InitInfo, int , 
             }
             else
             {
-		Error = (*pInit)((RealNumber *)pElement, pElement->pInitInfo,
+		Error = pInit ((RealNumber *)pElement, pElement->pInitInfo,
                                  Matrix->IntToExtRowMap[pElement->Row], Col);
                 if (Error)
                 {

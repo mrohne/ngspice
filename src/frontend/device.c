@@ -8,23 +8,212 @@ Modified: 2000 AlansFixes
  * Routines to query and alter devices.
  */
 
-#include "ngspice.h"
-#include "gendefs.h"
-#include "cktdefs.h"
-#include "cpdefs.h"
-#include "ftedefs.h"
-#include "dgen.h"
+#include <ngspice/ngspice.h>
+#include <ngspice/gendefs.h>
+#include <ngspice/cktdefs.h>
+#include <ngspice/cpdefs.h>
+#include <ngspice/ftedefs.h>
+#include <ngspice/dgen.h>
 
 #include "circuits.h"
 #include "device.h"
 #include "variable.h"
 #include "com_commands.h"
+#include "../misc/util.h" /* ngdirname() */
 
 #include "gens.h" /* wl_forall */
 
 static wordlist *devexpand(char *name);
 static void all_show(wordlist *wl, int mode);
 static void all_show_old(wordlist *wl, int mode);
+static void com_alter_mod(wordlist *wl);
+
+/*
+ *      devhelp: lists available devices and information on parameters
+ *              devhelp                 : shows all available devices
+ *              devhelp devname         : shows all parameters of that model/instance
+ *              devhelp devname parname : shows parameter meaning
+ *              Options: -csv (comma separated value for generating docs)
+ *
+ */
+
+void com_devhelp(wordlist *wl)
+{
+    /* Just a simple driver now */
+    devhelp(wl);
+}
+
+void devhelp(wordlist *wl)
+{
+    int i, k = 0;
+    int devindex = -1, devInstParNo = 0 , devModParNo = 0;
+    bool found = FALSE;
+    bool csv = FALSE;
+    wordlist *wlist;
+    IFparm *plist;
+
+    /*First copy the base pointer */
+    wlist = wl;
+
+    /* If there are no arguments output the list of available devices */
+    if (!wlist) {
+        out_init();
+        out_printf("\nDevices available in the simulator\n\n");
+        for (k = 0; k < ft_sim->numDevices; k++) {
+            if (ft_sim->devices[k])
+                out_printf("%-*s:\t%s\n",
+                           DEV_WIDTH, ft_sim->devices[k]->name,
+                           ft_sim->devices[k]->description);
+        }
+        out_send("\n");
+        return;
+    }
+
+    /* The first argument must be the csv option or a device name */
+    if (wlist && wlist->wl_word && eq(wlist->wl_word, "-csv")) {
+        csv = TRUE;
+        if (wlist->wl_next)
+            wlist = wlist->wl_next;
+        else
+            return;
+    }
+
+    /* This argument, if exists, must be the device name */
+    if (wlist && wlist->wl_word) {
+        while (k < ft_sim->numDevices && !found) {
+            if (ft_sim->devices[k])
+                if (strcasecmp(ft_sim->devices[k]->name, wlist->wl_word) == 0) {
+                    devindex = k;
+                    if (ft_sim->devices[devindex]->numInstanceParms)
+                        devInstParNo = *(ft_sim->devices[devindex]->numInstanceParms);
+                    else
+                        devInstParNo = 0;
+
+                    if (ft_sim->devices[devindex]->numModelParms)
+                        devModParNo = *(ft_sim->devices[devindex]->numModelParms);
+                    else
+                        devModParNo = 0;
+
+                    wlist = wlist->wl_next;
+                    found = TRUE;
+                }
+            k++;
+        }
+
+        if (!found) {
+            fprintf(cp_out, "Error: Device %s not found\n", wlist->wl_word);
+            return;
+        }
+    }
+
+/* At this point, found is TRUE and we have found the device.
+ * Now we have to scan the model and instance parameters to print
+ * the string
+ */
+    found = FALSE;
+    if (wlist && wlist->wl_word) {
+        plist = ft_sim->devices[devindex]->modelParms;
+        for (i = 0; i < devModParNo; i++) { /* Scan model parameters first */
+            if (strcasecmp(plist[i].keyword, wlist->wl_word) == 0) {
+                found = TRUE;
+                out_init();
+                out_printf("Model Parameters\n");
+                if (csv)
+                    out_printf("id#, Name, Dir, Description\n");
+                    else
+                        out_printf("%5s\t %-10s\t Dir\t Description\n", "id#", "Name");
+                printdesc(plist[i], csv);
+                out_send("\n");
+            }
+        }
+
+        if (!found) {
+            plist = ft_sim->devices[devindex]->instanceParms;
+            for (i = 0; i < devInstParNo; i++) { /* Scan instance parameters then */
+                if (strcasecmp(plist[i].keyword, wlist->wl_word) == 0) {
+                    found = TRUE;
+                    out_init();
+                    out_printf("Instance Parameters\n");
+                    if (csv)
+                        out_printf("id#, Name, Dir, Description\n");
+                        else
+                           out_printf("%5s\t %-10s\t Dir\t Description\n", "id#", "Name");
+                    printdesc(plist[i], csv);
+                    out_send("\n");
+                }
+            }
+        }
+
+        if (!found)
+            fprintf(cp_out, "Error: Parameter %s not found\n", wlist->wl_word);
+        return;
+
+    }
+
+/* No arguments - we want all the parameters*/
+    out_init();
+    out_printf("%s - %s\n\n", ft_sim->devices[devindex]->name, ft_sim->devices[devindex]->description);
+    out_printf("Model Parameters\n");
+    if (csv)
+        out_printf("id#, Name, Dir, Description\n");
+    else
+        out_printf("%5s\t %-10s\t Dir\t Description\n", "id#", "Name");
+
+    plist = ft_sim->devices[devindex]->modelParms;
+    for (i = 0; i < devModParNo; i++)
+        printdesc(plist[i], csv);
+    out_printf("\n");
+    out_printf("Instance Parameters\n");
+    if (csv)
+        out_printf("id#, Name, Dir, Description\n");
+    else
+        out_printf("%5s\t %-10s\t Dir\t Description\n", "id#", "Name");
+
+    plist = ft_sim->devices[devindex]->instanceParms;
+    for (i = 0; i < devInstParNo; i++)
+        printdesc(plist[i], csv);
+
+    out_send("\n");
+}
+
+
+
+/*
+ * Pretty print parameter descriptions
+ * This function prints description of device parameters
+ */
+void printdesc(IFparm p, bool csv)
+{
+    char sep;
+    int spacer1, spacer2;
+
+    /* First we indentify the separator */
+    if (csv) {
+        sep = ',';
+        spacer1 = 0;
+        spacer2 = 0;
+    } else {
+        sep = '\t';
+        spacer1 = 5;
+        spacer2 = 10;
+    }
+
+    out_printf("%*d%c %-*s%c ", spacer1, p.id, sep, spacer2, p.keyword, sep);
+
+    if (p.dataType & IF_SET)
+        if (p.dataType & IF_ASK)
+            out_printf("inout%c ", sep);
+        else
+            out_printf("in%c ", sep);
+    else
+        out_printf("out%c ", sep);
+
+    if (p.description)
+        out_printf("%s\n", p.description);
+    else
+        out_printf("n.a.\n");
+}
+
 
 /*
  *      show: list device operating point info
@@ -79,7 +268,7 @@ all_show(wordlist *wl, int mode)
         return;
     }
 
-    if (!cp_getvar("width", CP_NUM, (char *) &screen_width))
+    if (!cp_getvar("width", CP_NUM, &screen_width))
             screen_width = DEF_WIDTH;
     count = (screen_width - LEFT_WIDTH) / (DEV_WIDTH + 1);
     count = 1;
@@ -243,7 +432,7 @@ all_show_old(wordlist *wl, int mode)
         return;
     }
 
-    if (!cp_getvar("width", CP_NUM, (char *) &screen_width))
+    if (!cp_getvar("width", CP_NUM, &screen_width))
             screen_width = DEF_WIDTH;
     count = (screen_width - LEFT_WIDTH) / (DEV_WIDTH + 1);
 
@@ -598,10 +787,10 @@ printvals(dgen *dg, IFparm *p, int i)
     int         n;
 
     if (dg->flags & DGEN_INSTANCE)
-        (*ft_sim->askInstanceQuest)(ft_curckt->ci_ckt, dg->instance,
+        ft_sim->askInstanceQuest (ft_curckt->ci_ckt, dg->instance,
             p->id, &val, &val);
     else
-        (*ft_sim->askModelQuest)(ft_curckt->ci_ckt, dg->model,
+        ft_sim->askModelQuest (ft_curckt->ci_ckt, dg->model,
             p->id, &val, &val);
 
     if (p->dataType & IF_VECTOR)
@@ -685,10 +874,10 @@ printvals_old(dgen *dg, IFparm *p, int i)
     int         n, error;
 
     if (dg->flags & DGEN_INSTANCE)
-        error = (*ft_sim->askInstanceQuest)(ft_curckt->ci_ckt, dg->instance,
+        error = ft_sim->askInstanceQuest (ft_curckt->ci_ckt, dg->instance,
             p->id, &val, &val);
     else
-        error = (*ft_sim->askModelQuest)(ft_curckt->ci_ckt, dg->model,
+        error = ft_sim->askModelQuest (ft_curckt->ci_ckt, dg->model,
             p->id, &val, &val);
 
     if (p->dataType & IF_VECTOR)
@@ -822,10 +1011,10 @@ old_show(wordlist *wl)
         if (parms) {
             for (tw = parms; tw; tw = tw->wl_next) {
                 nn = copy(devs->wl_word);
-                v = (*if_getparam)(ft_curckt->ci_ckt,
+                v = if_getparam (ft_curckt->ci_ckt,
                         &nn, tw->wl_word, 0, 0);
                 if (!v)
-                    v = (*if_getparam)(ft_curckt->ci_ckt,
+                    v = if_getparam (ft_curckt->ci_ckt,
                             &nn, tw->wl_word, 0, 1);
                 if (v) {
                     out_printf("\t%s =", tw->wl_word);
@@ -837,9 +1026,9 @@ old_show(wordlist *wl)
             }
         } else {
             nn = copy(devs->wl_word);
-            v = (*if_getparam)(ft_curckt->ci_ckt, &nn, "all", 0, 0);
+            v = if_getparam (ft_curckt->ci_ckt, &nn, "all", 0, 0);
             if (!v)
-                v = (*if_getparam)(ft_curckt->ci_ckt, &nn, "all", 0, 1);
+                v = if_getparam (ft_curckt->ci_ckt, &nn, "all", 0, 1);
             while (v) {
                 out_printf("\t%s =", v->va_name);
                 for (ww = cp_varwl(v); ww; ww = ww->wl_next)
@@ -878,7 +1067,19 @@ com_alter(wordlist *wl)
 void
 com_altermod(wordlist *wl)
 {
-    com_alter_common(wl, 1);
+    wordlist *fileword;
+    bool newfile = FALSE;
+    fileword = wl;
+    while (fileword){
+        if (ciprefix("file",fileword->wl_word)) {
+            newfile = TRUE;
+        }
+        fileword = fileword->wl_next;
+    }
+    if (newfile)
+        com_alter_mod(wl);
+    else
+        com_alter_common(wl, 1);
 }
 
 static void
@@ -910,7 +1111,7 @@ com_alter_common(wordlist *wl, int do_model)
     3) 'expression' string.
 
     Spaces around the '=' sign have to be removed. This is provided 
-    by inp_remove_excess_ws().
+    by inp_remove_excess_ws(). But take care if command is entered manually!
     
     If the 'altermod' argument is 'altermod m1 vth0=0.7', 'm1' has to be kept as the 
     element in wl2 before splitting inserts the three new elements. 
@@ -925,10 +1126,20 @@ com_alter_common(wordlist *wl, int do_model)
             while(argument[i]!='=' && argument[i]!='\0'){
                     i++;
             }
-            /* ...and if found split argument into three chars and make a new wordlist */
+            /* argument may be '=', then do nothing
+               or =token
+               or token=
+               or token1=token2
+               ...and if found split argument into three chars and make a new wordlist */
             if(argument[i]!='\0'){
-                    /* We found '=' */
-                    eqfound = TRUE;
+                /* We found '=' */
+                eqfound = TRUE;
+                if (strlen(argument) == 1) {
+                    wl = wl->wl_next;
+                    step = -1;
+                    wl2 = wlin;
+                }
+                else if (strlen(argument) > 1) {
                     arglist = TMALLOC(char*, 4);
                     arglist[3] = NULL;
                     arglist[0] = TMALLOC(char, i + 1);
@@ -949,6 +1160,7 @@ com_alter_common(wordlist *wl, int do_model)
                     /* free arglist */
                     for (n=0; n < 3; n++) tfree(arglist[n]);
                     tfree(arglist);
+                }
             } else {
                     /* deal with 'altermod m1 vth0=0.7' by moving
                     forward beyond 'm1' */
@@ -959,7 +1171,8 @@ com_alter_common(wordlist *wl, int do_model)
 
     if(eqfound) {
         /* step back in the wordlist, if we have moved forward, to catch 'm1' */
-        for(n=step;n>0;n--) wl2 = wl2->wl_prev;
+        for(n=step;n>0;n--) 
+            wl2 = wl2->wl_prev;
     } else {
         /* no equal sign found, probably a pre3f4 input format 
            'alter device value'
@@ -1005,7 +1218,7 @@ com_alter_common(wordlist *wl, int do_model)
         wlin->wl_next = wleq;
         /* step back until 'alter' or 'altermod' is found, 
         then move one step forward */
-        while (!ciprefix(wlin->wl_word,"alter"))
+        while (!ciprefix("alter",wlin->wl_word)) //while (!ciprefix(wlin->wl_word,"alter"))
             wlin = wlin->wl_prev;
         wlin = wlin->wl_next;
         wl2 = wlin;
@@ -1038,7 +1251,7 @@ com_alter_common(wordlist *wl, int do_model)
     while (words != eqword) {
         p = words->wl_word;
         if (param) {
-            fprintf(cp_err, "Error: excess parameter name \"%s\" ignored.\n",
+            fprintf(cp_err, "Warning: excess parameter name \"%s\" ignored.\n",
                 p);
         } else if (dev) {
             param = words->wl_word;
@@ -1065,8 +1278,9 @@ com_alter_common(wordlist *wl, int do_model)
 
     words = eqword->wl_next;
     /* skip next line if words is a vector */
-    if(!eq(words->wl_word, "["))
+    if(!eq(words->wl_word, "[")) {
         names = ft_getpnames(words, FALSE);
+    }
     else names = NULL;
     if (!names) {
        /* Put this to try to resolve the case of 
@@ -1160,3 +1374,87 @@ devexpand(char *name)
     wl_sort(wl);
     return (wl);
 }
+
+/* altermod nch file=modelparam.mod
+   load model file and overwrite model nch with
+   all new parameters */
+static void com_alter_mod(wordlist *wl)
+{
+    FILE *modfile;
+    wordlist *nword, *newcommand;
+    char *filename=NULL, *modelname, *eqword, *input, *modelline=NULL, *inptoken, *newtype;
+    struct line *modeldeck, *tmpdeck;
+    char *readmode = "r";
+    modelname = copy(wl->wl_word);
+    nword = wl->wl_next;
+    input = wl_flatten(nword);
+    eqword = strstr(input, "=");
+    if (eqword) {
+        eqword++;
+        while(*eqword == ' ')
+            eqword++;
+        if(eqword=='\0')
+            fprintf(cp_err, "Error: no filename given\n");
+        filename = copy(eqword);
+    }
+    else {
+        eqword = strstr(input, "file");
+        eqword += 4;
+        while(*eqword == ' ')
+            eqword++;
+        if(eqword=='\0')
+            fprintf(cp_err, "Error: no filename given\n");
+        filename = copy(eqword);
+    }
+    modfile = inp_pathopen(filename, readmode);
+    inp_readall(modfile, &modeldeck, 0, ngdirname(filename), 0);
+    tfree(input);
+    tfree(filename);
+    /* get the first line starting with *model */
+    for (tmpdeck = modeldeck; tmpdeck; tmpdeck = tmpdeck->li_next)
+        if (ciprefix("*model", tmpdeck->li_line)) {
+            modelline = tmpdeck->li_line;
+            break;
+        }
+    if (modelline) {
+        char **arglist;
+        char *newmodelname;
+        arglist = TMALLOC(char*, 4);
+        inptoken = gettok(&modelline); /* *model */
+        tfree(inptoken);
+        newmodelname = gettok(&modelline); /* modelname */
+        newtype = gettok(&modelline); /* model type */
+        /* test if level and type are o.k. */
+        /* FIXME: don't know how to do that! */
+        /* call each token and do altermod */
+        arglist[0] = copy("altermod");
+        arglist[1] = modelname;
+        arglist[3] = NULL;
+        while ((inptoken = gettok(&modelline)) != NULL) {
+            /* exclude level and version */
+            if (ciprefix("version", inptoken) || ciprefix("level", inptoken)) {
+                tfree(inptoken);
+                continue;
+            }
+            arglist[2] = inptoken;
+            /* create a new wordlist from array arglist */
+            newcommand = wl_build(arglist);
+            com_alter_common(newcommand->wl_next, 1);
+            wl_free(newcommand);
+            tfree(inptoken);
+        }
+        tfree(newmodelname);
+        tfree(newtype);
+    }
+}
+
+        /* Figure out if right hand side is a model 
+        if (names && (do_model == 1)) {
+            INPmodel    *inpmod  = NULL;
+            if_setparam_model(ft_curckt->ci_ckt, &dev, words->wl_word);
+            INPgetMod( ft_curckt->ci_ckt, words->wl_word, &inpmod, ft_curckt->ci_symtab );
+            if ( inpmod == NULL ) {
+                fprintf(cp_err, "Error: no such model %s.\n", words->wl_word);
+                return;
+            }
+        }*/

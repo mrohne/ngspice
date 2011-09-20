@@ -5,22 +5,24 @@ Author: 1992 Charles Hough
 **********/
 
 
-#include "ngspice.h"
-#include "const.h"
-#include "ifsim.h"
+#include <ngspice/ngspice.h>
+#include <ngspice/const.h>
+#include <ngspice/ifsim.h>
 #include "cpldefs.h"
-#include "sperror.h"
-#include "suffix.h"
+#include <ngspice/sperror.h>
+#include <ngspice/suffix.h>
 
 
 static void copy_coeffs(double **dst, IFvalue *value)
 {
+    int n = value->v.numValue;
+
     if(*dst)
         tfree(*dst);
 
-    *dst = TMALLOC(double, value->v.numValue);
+    *dst = TMALLOC(double, n);
 
-    memcpy(*dst, value->v.vec.rVec, value->v.numValue * sizeof(double));
+    memcpy(*dst, value->v.vec.rVec, (size_t) n * sizeof(double));
 }
 
 

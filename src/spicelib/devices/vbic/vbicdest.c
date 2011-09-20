@@ -10,9 +10,9 @@ Spice3 Implementation: 2003 Dietmar Warning DAnalyse GmbH
  * all storage they were using.
  */
 
-#include "ngspice.h"
+#include <ngspice/ngspice.h>
 #include "vbicdefs.h"
-#include "suffix.h"
+#include <ngspice/suffix.h>
 
 
 void
@@ -28,7 +28,7 @@ VBICdestroy(GENmodel **inModel)
     for( ; mod ; mod = mod->VBICnextModel) {
         if(oldmod) FREE(oldmod);
         oldmod = mod;
-        prev = (VBICinstance *)NULL;
+        prev = NULL;
         for(here = mod->VBICinstances ; here ; here = here->VBICnextInstance) {
             if(prev){
                 if(prev->VBICsens) FREE(prev->VBICsens);

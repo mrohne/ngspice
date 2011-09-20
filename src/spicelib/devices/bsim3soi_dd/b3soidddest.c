@@ -10,9 +10,9 @@ Modified by Paolo Nenzi 2002
  * BSIMDD2.1 release
  */
 
-#include "ngspice.h"
+#include <ngspice/ngspice.h>
 #include "b3soidddef.h"
-#include "suffix.h"
+#include <ngspice/suffix.h>
 
 void
 B3SOIDDdestroy(GENmodel **inModel)
@@ -26,7 +26,7 @@ B3SOIDDmodel *oldmod = NULL;
     for (; mod ; mod = mod->B3SOIDDnextModel)
     {    if(oldmod) FREE(oldmod);
          oldmod = mod;
-         prev = (B3SOIDDinstance *)NULL;
+         prev = NULL;
          for (here = mod->B3SOIDDinstances; here; here = here->B3SOIDDnextInstance)
 	 {    if(prev) FREE(prev);
               prev = here;

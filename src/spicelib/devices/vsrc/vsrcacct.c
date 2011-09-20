@@ -3,19 +3,20 @@ Copyright 1990 Regents of the University of California.  All rights reserved.
 Author: 1985 Thomas L. Quarles
 **********/
 
-#include "ngspice.h"
-#include "cktdefs.h"
+#include <ngspice/ngspice.h>
+#include <ngspice/cktdefs.h>
 #include "vsrcdefs.h"
-#include "trandefs.h"
-#include "sperror.h"
-#include "suffix.h"
-#include "missing_math.h"
-#include "1-f-code.h"
+#include <ngspice/trandefs.h>
+#include <ngspice/sperror.h>
+#include <ngspice/suffix.h>
+#include <ngspice/missing_math.h>
+#include <ngspice/1-f-code.h>
 
 extern int fftInit(long M);
 extern void fftFree(void);
 extern void rffts(float *data, long M, long Rows);
-extern double exprand(double);
+
+extern bool ft_ngdebug; /* some additional debug info printed */
 
 #define SAMETIME(a,b)    (fabs((a)-(b))<= TIMETOL * PW)
 #define TIMETOL    1e-7
@@ -198,7 +199,8 @@ VSRCaccept(CKTcircuit *ckt, GENmodel *inModel)
 
                         /* FIXME, dont' want this here, over to aof_get or somesuch */
                         if (ckt->CKTtime == 0.0) {
-                            printf("VSRC: free fft tables\n");
+                            if(ft_ngdebug)
+                                printf("VSRC: free fft tables\n");
                             fftFree();
                         }
 

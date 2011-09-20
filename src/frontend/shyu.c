@@ -10,29 +10,25 @@ Copyright 1990 Regents of the University of California.  All rights reserved.
  * e.g. "tran 1 10 20 uic"
  */
 
-#include "ngspice.h"
-#include "cpdefs.h"
-#include "ftedefs.h"
-#include "fteinp.h"
-#include "sim.h"
-#include "devdefs.h"
-#include "inpdefs.h"
-#include "iferrmsg.h"
-#include "ifsim.h"
+#include <ngspice/ngspice.h>
+#include <ngspice/cpdefs.h>
+#include <ngspice/ftedefs.h>
+#include <ngspice/fteinp.h>
+#include <ngspice/sim.h>
+#include <ngspice/devdefs.h>
+#include <ngspice/inpdefs.h>
+#include <ngspice/iferrmsg.h>
+#include <ngspice/ifsim.h>
 
 #include "circuits.h"
 #include "shyu.h"
 
 
 int
-if_sens_run(CKTcircuit *t, wordlist *args, INPtables *tab)
+if_sens_run(CKTcircuit *ckt, wordlist *args, INPtables *tab)
 {
-    CKTcircuit *ckt = /* fixme, drop that */ t;
     JOB *senseJob;
-    JOB *acJob;
     JOB *opJob;
-    JOB *dcJob;
-    JOB *tranJob;
     card *current;
     IFvalue ptemp;
     IFvalue *parm;
@@ -42,7 +38,7 @@ if_sens_run(CKTcircuit *t, wordlist *args, INPtables *tab)
     char *steptype;
     char *name;
     char *line;
-    struct line deck;
+    card deck;
     int i;
     int j;
     int error;
@@ -51,24 +47,27 @@ if_sens_run(CKTcircuit *t, wordlist *args, INPtables *tab)
     int which = -1;
 
     (void) sprintf(buf, ".%s", wl_flatten(args));
-    deck.li_next = deck.li_actual = NULL;
-    deck.li_error = NULL;
-    deck.li_linenum = 0;
-    deck.li_line = buf;
+
+    deck.nextcard      = NULL;
+    deck.actualLine    = NULL;
+    deck.error         = NULL;
+    deck.linenum       = 0;
+    deck.linenum_orig  = 0;
+    deck.line          = buf;
 
     current = (card *) &deck;
     line = current->line;
     INPgetTok(&line,&token,1);
 
     if(ft_curckt->ci_specTask) {
-        err=(*(ft_sim->deleteTask))(ft_curckt->ci_ckt,
+        err = ft_sim->deleteTask (ft_curckt->ci_ckt,
         ft_curckt->ci_specTask);
         if(err) {
             ft_sperror(err,"deleteTask");
             return(0); /* temporary */
         }
     }
-    err = (*(ft_sim->newTask))(ft_curckt->ci_ckt,
+    err = ft_sim->newTask (ft_curckt->ci_ckt,
 	    &(ft_curckt->ci_specTask), "special",
 	    &(ft_curckt->ci_defTask));
     if(err) {
@@ -81,19 +80,18 @@ if_sens_run(CKTcircuit *t, wordlist *args, INPtables *tab)
             break;
         }
     } 
-    if(which != -1) {
-        err = (*(ft_sim->newAnalysis))(ft_curckt->ci_ckt,which,"options",
-		&(ft_curckt->ci_specOpt), ft_curckt->ci_specTask);
-        if(err) {
-            ft_sperror(err,"createOptions");
-            return(0);/* temporary */
-        }
-        ft_curckt->ci_curOpt  = ft_curckt->ci_specOpt;
-    } 
-    else {
+    if(which == -1) {
       /* in DEEP trouble */
-        ;
+        ft_sperror(err,"in DEEP trouble");
+        return(0);/* temporary */
     }
+    err = ft_sim->newAnalysis (ft_curckt->ci_ckt, which, "options",
+                               &(ft_curckt->ci_specOpt), ft_curckt->ci_specTask);
+    if(err) {
+        ft_sperror(err,"createOptions");
+        return(0);/* temporary */
+    }
+    ft_curckt->ci_curOpt  = ft_curckt->ci_specOpt;
     ft_curckt->ci_curTask = ft_curckt->ci_specTask;
     which = -1;
     for(j=0;j<ft_sim->numAnalyses;j++) {
@@ -102,22 +100,21 @@ if_sens_run(CKTcircuit *t, wordlist *args, INPtables *tab)
             break;
         }
     } 
-    if(which != -1) {
-        err = (*(ft_sim->newAnalysis))(ft_curckt->ci_ckt,which,"sense",
-        &(senseJob),ft_curckt->ci_specTask);
-        if(err) {
-            ft_sperror(err,"createSense");
-            return(0);/* temporary */
-        }
-    } 
-    else{ 
+    if(which == -1) {
         current->error = INPerrCat(current->error,INPmkTemp(
         "sensetivity analysis unsupported\n"));
         return(0);
     }
+    err = ft_sim->newAnalysis (ft_curckt->ci_ckt, which, "sense",
+                               & senseJob, ft_curckt->ci_specTask);
+    if(err) {
+        ft_sperror(err,"createSense");
+        return(0);/* temporary */
+    }
     save = which;
     INPgetTok(&line,&token,1);
     if(strcmp(token ,"ac")==0){
+        JOB *acJob;
         which = -1;
         for(j=0;j<ft_sim->numAnalyses;j++) {
             if(strcmp(ft_sim->analyses[j]->name,"AC")==0) {
@@ -125,17 +122,16 @@ if_sens_run(CKTcircuit *t, wordlist *args, INPtables *tab)
                 break;
             }
         } 
-        if(which != -1) {
-            err = (*(ft_sim->newAnalysis))(ft_curckt->ci_ckt,which,"acan",
-            &(acJob),ft_curckt->ci_specTask);
-            if(err) {
-                ft_sperror(err,"createAC"); /* or similar error message */
-                return(0);
-            }
-        } 
-        else{ 
+        if(which == -1) {
             current->error = INPerrCat(current->error,INPmkTemp(
             "ac analysis unsupported\n"));
+            return(0);/* temporary */
+        }
+        err = ft_sim->newAnalysis (ft_curckt->ci_ckt, which, "acan",
+                                   & acJob, ft_curckt->ci_specTask);
+        if(err) {
+            ft_sperror(err,"createAC"); /* or similar error message */
+            return(0);/* temporary */
         }
 
         INPgetTok(&line,&steptype,1); /* get DEC, OCT, or LIN */
@@ -168,17 +164,17 @@ if_sens_run(CKTcircuit *t, wordlist *args, INPtables *tab)
         if(which == -1) {
             current->error = INPerrCat(current->error,INPmkTemp(
             "DC operating point analysis unsupported\n"));
+            return(0);/* temporary */
         }
-        else {
-            err = (*(ft_sim->newAnalysis))(ft_curckt->ci_ckt,which,"dcop", 
-                    &(opJob),ft_curckt->ci_specTask);
-            if(err) {
-                ft_sperror(err,"createOP"); /* or similar error message */
-                return(0);
-            }
+        err = ft_sim->newAnalysis (ft_curckt->ci_ckt, which, "dcop",
+                                   & opJob, ft_curckt->ci_specTask);
+        if(err) {
+            ft_sperror(err,"createOP"); /* or similar error message */
+            return(0);
         }
     }
     if(strcmp(token ,"dc")==0){
+        JOB *dcJob;
         /* .dc SRC1NAME Vstart1 Vstop1 Vinc1 [SRC2NAME Vstart2 */
         /*        Vstop2 Vinc2 */
         which = -1;
@@ -191,8 +187,9 @@ if_sens_run(CKTcircuit *t, wordlist *args, INPtables *tab)
         if(which==-1) {
             current->error = INPerrCat(current->error,INPmkTemp(
             "DC transfer curve analysis unsupported\n"));
+            return(0);/* temporary */
         }
-        err = (*(ft_sim->newAnalysis))(ft_curckt->ci_ckt,which,"DCtransfer", 
+        err = ft_sim->newAnalysis (ft_curckt->ci_ckt, which, "DCtransfer",
                 &(dcJob),ft_curckt->ci_specTask);
         if(err) {
             ft_sperror(err,"createOP"); /* or similar error message */
@@ -231,6 +228,7 @@ if_sens_run(CKTcircuit *t, wordlist *args, INPtables *tab)
         }
     }
     if(strcmp(token ,"tran")==0){
+        JOB *tranJob;
         which = -1;
         for(j=0;j<ft_sim->numAnalyses;j++) {
             if(strcmp(ft_sim->analyses[j]->name,"TRAN")==0) {
@@ -238,17 +236,16 @@ if_sens_run(CKTcircuit *t, wordlist *args, INPtables *tab)
                 break;
             }
         } 
-        if(which != -1) {
-            err = (*(ft_sim->newAnalysis))(ft_curckt->ci_ckt,which,"tranan",
-            &(tranJob),ft_curckt->ci_specTask);
-            if(err) {
-                ft_sperror(err,"createTRAN"); 
-                return(0);
-            }
-        } 
-        else{ 
+        if(which == -1) {
             current->error = INPerrCat(current->error,INPmkTemp(
             "transient analysis unsupported\n"));
+            return(0);/* temporary */
+        }
+        err = ft_sim->newAnalysis (ft_curckt->ci_ckt, which, "tranan",
+                                   & tranJob, ft_curckt->ci_specTask);
+        if(err) {
+            ft_sperror(err,"createTRAN"); 
+            return(0);
         }
 
         parm=INPgetValue(ckt,&line,IF_REAL,tab);/* Tstep */
@@ -286,6 +283,51 @@ uic:
         }
     }
 
+    /* *********************** */
+    /* PSS - Spertica - 100910 */
+    /* *********************** */
+    if(strcmp(token ,"pss")==0){
+        JOB *pssJob;
+        which = -1;
+        for(j=0;j<ft_sim->numAnalyses;j++) {
+            if(strcmp(ft_sim->analyses[j]->name,"PSS")==0) {
+                which = j;
+                break;
+            }
+        } 
+        if(which == -1) {
+            current->error = INPerrCat(current->error,INPmkTemp(
+            "periodic steady state analysis unsupported\n"));
+            return(0);/* temporary */
+        }
+        err = ft_sim->newAnalysis (ft_curckt->ci_ckt,which, "pssan",
+                                   & pssJob, ft_curckt->ci_specTask);
+        if(err) {
+            ft_sperror(err,"createPSS");
+            return(0);
+        }
+
+        parm=INPgetValue(ckt,&line,IF_REAL,tab);/* Guessed Frequency */
+        error = INPapName(ckt,which,pssJob,"fguess",parm);
+        if(error) current->error = INPerrCat(current->error,
+        INPerror(error));
+	
+	parm = INPgetValue(ckt,&line,IF_REAL,tab); /* Stabilization time */
+        error = INPapName(ckt,which,pssJob,"stabtime",parm);
+        if(error) current->error = INPerrCat(current->error,
+	INPerror(error));
+	
+	parm = INPgetValue(ckt,&line,IF_INTEGER,tab); /* PSS points */
+        error = INPapName(ckt,which,pssJob,"points",parm);
+        if(error) current->error = INPerrCat(current->error,
+	INPerror(error));
+	
+	parm = INPgetValue(ckt,&line,IF_INTEGER,tab); /* PSS points */
+        error = INPapName(ckt,which,pssJob,"harmonics",parm);
+        if(error) current->error = INPerrCat(current->error,
+	INPerror(error));	
+    }
+
 next:          
     while(*line) { /* read the entire line */
         if(flag){
@@ -304,9 +346,9 @@ next:
                     dataType & IF_FLAG) {
                     /* one of the keywords! */
                     ptemp.iValue = 1;
-                    error = (*(ft_sim->setAnalysisParm))(ckt,
+                    error = ft_sim->setAnalysisParm (ckt,
                         senseJob, ft_sim->analyses[save]->
-                        analysisParms[i].id,&ptemp,(IFvalue*)NULL);
+                        analysisParms[i].id, &ptemp, NULL);
                     if(error) current->error = INPerrCat(
                     current->error, INPerror(error));
                 } 
@@ -314,9 +356,9 @@ next:
                     parm = INPgetValue(ckt,&line,ft_sim->
                         analyses[save]->analysisParms[i].
                         dataType,tab);
-                    error = (*(ft_sim->setAnalysisParm))(ckt,
+                    error = ft_sim->setAnalysisParm (ckt,
                         senseJob, ft_sim->analyses[save]->
-                        analysisParms[i].id,parm,(IFvalue*)NULL);
+                        analysisParms[i].id, parm, NULL);
                     if(error) current->error = INPerrCat(
                     current->error, INPerror(error));
 
@@ -333,7 +375,7 @@ next:
 
 
 
-    if((err = (*(ft_sim->doAnalyses))(ckt, 1, ft_curckt->ci_curTask))!=OK){
+    if((err = ft_sim->doAnalyses (ckt, 1, ft_curckt->ci_curTask)) != OK) {
         ft_sperror(err, "doAnalyses");
         return(0);/* temporary */
     }

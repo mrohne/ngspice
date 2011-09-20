@@ -2,13 +2,13 @@
 Copyright 1990 Regents of the University of California.  All rights reserved.
 **********/
 
-#include "ngspice.h"
-#include "complex.h"
-#include "cktdefs.h"
-#include "smpdefs.h"
-#include "pzdefs.h"
-#include "trandefs.h"   /* only to get the 'mode' definitions */
-#include "sperror.h"
+#include <ngspice/ngspice.h>
+#include <ngspice/complex.h>
+#include <ngspice/cktdefs.h>
+#include <ngspice/smpdefs.h>
+#include <ngspice/pzdefs.h>
+#include <ngspice/trandefs.h>   /* only to get the 'mode' definitions */
+#include <ngspice/sperror.h>
 
 
 #define DEBUG	if (0)
@@ -45,12 +45,12 @@ PZan(CKTcircuit *ckt, int reset)
 	/* Dump operating point. */
 	error = CKTnames(ckt,&numNames,&nameList);
 	if(error) return(error);
-	error = (*(SPfrontEnd->OUTpBeginPlot))(ckt,
+	error = SPfrontEnd->OUTpBeginPlot (ckt,
 	    ckt->CKTcurJob, "Distortion Operating Point",
-	    (IFuid)NULL,IF_REAL,numNames,nameList, IF_REAL,&plot);
+	    NULL, IF_REAL, numNames, nameList, IF_REAL, &plot);
 	if(error) return(error);
-	CKTdump(ckt,(double)0,plot);
-	(*(SPfrontEnd->OUTendPlot))(plot);
+	CKTdump(ckt, 0.0, plot);
+	SPfrontEnd->OUTendPlot (plot);
     }
 
     if (pzan->PZwhich & PZ_DO_POLES) {
@@ -93,8 +93,8 @@ PZinit(CKTcircuit *ckt)
     if (i != -1 && ckt->CKThead[i] != NULL)
 	MERROR(E_XMISSIONLINE, "Transmission lines not supported")
 
-    pzan->PZpoleList = (PZtrial *) NULL;
-    pzan->PZzeroList = (PZtrial *) NULL;
+    pzan->PZpoleList = NULL;
+    pzan->PZzeroList = NULL;
     pzan->PZnPoles = 0;
     pzan->PZnZeros = 0;
 
@@ -139,17 +139,17 @@ PZpost(CKTcircuit *ckt)
     j = 0;
     for (i = 0; i < pzan->PZnPoles; i++) {
 	sprintf(name, "pole(%-u)", i+1);
-	(*(SPfrontEnd->IFnewUid))(ckt,&(namelist[j++]),(IFuid)NULL,
+	SPfrontEnd->IFnewUid (ckt, &(namelist[j++]), NULL,
 		name, UID_OTHER, NULL);
     }
     for (i = 0; i < pzan->PZnZeros; i++) {
 	sprintf(name, "zero(%-u)", i+1);
-	(*(SPfrontEnd->IFnewUid))(ckt,&(namelist[j++]),(IFuid)NULL,
+	SPfrontEnd->IFnewUid (ckt, &(namelist[j++]), NULL,
 		name, UID_OTHER, NULL);
     }
 
-    (*SPfrontEnd->OUTpBeginPlot)(ckt, (JOB *)pzan, pzan->JOBname,
-	    (IFuid)NULL, (int)0, pzan->PZnPoles + pzan->PZnZeros, namelist,
+    SPfrontEnd->OUTpBeginPlot (ckt, (JOB *)pzan, pzan->JOBname,
+	    NULL, 0, pzan->PZnPoles + pzan->PZnZeros, namelist,
 	    IF_COMPLEX, &pzPlotPtr);
 
     j = 0;

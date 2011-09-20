@@ -5,9 +5,9 @@ Author: 1989 Takayasu Sakurai
 /*
  */
 
-#include "ngspice.h"
+#include <ngspice/ngspice.h>
 #include "mos6defs.h"
-#include "suffix.h"
+#include <ngspice/suffix.h>
 
 
 void
@@ -22,7 +22,7 @@ MOS6destroy(GENmodel **inModel)
     for( ; mod ; mod = mod->MOS6nextModel) {
         if(oldmod) FREE(oldmod);
         oldmod = mod;
-        prev = (MOS6instance *)NULL;
+        prev = NULL;
         for(here = mod->MOS6instances ; here ; here = here->MOS6nextInstance) {
             if(prev){
                 if(prev->MOS6sens) FREE(prev->MOS6sens); 

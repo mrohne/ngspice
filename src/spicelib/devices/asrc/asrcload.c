@@ -6,11 +6,11 @@ Author: 1987 Kanwar Jit Singh
  * singh@ic.Berkeley.edu
  */
 
-#include "ngspice.h"
-#include "cktdefs.h"
+#include <ngspice/ngspice.h>
+#include <ngspice/cktdefs.h>
 #include "asrcdefs.h"
-#include "sperror.h"
-#include "suffix.h"
+#include <ngspice/sperror.h>
+#include <ngspice/suffix.h>
 
 double *asrc_vals, *asrc_derivs;
 int	asrc_nvals;
@@ -67,7 +67,7 @@ ASRCload(GENmodel *inModel, CKTcircuit *ckt)
 		    asrc_vals[i] = *(ckt->CKTrhsOld + node_num);
 		}
 
-	    if ((*(here->ASRCtree->IFeval))(here->ASRCtree,ckt->CKTgmin, &rhs, asrc_vals,asrc_derivs) != OK)
+	    if (here->ASRCtree->IFeval (here->ASRCtree, ckt->CKTgmin, &rhs, asrc_vals, asrc_derivs) != OK)
 		return(E_BADPARM);
 
 	    /* The convergence test */

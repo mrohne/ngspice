@@ -4,12 +4,12 @@ Author: 1985 Thomas L. Quarles
 Modified: 2000 AlansFixes
 **********/
 
-#include "ngspice.h"
-#include "cktdefs.h"
+#include <ngspice/ngspice.h>
+#include <ngspice/cktdefs.h>
 #include "mos2defs.h"
-#include "const.h"
-#include "sperror.h"
-#include "suffix.h"
+#include <ngspice/const.h>
+#include <ngspice/sperror.h>
+#include <ngspice/suffix.h>
 
 /* assuming silicon - make definition for epsilon of silicon */
 #define EPSSIL (11.7 * 8.854214871e-12)
@@ -103,7 +103,7 @@ MOS2temp(GENmodel *inModel, CKTcircuit *ckt)
                     (CHARGE*model->MOS2substrateDoping *1e6 /*(cm**3/m**3)*/));
             } else {
                 model->MOS2substrateDoping = 0;
-                (*(SPfrontEnd->IFerror))(ERR_FATAL,"%s: Nsub < Ni",
+                SPfrontEnd->IFerror (ERR_FATAL, "%s: Nsub < Ni",
                         &(model->MOS2modName));
                 return(E_BADPARM);
             }
@@ -201,7 +201,7 @@ MOS2temp(GENmodel *inModel, CKTcircuit *ckt)
                 here->MOS2sourceConductance = 0;
             }
             if(here->MOS2l - 2 * model->MOS2latDiff <=0) {
-                (*(SPfrontEnd->IFerror))(ERR_WARNING,
+                SPfrontEnd->IFerror (ERR_WARNING,
                         "%s: effective channel length less than zero",
                         &(here->MOS2name));
             }

@@ -1,12 +1,12 @@
 /*
  * numparam.h 
- * $Id: numparam.h,v 1.22 2011/02/19 15:11:53 rlar Exp $
+ * $Id: numparam.h,v 1.24 2011/08/20 17:27:11 rlar Exp $
  */
 
 /*** interface to spice frontend  subckt.c ***/
 
 #include "numpaif.h"
-#include "hash.h"
+#include <ngspice/hash.h>
 
 /***** numparam internals ********/
 
@@ -16,7 +16,7 @@
 typedef enum {Nodekey='#'} _nNodekey;   /* Introduces node symbol */
 typedef enum {Intro='&'} _nIntro;       /* Introduces preprocessor tokens */
 typedef enum {Comment='*'} _nComment;   /* Spice Comment lines*/
-typedef enum {Pspice='{'} _nPspice;     /* Pspice expression */
+typedef enum {Psp='{'} _nPsp;     /* Ps expression */
 typedef enum {Defd=15} _nDefd; /* serial numb. of 'defined' keyword. The others are not used (yet) */
 
 typedef char * auxtable; /* dummy */
@@ -57,7 +57,7 @@ typedef struct _ttdico {
   auxtable nodetab;
   char **dynrefptr;
   char *dyncategory;
-  int hspice_compatibility;	/* allow hspice keywords */
+  int hs_compatibility;	/* allow extra keywords */
 } tdico;
 
 void initdico(tdico * dico);

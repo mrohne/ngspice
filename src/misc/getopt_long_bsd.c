@@ -1,4 +1,4 @@
-/* $Id: getopt_long_bsd.c,v 1.2 2009/04/13 19:47:43 dwarning Exp $ */
+/* $Id: getopt_long_bsd.c,v 1.3 2011/08/20 17:27:12 rlar Exp $ */
 /* $OpenBSD: getopt_long.c,v 1.11 2002/12/10 17:51:42 millert Exp $  */
 /* $NetBSD: getopt_long.c,v 1.15 2002/01/31 22:43:40 tv Exp $  */
 
@@ -67,7 +67,7 @@
  /* downloaded from http://www.koders.com/c/fid5FCCD794DA3E7129AC307C40B5D31C268ED04FF5.aspx 
     at 04/10/09 by H. Vogt */
 
-#include "ngspice.h"
+#include <ngspice/ngspice.h>
 #include <errno.h>
 
 /* If configure finds getopt.h and fcn getopt_long(), then the rest of this file 

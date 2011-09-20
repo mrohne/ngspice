@@ -5,7 +5,7 @@
 # package.
 #
 #
-# $Id: autogen.sh,v 1.24 2010/09/21 17:40:57 rlar Exp $
+# $Id: autogen.sh,v 1.28 2011/07/23 13:06:58 rlar Exp $
 #
 # temp-adms.ac: modified configure.ac if --adms is selected
 # for temporary use by autoconf, will be deleted automatically
@@ -30,6 +30,7 @@ help()
     echo "$PROJECT autogen.sh help"
     echo
     echo "--adms     -a: enables adms feature"
+    echo "--adms3      : enables adms3 feature"
     echo "--help     -h: print this file"
     echo "--version  -v: print version"
     echo
@@ -70,7 +71,7 @@ check_autoconf()
 	DIE=1
     }
 
-    (libtoolize --version) < /dev/null > /dev/null 2>&1 || {
+    (glibtoolize --version) < /dev/null > /dev/null 2>&1 || {
 	echo
 	echo "You must have libtool installed to compile $PROJECT."
 	echo "See http://www.gnu.org/software/libtool/"
@@ -105,6 +106,11 @@ case "$1" in
         ADMS=1
         ;;
 
+    "--adms3" )
+        check_adms
+        ADMS=3
+        ;;
+
     "--help" | "-h")
         help
         exit 0
@@ -132,7 +138,7 @@ fi
 }
 
 # only for --adms:
-if [ "$ADMS" -eq 1 ]; then
+if [ "$ADMS" -gt 0 ]; then
 
     check_awk
 
@@ -172,9 +178,17 @@ $znew
                     echo "-->"$ADMSDIR/$adms_dir
                     (
                         cd $ADMSDIR/$adms_dir
-                        $ADMSXML `ls admsva/*.va` -Iadmsva -xv \
-                            -e ../admst/ngspiceVersion.xml \
-                            -e ../admst/ngspiceMakefile.am.xml
+                        if [ "$ADMS" -eq 3 ]; then
+                            $ADMSXML \
+                                -I admsva \
+                                --create_makefile_am \
+                                -e ../admst/ngspice.xml \
+                                `ls admsva/*.va`
+                        else
+                            $ADMSXML `ls admsva/*.va` -Iadmsva -xv \
+                                -e ../admst/ngspiceVersion.xml \
+                                -e ../admst/ngspiceMakefile.am.xml
+                        fi
                     )
                     ;;
             esac
@@ -187,9 +201,9 @@ echo "Running aclocal $ACLOCAL_FLAGS"
 aclocal $ACLOCAL_FLAGS \
     || error_and_exit "aclocal failed"
 
-echo "Running libtoolize"
-libtoolize --copy --force \
-    || error_and_exit "libtoolize failed"
+echo "Running glibtoolize"
+glibtoolize --copy --force \
+    || error_and_exit "glibtoolize failed"
 
 # optional feature: autoheader
 (autoheader --version) < /dev/null > /dev/null 2>&1
@@ -203,14 +217,14 @@ echo "Running automake -Wall --copy --add-missing"
 automake  -Wall --copy --add-missing \
     || error_and_exit "automake failed"
 
-if [ "$ADMS" -eq 1 ]; then
+if [ "$ADMS" -gt 0 ]; then
     echo "Running automake for adms"
     automake  -Wall --copy --add-missing $adms_Makefiles \
         || error_and_exit "automake failed"
 fi
 
 echo "Running autoconf"
-if [ "$ADMS" -eq 1 ]; then
+if [ "$ADMS" -gt 0 ]; then
     autoconf temp-adms.ac > configure \
         || error_and_exit "autoconf failed, with adms"
     rm -f temp-adms.ac

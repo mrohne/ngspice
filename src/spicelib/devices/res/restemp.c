@@ -5,10 +5,10 @@ Modified Apr 2000 - Paolo Nenzi
 Modified: 2000 AlanSfixes
 **********/
 
-#include "ngspice.h"
-#include "cktdefs.h"
+#include <ngspice/ngspice.h>
+#include <ngspice/cktdefs.h>
 #include "resdefs.h"
-#include "sperror.h"
+#include <ngspice/sperror.h>
 
 int
 REStemp(GENmodel *inModel, CKTcircuit *ckt)
@@ -67,7 +67,7 @@ REStemp(GENmodel *inModel, CKTcircuit *ckt)
                     here->RESresist = model->RESsheetRes * (here->RESlength -
                         model->RESshort) / (here->RESwidth - model->RESnarrow);
                 } else {
-                    (*(SPfrontEnd->IFerror))(ERR_WARNING,
+                    SPfrontEnd->IFerror (ERR_WARNING,
                             "%s: resistance = 0 ohm, set to 1000 ohm",&(here->RESname));
                     here->RESresist=1000;
                 }

@@ -8,10 +8,10 @@ Author: 1987 Jeffrey M. Hsu
       and prompt the user if necessary.
 */
 
-#include <ngspice.h>
-#include <fteinput.h>
-#include <cpdefs.h>
-#include <fteext.h>
+#include <ngspice/ngspice.h>
+#include <ngspice/fteinput.h>
+#include <ngspice/cpdefs.h>
+#include <ngspice/fteext.h>
 
 #include "arg.h"
 #include "variable.h"
@@ -28,7 +28,7 @@ char *prompt(FILE *fp)
     size_t  n;
 
     if (!fgets(buf, sizeof(buf), fp))
-	return 0;
+	return NULL;
     n = strlen(buf) - 1;
     buf[n] = '\0';	/* fgets leaves the \n */
     p = TMALLOC(char, n + 1);
@@ -76,7 +76,7 @@ void arg_plot(wordlist *wl, struct comm *command)
 void arg_load(wordlist *wl, struct comm *command)
 {
       /* just call com_load */
-      (*command->co_func) (wl);
+      command->co_func (wl);
 
 }
 
@@ -122,7 +122,7 @@ common(char *string, struct wordlist *wl, struct comm *command)
 
       w = process(w);
       /* O.K. now call fn */
-      (*command->co_func) (w);
+      command->co_func (w);
     }
 
 }

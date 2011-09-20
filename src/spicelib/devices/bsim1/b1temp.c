@@ -3,13 +3,13 @@ Copyright 1990 Regents of the University of California.  All rights reserved.
 Author: 1985 Hong J. Park, Thomas L. Quarles
 **********/
 
-#include "ngspice.h"
-#include "smpdefs.h"
-#include "cktdefs.h"
+#include <ngspice/ngspice.h>
+#include <ngspice/smpdefs.h>
+#include <ngspice/cktdefs.h>
 #include "bsim1def.h"
-#include "const.h"
-#include "sperror.h"
-#include "suffix.h"
+#include <ngspice/const.h>
+#include <ngspice/sperror.h>
+#include <ngspice/suffix.h>
 
 /* ARGSUSED */
 int
@@ -54,7 +54,7 @@ B1temp(GENmodel *inModel, CKTcircuit *ckt)
                 IFuid namarray[2];
                 namarray[0] = model->B1modName;
                 namarray[1] = here->B1name;
-                (*(SPfrontEnd->IFerror))(ERR_FATAL,
+                SPfrontEnd->IFerror (ERR_FATAL,
                     "B1: mosfet %s, model %s: Effective channel length <=0",
                     namarray);
                 return(E_BADPARM);
@@ -63,7 +63,7 @@ B1temp(GENmodel *inModel, CKTcircuit *ckt)
                 IFuid namarray[2];
                 namarray[0] = model->B1modName;
                 namarray[1] = here->B1name;
-                (*(SPfrontEnd->IFerror))(ERR_FATAL,
+                SPfrontEnd->IFerror (ERR_FATAL,
                     "B1: mosfet %s, model %s: Effective channel width <=0",
                     namarray);
                 return(E_BADPARM);

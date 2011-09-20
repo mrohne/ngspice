@@ -3,12 +3,12 @@ Copyright 2003 ??.  All rights reserved.
 Author: 2003 Paolo Nenzi
 **********/
 
-#include "ngspice.h"
+#include <ngspice/ngspice.h>
 #include "bsim2def.h"
-#include "cktdefs.h"
-#include "iferrmsg.h"
-#include "noisedef.h"
-#include "suffix.h"
+#include <ngspice/cktdefs.h>
+#include <ngspice/iferrmsg.h>
+#include <ngspice/noisedef.h>
+#include <ngspice/suffix.h>
 
 /*
  * B2noise (mode, operation, firstModel, ckt, data, OnDens)
@@ -65,9 +65,9 @@ B2noise (int mode, int operation, GENmodel *genmodel, CKTcircuit *ckt,
 
 data->namelist = TREALLOC(IFuid, data->namelist, data->numPlots + 1);
 if (!data->namelist) return(E_NOMEM);
-		(*(SPfrontEnd->IFnewUid))(ckt,
+		SPfrontEnd->IFnewUid (ckt,
 			&(data->namelist[data->numPlots++]),
-			(IFuid)NULL, name, UID_OTHER, NULL);
+			NULL, name, UID_OTHER, NULL);
 				/* we've added one more plot */
 
 
@@ -81,9 +81,9 @@ if (!data->namelist) return(E_NOMEM);
 
 data->namelist = TREALLOC(IFuid, data->namelist, data->numPlots + 1);
 if (!data->namelist) return(E_NOMEM);
-		(*(SPfrontEnd->IFnewUid))(ckt,
+		SPfrontEnd->IFnewUid (ckt,
 			&(data->namelist[data->numPlots++]),
-			(IFuid)NULL, name, UID_OTHER, NULL);
+			NULL, name, UID_OTHER, NULL);
 				/* we've added one more plot */
 
 
@@ -92,9 +92,9 @@ if (!data->namelist) return(E_NOMEM);
 
 data->namelist = TREALLOC(IFuid, data->namelist, data->numPlots + 1);
 if (!data->namelist) return(E_NOMEM);
-		(*(SPfrontEnd->IFnewUid))(ckt,
+		SPfrontEnd->IFnewUid (ckt,
 			&(data->namelist[data->numPlots++]),
-			(IFuid)NULL, name, UID_OTHER, NULL);
+			NULL, name, UID_OTHER, NULL);
 				/* we've added one more plot */
 
 
@@ -121,7 +121,7 @@ if (!data->namelist) return(E_NOMEM);
 				 ckt,THERMNOISE,inst->B2dNodePrime,inst->B2sNodePrime,
                                  (2.0/3.0 * fabs(inst->B2gm * inst->B2m)));
 
-		    NevalSrc(&noizDens[B2FLNOIZ],(double*)NULL,ckt,
+		    NevalSrc(&noizDens[B2FLNOIZ], NULL, ckt,
 				 N_GAIN,inst->B2dNodePrime, inst->B2sNodePrime,
 				 (double)0.0);
 		    noizDens[B2FLNOIZ] *= model->B2fNcoef * inst->B2m *

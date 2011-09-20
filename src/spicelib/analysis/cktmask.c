@@ -7,11 +7,11 @@ Author: 1985 Thomas L. Quarles
      *  Ask questions about a specified device.
      */
 
-#include "ngspice.h"
-#include "cktdefs.h"
-#include "ifsim.h"
-#include "devdefs.h"
-#include "sperror.h"
+#include <ngspice/ngspice.h>
+#include <ngspice/cktdefs.h>
+#include <ngspice/ifsim.h>
+#include <ngspice/devdefs.h>
+#include <ngspice/sperror.h>
 
 
 /* ARGSUSED */
@@ -22,8 +22,8 @@ CKTmodAsk(CKTcircuit *ckt, GENmodel *modfast, int which, IFvalue *value, IFvalue
 
     NG_IGNORE(selector);
 
-    if((*DEVices[type]).DEVmodAsk) {
-        return( (*((*DEVices[type]).DEVmodAsk)) (ckt,
+    if(DEVices[type]->DEVmodAsk) {
+        return( DEVices[type]->DEVmodAsk (ckt,
                 modfast, which, value) );
     }
     return(E_BADPARM);

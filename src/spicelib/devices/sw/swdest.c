@@ -5,9 +5,9 @@ Author: 1985 Gordon Jacobs
 /*
  */
 
-#include "ngspice.h"
+#include <ngspice/ngspice.h>
 #include "swdefs.h"
-#include "suffix.h"
+#include <ngspice/suffix.h>
 
 
 void
@@ -22,7 +22,7 @@ SWdestroy(GENmodel **inModel)
     for( ; mod ; mod = mod->SWnextModel) {
         if(oldmod) FREE(oldmod);
         oldmod = mod;
-        prev = (SWinstance *)NULL;
+        prev = NULL;
         for(here = mod->SWinstances ; here ; here = here->SWnextInstance) {
             if(prev) FREE(prev);
             prev = here;

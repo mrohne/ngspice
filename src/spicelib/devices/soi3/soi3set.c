@@ -21,12 +21,12 @@ Modified by Paolo Nenzi 2002
 ngspice integration
 **********/
 
-#include "ngspice.h"
-#include "smpdefs.h"
-#include "cktdefs.h"
+#include <ngspice/ngspice.h>
+#include <ngspice/smpdefs.h>
+#include <ngspice/cktdefs.h>
 #include "soi3defs.h"
-#include "sperror.h"
-#include "suffix.h"
+#include <ngspice/sperror.h>
+#include <ngspice/suffix.h>
 
 
 int
@@ -265,7 +265,7 @@ SOI3setup(SMPmatrix *matrix, GENmodel *inModel, CKTcircuit *ckt, int *states)
         if((model->SOI3lx != 0) && (model->SOI3lambda != 0))
         {
 
-            (*(SPfrontEnd->IFerror))(ERR_WARNING,
+            SPfrontEnd->IFerror (ERR_WARNING,
              "%s: Non-zero values for BOTH LAMBDA and LX. \nDefaulting to simple LAMBDA model",
                         &model->SOI3modName);
 
@@ -570,7 +570,7 @@ SOI3setup(SMPmatrix *matrix, GENmodel *inModel, CKTcircuit *ckt, int *states)
 /* macro to make elements with built in test for out of memory */
 
 #define TSTALLOC(ptr,first,second) \
-if((here->ptr = SMPmakeElt(matrix,here->first,here->second))==(double *)NULL){\
+if((here->ptr = SMPmakeElt(matrix, here->first, here->second)) == NULL){\
     return(E_NOMEM);\
 }
 

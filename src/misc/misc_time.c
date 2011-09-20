@@ -7,7 +7,7 @@ Copyright 1990 Regents of the University of California.  All rights reserved.
  */
 
 #include <config.h>
-#include "ngspice.h"
+#include <ngspice/ngspice.h>
 #include <string.h>
 #include "misc_time.h"
 
@@ -76,7 +76,7 @@ void timediff(struct timeb *now, struct timeb *begin, int *sec, int *msec)
 {
 
     *msec = now->millitm - begin->millitm;
-    *sec = now->time - begin->time;
+    *sec = (int)(now->time - begin->time);
     if (*msec < 0) {
       *msec += 1000;
       (*sec)--;

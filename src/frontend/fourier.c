@@ -9,13 +9,13 @@ Author: 1985 Wayne A. Christopher, U. C. Berkeley CAD Group
  * is done.
  */
 
-#include "ngspice.h"
-#include "cpdefs.h"
-#include "ftedefs.h"
-#include "dvec.h"
-#include "fteparse.h"
-#include "sperror.h"
-#include "const.h"
+#include <ngspice/ngspice.h>
+#include <ngspice/cpdefs.h>
+#include <ngspice/ftedefs.h>
+#include <ngspice/dvec.h>
+#include <ngspice/fteparse.h>
+#include <ngspice/sperror.h>
+#include <ngspice/const.h>
 
 #include "fourier.h"
 #include "variable.h"
@@ -62,13 +62,11 @@ fourier(wordlist *wl, struct plot *current_plot)
         return 1;
     }
 
-    if ((!cp_getvar("nfreqs", CP_NUM, (char *) &nfreqs)) || (nfreqs < 1))
+    if (!cp_getvar("nfreqs", CP_NUM, &nfreqs) || nfreqs < 1)
         nfreqs = 10;
-    if ((!cp_getvar("polydegree", CP_NUM, (char *) &polydegree)) ||
-            (polydegree < 0))
+    if (!cp_getvar("polydegree", CP_NUM, &polydegree) || polydegree < 0)
         polydegree = 1;
-    if ((!cp_getvar("fourgridsize", CP_NUM, (char *) &fourgridsize)) ||
-            (fourgridsize < 1))
+    if (!cp_getvar("fourgridsize", CP_NUM, &fourgridsize) || fourgridsize < 1)
         fourgridsize = DEF_FOURGRIDSIZE;
 
     time = current_plot->pl_scale;

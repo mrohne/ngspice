@@ -8,25 +8,27 @@ Author: 1985 Thomas L. Quarles
  * bind a node of the specified device of the given type to its place
  * in the specified circuit.  */
 
+#include <ngspice/ngspice.h>
 #include <config.h>
 #include <stdio.h>
-#include <devdefs.h>
-#include <sperror.h>
+#include <ngspice/devdefs.h>
+#include <ngspice/sperror.h>
 
 #include "dev.h"
 
 int
-CKTbindNode(CKTcircuit *ckt, GENinstance *fast, int term, CKTnode *node)
+CKTbindNode(CKTcircuit *ckt, GENinstance *instance, int term, CKTnode *node)
 {
     int mappednode;
     SPICEdev **devs;
-    GENinstance *instance = /*fixme*/ fast;
     int type = instance->GENmodPtr->GENmodType;
+
+    NG_IGNORE(ckt);
 
     devs = devices();
     mappednode = node->number;
 
-    if (*((*devs[type]).DEVpublic.terms) >= term && term >0 ) {
+    if (*(devs[type]->DEVpublic.terms) >= term && term > 0) {
         switch(term) {
             default:
 		return E_NOTERM;

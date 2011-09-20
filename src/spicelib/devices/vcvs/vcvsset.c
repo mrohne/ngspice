@@ -7,12 +7,12 @@ Author: 1985 Thomas L. Quarles
  * for fast matrix loading 
  */
 
-#include "ngspice.h"
-#include "smpdefs.h"
-#include "cktdefs.h"
+#include <ngspice/ngspice.h>
+#include <ngspice/smpdefs.h>
+#include <ngspice/cktdefs.h>
 #include "vcvsdefs.h"
-#include "sperror.h"
-#include "suffix.h"
+#include <ngspice/sperror.h>
+#include <ngspice/suffix.h>
 
 /*ARGSUSED*/
 int
@@ -33,7 +33,7 @@ VCVSsetup(SMPmatrix *matrix, GENmodel *inModel, CKTcircuit *ckt, int *states)
                 here=here->VCVSnextInstance) {
             
             if(here->VCVSposNode == here->VCVSnegNode) {
-                (*(SPfrontEnd->IFerror))(ERR_FATAL,
+                SPfrontEnd->IFerror (ERR_FATAL,
                         "instance %s is a shorted VCVS", &here->VCVSname);
                 return(E_UNSUPP);
             }
@@ -46,7 +46,7 @@ VCVSsetup(SMPmatrix *matrix, GENmodel *inModel, CKTcircuit *ckt, int *states)
 
 /* macro to make elements with built in test for out of memory */
 #define TSTALLOC(ptr,first,second) \
-if((here->ptr = SMPmakeElt(matrix,here->first,here->second))==(double *)NULL){\
+if((here->ptr = SMPmakeElt(matrix, here->first, here->second)) == NULL){\
     return(E_NOMEM);\
 }
 

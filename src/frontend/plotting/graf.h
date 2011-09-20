@@ -1,13 +1,13 @@
 /*************
  * Header file for graf.c
  * 1999 E. Rouat
- * $Id: graf.h,v 1.2 2005/05/30 20:28:44 sjborley Exp $
+ * $Id: graf.h,v 1.3 2011/08/20 17:27:11 rlar Exp $
  ************/
 
 #ifndef GRAF_H
 #define GRAF_H
 
-#include "graph.h"
+#include <ngspice/graph.h>
 
 int gr_init(double *xlims, double *ylims,
 	    char *xname, char *plotname,

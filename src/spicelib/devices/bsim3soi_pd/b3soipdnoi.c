@@ -11,13 +11,13 @@ Modified by Paolo Nenzi 2002
  * BSIMPD2.2.3 release
  */
 
-#include "ngspice.h"
+#include <ngspice/ngspice.h>
 #include "b3soipddef.h"
-#include "cktdefs.h"
-#include "iferrmsg.h"
-#include "noisedef.h"
-#include "suffix.h"
-#include "const.h"  /* jwan */
+#include <ngspice/cktdefs.h>
+#include <ngspice/iferrmsg.h>
+#include <ngspice/noisedef.h>
+#include <ngspice/suffix.h>
+#include <ngspice/const.h>  /* jwan */
 
 /*
  * B3SOIPDnoise (mode, operation, firstModel, ckt, data, OnDens)
@@ -154,9 +154,9 @@ int i;
                                        data->namelist = TREALLOC(IFuid, data->namelist, data->numPlots + 1);
                                        if (!data->namelist)
 					   return(E_NOMEM);
-		                       (*(SPfrontEnd->IFnewUid)) (ckt,
+		                       SPfrontEnd->IFnewUid (ckt,
 			                  &(data->namelist[data->numPlots++]),
-			                  (IFuid) NULL, name, UID_OTHER,
+			                  NULL, name, UID_OTHER,
 					  NULL);
 				       /* we've added one more plot */
 			          }
@@ -169,9 +169,9 @@ int i;
                                        data->namelist = TREALLOC(IFuid, data->namelist, data->numPlots + 1);
                                        if (!data->namelist)
 					   return(E_NOMEM);
-		                       (*(SPfrontEnd->IFnewUid)) (ckt,
+		                       SPfrontEnd->IFnewUid (ckt,
 			                  &(data->namelist[data->numPlots++]),
-			                  (IFuid) NULL, name, UID_OTHER,
+			                  NULL, name, UID_OTHER,
 					  NULL);
 				       /* we've added one more plot */
 
@@ -181,9 +181,9 @@ int i;
                                        data->namelist = TREALLOC(IFuid, data->namelist, data->numPlots + 1);
                                        if (!data->namelist)
 					   return(E_NOMEM);
-		                       (*(SPfrontEnd->IFnewUid)) (ckt,
+		                       SPfrontEnd->IFnewUid (ckt,
 			                  &(data->namelist[data->numPlots++]),
-			                  (IFuid) NULL, name, UID_OTHER,
+			                  NULL, name, UID_OTHER,
 					  NULL);
 				       /* we've added one more plot */
 			          }
@@ -233,7 +233,7 @@ int i;
 						  (here->B3SOIPDrds / here->B3SOIPDm))))); 
 				      break;
 			      }
-		              NevalSrc(&noizDens[B3SOIPDFLNOIZ], (double*) NULL,
+		              NevalSrc(&noizDens[B3SOIPDFLNOIZ], NULL,
 				       ckt, N_GAIN, here->B3SOIPDdNodePrime,
 				       here->B3SOIPDsNodePrime, (double) 0.0);
 

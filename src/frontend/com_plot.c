@@ -1,8 +1,8 @@
 #include <config.h>
-#include <ngspice.h>
+#include <ngspice/ngspice.h>
 
-#include <bool.h>
-#include <wordlist.h>
+#include <ngspice/bool.h>
+#include <ngspice/wordlist.h>
 
 #include "plotting/plotit.h"
 
@@ -13,7 +13,7 @@
 void
 com_plot(wordlist *wl)
 {
-    plotit(wl, (char *) NULL, (char *) NULL);
+    plotit(wl, NULL, NULL);
     return;
 }
 
@@ -21,7 +21,7 @@ com_plot(wordlist *wl)
 void
 com_bltplot(wordlist *wl)
 {
-    plotit(wl, (char *) NULL, "blt");
+    plotit(wl, NULL, "blt");
     return;
 }
 

@@ -4,12 +4,12 @@ Author: 1987 Gary W. Ng
 Modified: 2000 AlansFixes 
 **********/
 
-#include "ngspice.h"
+#include <ngspice/ngspice.h>
 #include "mos2defs.h"
-#include "cktdefs.h"
-#include "iferrmsg.h"
-#include "noisedef.h"
-#include "suffix.h"
+#include <ngspice/cktdefs.h>
+#include <ngspice/iferrmsg.h>
+#include <ngspice/noisedef.h>
+#include <ngspice/suffix.h>
 
 /*
  * MOS2noise (mode, operation, firstModel, ckt, data, OnDens)
@@ -66,9 +66,9 @@ MOS2noise (int mode, int operation, GENmodel *genmodel, CKTcircuit *ckt,
 
 data->namelist = TREALLOC(IFuid, data->namelist, data->numPlots + 1);
 if (!data->namelist) return(E_NOMEM);
-		(*(SPfrontEnd->IFnewUid))(ckt,
+		SPfrontEnd->IFnewUid (ckt,
 			&(data->namelist[data->numPlots++]),
-			(IFuid)NULL, name, UID_OTHER, NULL);
+			NULL, name, UID_OTHER, NULL);
 				/* we've added one more plot */
 
 
@@ -82,9 +82,9 @@ if (!data->namelist) return(E_NOMEM);
 
 data->namelist = TREALLOC(IFuid, data->namelist, data->numPlots + 1);
 if (!data->namelist) return(E_NOMEM);
-		(*(SPfrontEnd->IFnewUid))(ckt,
+		SPfrontEnd->IFnewUid (ckt,
 			&(data->namelist[data->numPlots++]),
-			(IFuid)NULL, name, UID_OTHER, NULL);
+			NULL, name, UID_OTHER, NULL);
 				/* we've added one more plot */
 
 
@@ -93,9 +93,9 @@ if (!data->namelist) return(E_NOMEM);
 
 data->namelist = TREALLOC(IFuid, data->namelist, data->numPlots + 1);
 if (!data->namelist) return(E_NOMEM);
-		(*(SPfrontEnd->IFnewUid))(ckt,
+		SPfrontEnd->IFnewUid (ckt,
 			&(data->namelist[data->numPlots++]),
-			(IFuid)NULL, name, UID_OTHER, NULL);
+			NULL, name, UID_OTHER, NULL);
 				/* we've added one more plot */
 
 
@@ -121,7 +121,7 @@ if (!data->namelist) return(E_NOMEM);
 				 ckt,THERMNOISE,inst->MOS2dNodePrime,inst->MOS2sNodePrime,
                                  (2.0/3.0 * fabs(inst->MOS2gm)));
 
-		    NevalSrc(&noizDens[MOS2FLNOIZ],(double*)NULL,ckt,
+		    NevalSrc(&noizDens[MOS2FLNOIZ], NULL, ckt,
 				 N_GAIN,inst->MOS2dNodePrime, inst->MOS2sNodePrime,
 				 (double)0.0);
 		    noizDens[MOS2FLNOIZ] *= model->MOS2fNcoef * 

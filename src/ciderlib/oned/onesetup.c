@@ -2,24 +2,24 @@
 Copyright 1991 Regents of the University of California.  All rights reserved.
 Author:	1987 Kartikeya Mayaram, U. C. Berkeley CAD Group
 Author:	1991 David A. Gates, U. C. Berkeley CAD Group
-$Id: onesetup.c,v 1.4 2010/11/16 20:38:24 rlar Exp $
+$Id: onesetup.c,v 1.5 2011/08/20 17:27:10 rlar Exp $
 **********/
 
 /**********
 One-Dimensional Numerical Device Setup Routines
 **********/
 
-#include "ngspice.h"
-#include "numglobs.h"
-#include "numconst.h"
-#include "numenum.h"
-#include "onemesh.h"
-#include "onedev.h"
-#include "carddefs.h"		/* XXX Not really modular if we need this. */
+#include <ngspice/ngspice.h>
+#include <ngspice/numglobs.h>
+#include <ngspice/numconst.h>
+#include <ngspice/numenum.h>
+#include <ngspice/onemesh.h>
+#include <ngspice/onedev.h>
+#include <ngspice/carddefs.h>		/* XXX Not really modular if we need this. */
 /* #include "material.h" */
 #include "onedext.h"
 #include "oneddefs.h"
-#include "cidersupt.h"
+#include <ngspice/cidersupt.h>
 
 /* compute node parameters */
 void

@@ -1,7 +1,7 @@
 /**********
 Copyright 1990 Regents of the University of California.  All rights reserved.
 Author: 1985 Wayne A. Christopher, U. C. Berkeley CAD Group
-$Id: backq.c,v 1.5 2010/11/19 18:54:41 rlar Exp $
+$Id: backq.c,v 1.7 2011/08/20 17:27:11 rlar Exp $
 **********/
 
 /*
@@ -10,8 +10,8 @@ $Id: backq.c,v 1.5 2010/11/19 18:54:41 rlar Exp $
  */
 
 #include <config.h>
-#include "ngspice.h"
-#include "cpdefs.h"
+#include <ngspice/ngspice.h>
+#include <ngspice/cpdefs.h>
 #include "backq.h"
 
 
@@ -101,7 +101,7 @@ backeval(char *string)
     intv = cp_interactive;
     cp_interactive = FALSE;
     cp_bqflag = TRUE;
-    wl = cp_lexer((char *) NULL);
+    wl = cp_lexer(NULL);
     cp_bqflag = FALSE;
     cp_inp_cur = old;
     cp_interactive = intv;

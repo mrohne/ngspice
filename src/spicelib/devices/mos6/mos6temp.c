@@ -3,12 +3,12 @@ Copyright 1990 Regents of the University of California.  All rights reserved.
 Author: 1989 Takayasu Sakurai
 **********/
 
-#include "ngspice.h"
-#include "cktdefs.h"
+#include <ngspice/ngspice.h>
+#include <ngspice/cktdefs.h>
 #include "mos6defs.h"
-#include "const.h"
-#include "sperror.h"
-#include "suffix.h"
+#include <ngspice/const.h>
+#include <ngspice/sperror.h>
+#include <ngspice/suffix.h>
 
 int
 MOS6temp(GENmodel *inModel, CKTcircuit *ckt)
@@ -101,7 +101,7 @@ MOS6temp(GENmodel *inModel, CKTcircuit *ckt)
                     }
                 } else {
                     model->MOS6substrateDoping = 0;
-                    (*(SPfrontEnd->IFerror))(ERR_FATAL,
+                    SPfrontEnd->IFerror (ERR_FATAL,
                             "%s: Nsub < Ni",&model->MOS6modName);
                     return(E_BADPARM);
                 }
@@ -153,7 +153,7 @@ MOS6temp(GENmodel *inModel, CKTcircuit *ckt)
             }
 
             if(here->MOS6l - 2 * model->MOS6latDiff <=0) {
-                (*(SPfrontEnd->IFerror))(ERR_WARNING,
+                SPfrontEnd->IFerror (ERR_WARNING,
                         "%s: effective channel length less than zero",
                         &(model->MOS6modName));
             }

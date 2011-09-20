@@ -2,18 +2,18 @@
 Copyright 1992 Regents of the University of California.  All rights reserved.
 Author: 1992 David A. Gates, U. C. Berkeley CAD Group
 Modified: 2001 Paolo Nenzi
-$Id: matlset.c,v 1.3 2010/11/19 18:51:03 rlar Exp $
+$Id: matlset.c,v 1.4 2011/08/20 17:27:10 rlar Exp $
 **********/
 
-#include "ngspice.h"
-#include "cktdefs.h"
-#include "numconst.h"
-#include "numenum.h"
-#include "matldefs.h"
-#include "material.h"
-#include "sperror.h"
-#include "suffix.h"
-#include "cidersupt.h"
+#include <ngspice/ngspice.h>
+#include <ngspice/cktdefs.h>
+#include <ngspice/numconst.h>
+#include <ngspice/numenum.h>
+#include <ngspice/matldefs.h>
+#include <ngspice/material.h>
+#include <ngspice/sperror.h>
+#include <ngspice/suffix.h>
+#include <ngspice/cidersupt.h>
 
 extern int MATLcheck( MATLcard * );
 extern int MATLsetup( MATLcard *, MaterialInfo ** );

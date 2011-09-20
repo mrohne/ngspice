@@ -1,17 +1,17 @@
 /**********
 Copyright 1992 Regents of the University of California.  All rights reserved.
 Author:	1987 Kartikeya Mayaram, U. C. Berkeley CAD Group
-$Id: onepoiss.c,v 1.4 2010/07/23 18:50:51 rlar Exp $
+$Id: onepoiss.c,v 1.5 2011/08/20 17:27:10 rlar Exp $
 **********/
 
-#include "ngspice.h"
-#include "numglobs.h"
-#include "numenum.h"
-#include "onemesh.h"
-#include "onedev.h"
+#include <ngspice/ngspice.h>
+#include <ngspice/numglobs.h>
+#include <ngspice/numenum.h>
+#include <ngspice/onemesh.h>
+#include <ngspice/onedev.h>
 #include "onedext.h"
 #include "oneddefs.h"
-#include "spmatrix.h"
+#include <ngspice/spmatrix.h>
 
 /* Functions to setup and solve the 1D poisson equation. */
 

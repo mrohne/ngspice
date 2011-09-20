@@ -1,5 +1,5 @@
 /**** BSIM4.4.0  Released by Xuemei (Jane) Xi 03/04/2004 ****/
-
+/* ngspice multirevision code extension covering 4.2.1 & 4.3.0 & 4.4.0 */
 /**********
  * Copyright 2004 Regents of the University of California. All rights reserved.
  * File: b4mpar.c of BSIM4.4.0.
@@ -13,11 +13,12 @@
  * Modified by Xuemei Xi, 03/04/2004.
  **********/
 
-#include "ngspice.h"
+#include <ngspice/ngspice.h>
 #include "bsim4v4def.h"
-#include "ifsim.h"
-#include "sperror.h"
-#include "suffix.h"
+#include <ngspice/ifsim.h>
+#include <ngspice/sperror.h>
+#include <ngspice/suffix.h>
+#include <ngspice/const.h>
 
 int
 BSIM4v4mParam(

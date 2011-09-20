@@ -4,13 +4,13 @@ Author:	1991 David A. Gates, U. C. Berkeley CAD Group
 Modified: 2001 Paolo Nenzi
 **********/
 
-#include "ngspice.h"
-#include "numcards.h"
-#include "numgen.h"
-#include "meshdefs.h"
-#include "devdefs.h"
-#include "sperror.h"
-#include "suffix.h"
+#include <ngspice/ngspice.h>
+#include <ngspice/numcards.h>
+#include <ngspice/numgen.h>
+#include <ngspice/meshdefs.h>
+#include <ngspice/devdefs.h>
+#include <ngspice/sperror.h>
+#include <ngspice/suffix.h>
 
 extern int XMSHnewCard(void**,void*);
 extern int YMSHnewCard(void**,void*);
@@ -62,10 +62,10 @@ XMSHnewCard(void **inCard, void *inModel)
 
     newCard = NEW( MESHcard );
     if (!newCard) {
-        *inCard = (void *)NULL;
+        *inCard = NULL;
         return(E_NOMEM);
     }
-    newCard->MESHnextCard = (MESHcard *)NULL;
+    newCard->MESHnextCard = NULL;
     *inCard = (void *)newCard;
 
     tmpCard = model->GENxMeshes;
@@ -88,10 +88,10 @@ YMSHnewCard(void **inCard, void *inModel)
 
     newCard = NEW( MESHcard );
     if (!newCard) {
-        *inCard = (void *)NULL;
+        *inCard = NULL;
         return(E_NOMEM);
     }
-    newCard->MESHnextCard = (MESHcard *)NULL;
+    newCard->MESHnextCard = NULL;
     *inCard = (void *)newCard;
 
     tmpCard = model->GENyMeshes;

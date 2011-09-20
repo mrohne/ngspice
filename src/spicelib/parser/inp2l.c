@@ -3,11 +3,11 @@ Copyright 1990 Regents of the University of California.  All rights reserved.
 Author: 1988 Thomas L. Quarles
 **********/
 
-#include "ngspice.h"
-#include "ifsim.h"
-#include "inpdefs.h"
-#include "inpmacs.h"
-#include "fteext.h"
+#include <ngspice/ngspice.h>
+#include <ngspice/ifsim.h>
+#include <ngspice/inpdefs.h>
+#include <ngspice/inpmacs.h>
+#include <ngspice/fteext.h>
 #include "inp.h"
 
 void INP2L(CKTcircuit *ckt, INPtables * tab, card * current)
@@ -64,7 +64,7 @@ void INP2L(CKTcircuit *ckt, INPtables * tab, card * current)
       if (INPlookMod(model)) {
           /* If this is a valid model connect it */
           INPinsert(&model, tab);
-          thismodel = (INPmodel *) NULL;
+          thismodel = NULL;
           current->error = INPgetMod(ckt, model, &thismodel, tab);
           if (thismodel != NULL) {
           if (mytype != thismodel->INPmodType) {
@@ -80,7 +80,7 @@ void INP2L(CKTcircuit *ckt, INPtables * tab, card * current)
           line = saveline;    /* go back */
           type = mytype;
           if (!tab->defLmod) {    /* create default L model */
-          IFnewUid(ckt, &uid, (IFuid) NULL, "L", UID_MODEL,
+          IFnewUid(ckt, &uid, NULL, "L", UID_MODEL,
                NULL);
           IFC(newModel, (ckt, type, &(tab->defLmod), uid));
           }
@@ -93,7 +93,7 @@ void INP2L(CKTcircuit *ckt, INPtables * tab, card * current)
       type = mytype;
       if (!tab->defLmod) {
           /* create default L model */
-          IFnewUid(ckt, &uid, (IFuid) NULL, "L", UID_MODEL,
+          IFnewUid(ckt, &uid, NULL, "L", UID_MODEL,
                NULL);
           IFC(newModel, (ckt, type, &(tab->defLmod), uid));
       }

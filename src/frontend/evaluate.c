@@ -7,18 +7,17 @@ Author: 1985 Wayne A. Christopher, U. C. Berkeley CAD Group
  * Convert a parse tree to a list of data vectors.
  */
 
-#include <ngspice.h>
+#include <ngspice/ngspice.h>
 
 #include <setjmp.h>
 #include <signal.h>
 
-#include <ftedefs.h>
-#include <dvec.h>
+#include <ngspice/ftedefs.h>
+#include <ngspice/dvec.h>
 
 #include "evaluate.h"
-#include "../maths/cmaths/cmath2.h"
 
-#include "sim.h"  /* To get SV_VOLTAGE definition */
+#include <ngspice/sim.h>  /* To get SV_VOLTAGE definition */
 
 /* static declarations */
 static RETSIGTYPE sig_matherr(void);
@@ -59,12 +58,12 @@ ft_evaluate(struct pnode *node)
         d = apply_func(node->pn_func, node->pn_left);
     else if (node->pn_op) {
         if (node->pn_op->op_arity == 1)
-            d = ((*node->pn_op->op_func.unary) (node->pn_left));
+            d = node->pn_op->op_func.unary (node->pn_left);
         else if (node->pn_op->op_arity == 2) {
             if(node->pn_op->op_num == PT_OP_TERNARY)
                 d = ft_ternary(node);
             else
-                d = (*node->pn_op->op_func.binary) (node->pn_left, node->pn_right);
+                d = node->pn_op->op_func.binary (node->pn_left, node->pn_right);
         }
     } else {
         fprintf(cp_err, "ft_evaluate: Internal Error: bad node\n");
@@ -168,7 +167,7 @@ doop_funcall(
 
     (void) signal(SIGILL, (SIGNAL_FUNCTION) sig_matherr);
 
-    data = (*func) (data1, data2, datatype1, datatype2, length);
+    data = func (data1, data2, datatype1, datatype2, length);
 
     /* Back to normal */
     (void) signal(SIGILL, SIG_DFL);
@@ -658,7 +657,7 @@ op_range(struct pnode *arg1, struct pnode *arg2)
 
     /* va: garbage collection */
     if (arg1->pn_value==NULL && v!=NULL) vec_free(v);
-    if (arg1->pn_value==NULL && ind!=NULL) vec_free(ind);
+    if (arg2->pn_value==NULL && ind!=NULL) vec_free(ind);
     return (res);
 }
 
@@ -716,11 +715,11 @@ op_ind(struct pnode *arg1, struct pnode *arg2)
      */
     if (isreal(ind)) {
         newdim = v->v_numdims - 1;
-        down = up = ind->v_realdata[0];
+        down = up = (int)floor(ind->v_realdata[0] + 0.5);
     } else {
         newdim = v->v_numdims;
-        down = realpart(&ind->v_compdata[0]);
-        up = imagpart(&ind->v_compdata[0]);
+        down = (int)floor(realpart(&ind->v_compdata[0]) + 0.5);
+        up = (int)floor(imagpart(&ind->v_compdata[0]) + 0.5);
     }
     if (up < down) {
         i = up;
@@ -811,7 +810,7 @@ op_ind(struct pnode *arg1, struct pnode *arg2)
 
     /* va: garbage collection */
     if (arg1->pn_value==NULL && v!=NULL) vec_free(v);
-    if (arg1->pn_value==NULL && ind!=NULL) vec_free(ind);
+    if (arg2->pn_value==NULL && ind!=NULL) vec_free(ind);
     return (res);
 }
 
@@ -842,14 +841,14 @@ apply_func_funcall(struct func *func, struct dvec *v, int *newlength, short int 
     {
         void *(*f)(void *data, short int type, int length,
                    int *newlength, short int *newtype, struct plot *, struct plot *, int) = (void *(*)(void *, short int, int, int *, short int *, struct plot *, struct plot *, int)) func->fu_func;
-        data = (*f) (
+        data = f (
             isreal(v) ? (void *) v->v_realdata : (void *) v->v_compdata,
             (short) (isreal(v) ? VF_REAL : VF_COMPLEX),
             v->v_length,
             newlength, newtype,
             v->v_plot, plot_cur, v->v_dims[0]);
     } else {
-        data = (*func->fu_func) (
+        data = func->fu_func (
             isreal(v) ? (void *) v->v_realdata : (void *) v->v_compdata,
             (short) (isreal(v) ? VF_REAL : VF_COMPLEX),
             v->v_length,
@@ -924,7 +923,7 @@ apply_func(struct func *func, struct pnode *arg)
 	else if (eq(func->fu_name, "not"))
 	    t->v_name = mkcname('c', func->fu_name, v->v_name);
 	else
-	    t->v_name = mkcname('b', v->v_name, (char *) NULL);
+	    t->v_name = mkcname('b', v->v_name, NULL);
 	t->v_type = v->v_type; /* This is strange too. */
 	t->v_length = len;
 	t->v_scale = v->v_scale;

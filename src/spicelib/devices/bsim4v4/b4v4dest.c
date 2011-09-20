@@ -8,9 +8,9 @@
  * Project Director: Prof. Chenming Hu.
  **********/
 
-#include "ngspice.h"
+#include <ngspice/ngspice.h>
 #include "bsim4v4def.h"
-#include "suffix.h"
+#include <ngspice/suffix.h>
 
 void
 BSIM4v4destroy(
@@ -25,7 +25,7 @@ BSIM4v4model *oldmod = NULL;
     for (; mod ; mod = mod->BSIM4v4nextModel)
     {    if(oldmod) FREE(oldmod);
          oldmod = mod;
-         prev = (BSIM4v4instance *)NULL;
+         prev = NULL;
          for (here = mod->BSIM4v4instances; here; here = here->BSIM4v4nextInstance)
 	 {    if(prev) FREE(prev);
               prev = here;

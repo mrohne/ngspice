@@ -1,7 +1,7 @@
 /**********
 Copyright 1990 Regents of the University of California.  All rights reserved.
 Author: 1985 Wayne A. Christopher
-$Id: inp.c,v 1.61 2010/11/19 18:54:41 rlar Exp $
+$Id: inp.c,v 1.69 2011/08/20 17:27:11 rlar Exp $
 **********/
 
 /*
@@ -9,18 +9,13 @@ $Id: inp.c,v 1.61 2010/11/19 18:54:41 rlar Exp $
  * the listing routines.
  */
 
-#include "ngspice.h"
+#include <ngspice/ngspice.h>
 
-#ifdef HAVE_LIBGEN_H /* dirname */
-#include <libgen.h>
-#define HAVE_DECL_BASENAME 1
-#endif
-
-#include "cpdefs.h"
-#include "inpdefs.h"
-#include "ftedefs.h"
-#include "dvec.h"
-#include "fteinp.h"
+#include <ngspice/cpdefs.h>
+#include <ngspice/inpdefs.h>
+#include <ngspice/ftedefs.h>
+#include <ngspice/dvec.h>
+#include <ngspice/fteinp.h>
 #include "inp.h"
 
 #include "runcoms.h"
@@ -29,16 +24,17 @@ $Id: inp.c,v 1.61 2010/11/19 18:54:41 rlar Exp $
 #include "completion.h"
 #include "variable.h"
 #include "breakp2.h"
-#include "../misc/util.h" /* dirname() */
+#include "../misc/util.h" /* ngdirname() */
 #include "../misc/mktemp.h"
+#include "../misc/misc_time.h"
 #include "subckt.h"
 #include "spiceif.h"
 #include "error.h" /* controlled_exit() */
 
 #ifdef XSPICE
 /* include new stuff */
-#include "ipctiein.h"
-#include "enh.h"
+#include <ngspice/ipctiein.h>
+#include <ngspice/enh.h>
 /* */
 #endif
 
@@ -328,9 +324,14 @@ inp_spsource(FILE *fp, bool comfile, char *filename)
    FILE *lastin, *lastout, *lasterr;
    double temperature_value;
 
+   double startTime, endTime;
+
    /* read in the deck from a file */
    char *filename_dup = ( filename == NULL ) ? strdup(".") : strdup(filename);
-   inp_readall(fp, &deck, 0, dirname(filename_dup), comfile);
+
+   startTime = seconds();
+   inp_readall(fp, &deck, 0, ngdirname(filename_dup), comfile);
+   endTime = seconds();
    tfree(filename_dup);
 
    /* if nothing came back from inp_readall, just close fp and return to caller */
@@ -406,12 +407,20 @@ inp_spsource(FILE *fp, bool comfile, char *filename)
             }
             temperature = strdup(s);
          }
-         /* Ignore comment lines, but not lines begining with '*#' */
+         /* Ignore comment lines, but not lines begining with '*#',
+            but remove them, if they are in a .control ... .endc section */
          s = dd->li_line;
          while(isspace(*s)) s++;
          if ( (*s == '*') && ( (s != dd->li_line) || (s[1] != '#'))) {
-            ld = dd;
-            continue;
+             if (commands) {
+                /* Remove comment lines in control sections, so they  don't 
+                * get considered as circuits.  */
+               ld->li_next = dd->li_next;
+               line_free(dd,FALSE);
+               continue;
+             }
+             ld = dd;
+             continue;
          }
 	    
          /* Put the first token from line into s */
@@ -513,7 +522,7 @@ inp_spsource(FILE *fp, bool comfile, char *filename)
          cp_vset("pretemp", CP_REAL, &temperature_value );
       }
       if (ft_ngdebug) {
-         cp_getvar( "pretemp", CP_REAL, (double *) &testemp );
+         cp_getvar("pretemp", CP_REAL, &testemp);
          printf("test temperature %f\n", testemp);
       }
       /* We are done handling the control stuff.  Now process remainder of deck.
@@ -582,6 +591,8 @@ inp_spsource(FILE *fp, bool comfile, char *filename)
       if (ft_curckt) {
          ft_curckt->ci_param = NULL;
          ft_curckt->ci_meas  = NULL;
+         /* PN add here stats*/
+         ft_curckt->FTEstats->FTESTATnetLoadTime = endTime - startTime;
       }
 
       for (dd = deck; dd; dd = dd->li_next) {
@@ -627,7 +638,9 @@ inp_spsource(FILE *fp, bool comfile, char *filename)
          prev_card = dd;
       }  //end of for-loop
 
-      /* set temperature if defined */
+      /* set temperature, if defined, to new value.
+         cp_vset will set the variable "temp" and also set CKTtemp,
+         so we can do it only here because the circuit has to be already there */
       if ( temperature != NULL ) {
          temperature_value = atof(temperature);
          cp_vset("temp", CP_REAL, &temperature_value );
@@ -706,6 +719,8 @@ inp_dodeck(
     bool noparse, ii;
     int print_listing;
 
+    double startTime;
+
     /* First throw away any old error messages there might be and fix
        the case of the lines.  */
     for (dd = deck; dd; dd = dd->li_next) {
@@ -719,11 +734,14 @@ inp_dodeck(
     } else {
         if (ft_curckt) {
             ft_curckt->ci_devices = cp_kwswitch(CT_DEVNAMES, 
-                    (char *) NULL);
+                    NULL);
             ft_curckt->ci_nodes = cp_kwswitch(CT_NODENAMES, 
-                    (char *) NULL);
+                    NULL);
         }
         ft_curckt = ct = alloc(struct circ);
+
+        /*PN FTESTATS*/
+        ft_curckt->FTEstats = TMALLOC(FTESTATistics, 1);
     }
     noparse = cp_getvar("noparse", CP_BOOL, NULL);
 
@@ -780,18 +798,23 @@ inp_dodeck(
      * if_inpdeck which takes the deck and returns a
      * a pointer to the circuit ckt.
      *---------------------------------------------------*/
-    if (!noparse)
+    if (!noparse) {
+        startTime = seconds();
         ckt = if_inpdeck(deck, &tab);
-      else
+        ft_curckt->FTEstats->FTESTATnetParseTime = seconds() - startTime;
+    } else
         ckt = NULL;
 
     out_init();
     
+    ft_curckt->FTEstats->FTESTATdeckNumLines = 0;
     /*----------------------------------------------------
      * Now run through the deck and look to see if there are
      * errors on any line.
      *---------------------------------------------------*/
     for (dd = deck; dd; dd = dd->li_next) {
+
+        ft_curckt->FTEstats->FTESTATdeckNumLines += 1;
       
 #ifdef TRACE
       /* SDB debug statement */
@@ -849,9 +872,9 @@ inp_dodeck(
     if (!reuse) {
         /* Be sure that ci_devices and ci_nodes are valid */
         ft_curckt->ci_devices = cp_kwswitch(CT_DEVNAMES, 
-                (char *) NULL);
+                NULL);
         cp_kwswitch(CT_DEVNAMES, ft_curckt->ci_devices);
-        ft_curckt->ci_nodes = cp_kwswitch(CT_NODENAMES, (char *) NULL);
+        ft_curckt->ci_nodes = cp_kwswitch(CT_NODENAMES, NULL);
         cp_kwswitch(CT_NODENAMES, ft_curckt->ci_nodes);
         ft_newcirc(ct);
 	/* Assign current circuit */
@@ -991,7 +1014,7 @@ com_edit(wordlist *wl)
             cp_interactive = inter;
             return;
         }
-        inp_spsource(fp, FALSE, permfile ? filename : (char *) NULL);
+        inp_spsource(fp, FALSE, permfile ? filename : NULL);
         
         /* fclose(fp);  */
         /*	MW. inp_spsource already closed fp */
@@ -1068,7 +1091,7 @@ com_source(wordlist *wl)
             fclose(tp);
             wl = wl->wl_next;
       }
-      fseek(fp, (long) 0, 0);
+      fseek(fp, 0L, SEEK_SET);
    } else
       fp = inp_pathopen(wl->wl_word, "r");
    if (fp == NULL) {
@@ -1079,10 +1102,10 @@ com_source(wordlist *wl)
 
     /* Don't print the title if this is a spice initialisation file. */
    if (ft_nutmeg || substring(INITSTR, owl->wl_word) || substring(ALT_INITSTR, owl->wl_word)) {
-      inp_spsource(fp, TRUE, tempfile ? (char *) NULL : wl->wl_word);
+      inp_spsource(fp, TRUE, tempfile ? NULL : wl->wl_word);
    }
    else {
-      inp_spsource(fp, FALSE, tempfile ? (char *) NULL : wl->wl_word);
+      inp_spsource(fp, FALSE, tempfile ? NULL : wl->wl_word);
    }
    cp_interactive = inter;
    if (tempfile)

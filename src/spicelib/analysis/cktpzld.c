@@ -2,13 +2,13 @@
 Copyright 1990 Regents of the University of California.  All rights reserved.
 **********/
 
-#include "ngspice.h"
-#include "pzdefs.h"
-#include "smpdefs.h"
-#include "cktdefs.h"
-#include "complex.h"
-#include "devdefs.h"
-#include "sperror.h"
+#include <ngspice/ngspice.h>
+#include <ngspice/pzdefs.h>
+#include <ngspice/smpdefs.h>
+#include <ngspice/cktdefs.h>
+#include <ngspice/complex.h>
+#include <ngspice/devdefs.h>
+#include <ngspice/sperror.h>
 
 
 int
@@ -29,7 +29,7 @@ CKTpzLoad(CKTcircuit *ckt, SPcomplex *s)
     SMPcClear(ckt->CKTmatrix);
     for (i = 0; i < DEVmaxnum; i++) {
         if (DEVices[i] && DEVices[i]->DEVpzLoad != NULL && ckt->CKThead[i] != NULL) {
-            error = (*DEVices[i]->DEVpzLoad)(ckt->CKThead[i], ckt, s);
+            error = DEVices[i]->DEVpzLoad (ckt->CKThead[i], ckt, s);
 #ifdef PARALLEL_ARCH
 	    if (error) goto combine;
 #else

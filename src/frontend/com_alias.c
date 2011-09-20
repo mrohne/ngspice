@@ -5,8 +5,8 @@ Author: 1985 Wayne A. Christopher, U. C. Berkeley CAD Group
 
 /* Do alias substitution.  */
 
-#include "ngspice.h"
-#include "cpdefs.h"
+#include <ngspice/ngspice.h>
+#include <ngspice/cpdefs.h>
 #include "com_alias.h"
 
 struct alias *cp_aliases = NULL;
@@ -210,7 +210,7 @@ void
 com_alias(wordlist *wl)
 {
     if (wl == NULL)
-        cp_paliases((char *) NULL);
+        cp_paliases(NULL);
     else if (wl->wl_next == NULL)
         cp_paliases(wl->wl_word);
     else

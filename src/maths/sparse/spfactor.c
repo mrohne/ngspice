@@ -59,7 +59,7 @@
 
 #define spINSIDE_SPARSE
 #include "spconfig.h"
-#include "spmatrix.h"
+#include <ngspice/spmatrix.h>
 #include "spdefs.h"
 
 
@@ -342,7 +342,7 @@ spFactor(MatrixPtr eMatrix)
 
     if (Matrix->NeedsOrdering)
     {
-	return spOrderAndFactor( eMatrix, (RealVector)NULL,
+	return spOrderAndFactor( eMatrix, NULL,
                                  0.0, 0.0, DIAG_PIVOTING_AS_DEFAULT );
     }
     if (!Matrix->Partitioned) spPartition( eMatrix, spDEFAULT_PARTITION );
@@ -1132,7 +1132,7 @@ RealNumber  PivotMag;
              * N-1 bottles of beer on the wall.
              */
         }
-        I = pMarkowitzProduct - Matrix->MarkowitzProd + 1;
+        I = (int)(pMarkowitzProduct - Matrix->MarkowitzProd) + 1;
 
  /* Assure that I is valid. */
         if (I < Step) break;  /* while (Singletons-- > 0) */
@@ -1552,7 +1552,7 @@ RealNumber  Magnitude, LargestInCol, LargestOffDiagonal;
     /* Just passing through. */
         }
 
-        I = pMarkowitzProduct - Matrix->MarkowitzProd;
+        I = (int)(pMarkowitzProduct - Matrix->MarkowitzProd);
 
  /* Assure that I is valid; if I < Step, terminate search. */
         if (I < Step) break; /* Endless for loop */

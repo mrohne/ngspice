@@ -7,32 +7,32 @@ Modified: 2000  AlansFixes
 /* subroutine to do DC TRANSIENT analysis
         --- ONLY, unlike spice2 routine with the same name! */
 
-#include "ngspice.h"
+#include <ngspice/ngspice.h>
 #include "config.h"
-#include "cktdefs.h"
+#include <ngspice/cktdefs.h>
 #include "cktaccept.h"
-#include "trandefs.h"
-#include "sperror.h"
-#include "fteext.h"
-#include "missing_math.h"
+#include <ngspice/trandefs.h>
+#include <ngspice/sperror.h>
+#include <ngspice/fteext.h>
+#include <ngspice/missing_math.h>
 
 /* for setting breakpoints required by dbs data base */
 extern struct dbcomm *dbs;
-#include "ftedebug.h"
+#include <ngspice/ftedebug.h>
 
 #ifdef XSPICE
 /* gtri - add - wbk - Add headers */
-#include "miftypes.h"
+#include <ngspice/miftypes.h>
 
-#include "evt.h"
-#include "mif.h"
-#include "evtproto.h"
-#include "ipctiein.h"
+#include <ngspice/evt.h>
+#include <ngspice/mif.h>
+#include <ngspice/evtproto.h>
+#include <ngspice/ipctiein.h>
 /* gtri - end - wbk - Add headers */
 #endif
 
 #ifdef CLUSTER
-#include "cluster.h"
+#include <ngspice/cluster.h>
 #endif
 
 #ifdef PREDICTOR
@@ -115,7 +115,7 @@ DCtran(CKTcircuit *ckt,
 
         if(ckt->CKTbreaks) FREE(ckt->CKTbreaks);
         ckt->CKTbreaks = TMALLOC(double, 2);
-        if(ckt->CKTbreaks == (double *)NULL) return(E_NOMEM);
+        if(ckt->CKTbreaks == NULL) return(E_NOMEM);
         *(ckt->CKTbreaks) = 0;
         *(ckt->CKTbreaks+1) = ckt->CKTfinalTime;
         ckt->CKTbreakSize = 2;
@@ -142,9 +142,9 @@ DCtran(CKTcircuit *ckt,
 #endif
         error = CKTnames(ckt,&numNames,&nameList);
         if(error) return(error);
-        (*(SPfrontEnd->IFnewUid))(ckt,&timeUid,(IFuid)NULL,
+        SPfrontEnd->IFnewUid (ckt, &timeUid, NULL,
                 "time", UID_OTHER, NULL);
-        error = (*(SPfrontEnd->OUTpBeginPlot))(ckt,
+        error = SPfrontEnd->OUTpBeginPlot (ckt,
         ckt->CKTcurJob,
         ckt->CKTcurJob->JOBname,timeUid,IF_REAL,numNames,nameList,
         IF_REAL,&(((TRANan*)ckt->CKTcurJob)->TRANplot));
@@ -256,7 +256,7 @@ DCtran(CKTcircuit *ckt,
         /* Send the operating point results for Mspice compatibility */
         if(g_ipc.enabled) {
             ipc_send_dcop_prefix();
-            CKTdump(ckt,(double)0,(((TRANan*)ckt->CKTcurJob)->TRANplot));
+            CKTdump(ckt, 0.0, ((TRANan*)ckt->CKTcurJob)->TRANplot);
             ipc_send_dcop_suffix();
         }
 
@@ -322,7 +322,7 @@ DCtran(CKTcircuit *ckt,
         }
 #endif
 
-        startTime=(*(SPfrontEnd->IFseconds))();
+        startTime = SPfrontEnd->IFseconds();
         startIters = ckt->CKTstat->STATnumIter;
         startdTime = ckt->CKTstat->STATdecompTime;
         startsTime = ckt->CKTstat->STATsolveTime;
@@ -336,7 +336,7 @@ DCtran(CKTcircuit *ckt,
         /* saj As traninit resets CKTmode */
         ckt->CKTmode = (ckt->CKTmode&MODEUIC) | MODETRAN | MODEINITPRED;
         /* saj */
-        startTime=(*(SPfrontEnd->IFseconds))();
+        startTime = SPfrontEnd->IFseconds();
         startIters = ckt->CKTstat->STATnumIter;
         startdTime = ckt->CKTstat->STATdecompTime;
         startsTime = ckt->CKTstat->STATsolveTime;
@@ -346,16 +346,9 @@ DCtran(CKTcircuit *ckt,
         if(ckt->CKTminBreak==0) ckt->CKTminBreak=ckt->CKTmaxStep*5e-5;
         firsttime=0;
         /* To get rawfile working saj*/
-        /* get namelist again */
-        error = CKTnames(ckt,&numNames,&nameList);
-        if(error) return(error);
-        /* get timeUiD again */
-        (*(SPfrontEnd->IFnewUid))(ckt,&timeUid,(IFuid)NULL,
-                "time", UID_OTHER, NULL);
-        error = (*(SPfrontEnd->OUTpBeginPlot))(ckt, ckt->CKTcurJob,
-                 ckt->CKTcurJob->JOBname,timeUid,IF_REAL,666,nameList,
-                 666,&(((TRANan*)ckt->CKTcurJob)->TRANplot));/* magic 666 nums as flags */
-        tfree(nameList);
+        error = SPfrontEnd->OUTpBeginPlot
+            (NULL, NULL, NULL, NULL, 0, 666, NULL, 666,
+             &(((TRANan*)ckt->CKTcurJob)->TRANplot));
         if(error) {
             fprintf(stderr, "Couldn't relink rawfile\n");
             return error;
@@ -409,7 +402,7 @@ DCtran(CKTcircuit *ckt,
     /* XXX Error will cause single process to bail. */
     if(error)  {
         ckt->CKTcurrentAnalysis = DOING_TRAN;
-        ckt->CKTstat->STATtranTime += (*(SPfrontEnd->IFseconds))()-startTime;
+        ckt->CKTstat->STATtranTime += SPfrontEnd->IFseconds() - startTime;
         ckt->CKTstat->STATtranIter += ckt->CKTstat->STATnumIter - startIters;
         ckt->CKTstat->STATtranDecompTime += ckt->CKTstat->STATdecompTime -
                 startdTime;
@@ -492,9 +485,9 @@ DCtran(CKTcircuit *ckt,
         printf(" done:  time is %g, final time is %g, and tol is %g\n",
         ckt->CKTtime,ckt->CKTfinalTime,ckt->CKTminBreak);
 #endif
-        (*(SPfrontEnd->OUTendPlot))( (((TRANan*)ckt->CKTcurJob)->TRANplot));
+        SPfrontEnd->OUTendPlot (((TRANan*)ckt->CKTcurJob)->TRANplot);
         ckt->CKTcurrentAnalysis = 0;
-        ckt->CKTstat->STATtranTime += (*(SPfrontEnd->IFseconds))()-startTime;
+        ckt->CKTstat->STATtranTime += SPfrontEnd->IFseconds() - startTime;
         ckt->CKTstat->STATtranIter += ckt->CKTstat->STATnumIter - startIters;
         ckt->CKTstat->STATtranDecompTime += ckt->CKTstat->STATdecompTime -
                 startdTime;
@@ -516,10 +509,10 @@ DCtran(CKTcircuit *ckt,
 #endif
         return(OK);
     }
-    if( (*(SPfrontEnd->IFpauseTest))() ) {
+    if(SPfrontEnd->IFpauseTest()) {
         /* user requested pause... */
         ckt->CKTcurrentAnalysis = DOING_TRAN;
-        ckt->CKTstat->STATtranTime += (*(SPfrontEnd->IFseconds))()-startTime;
+        ckt->CKTstat->STATtranTime += SPfrontEnd->IFseconds() - startTime;
         ckt->CKTstat->STATtranIter += ckt->CKTstat->STATnumIter - startIters;
         ckt->CKTstat->STATtranDecompTime += ckt->CKTstat->STATdecompTime -
                 startdTime;
@@ -859,7 +852,7 @@ resume:
             if(error) {
                 ckt->CKTcurrentAnalysis = DOING_TRAN;
                 ckt->CKTstat->STATtranTime +=
-                        (*(SPfrontEnd->IFseconds))() - startTime;
+                        SPfrontEnd->IFseconds() - startTime;
                 ckt->CKTstat->STATtranIter +=
                         ckt->CKTstat->STATnumIter - startIters;
                 ckt->CKTstat->STATtranDecompTime += ckt->CKTstat->STATdecompTime
@@ -882,7 +875,7 @@ resume:
                     if(error) {
                         ckt->CKTcurrentAnalysis = DOING_TRAN;
                         ckt->CKTstat->STATtranTime +=
-                                (*(SPfrontEnd->IFseconds))() - startTime;
+                                SPfrontEnd->IFseconds() - startTime;
                         ckt->CKTstat->STATtranIter +=
                                 ckt->CKTstat->STATnumIter - startIters;
                         ckt->CKTstat->STATtranDecompTime +=
@@ -962,7 +955,7 @@ resume:
             } else {
                 ckt->CKTcurrentAnalysis = DOING_TRAN;
                 ckt->CKTstat->STATtranTime +=
-                        (*(SPfrontEnd->IFseconds))()-startTime;
+                        SPfrontEnd->IFseconds() - startTime;
                 ckt->CKTstat->STATtranIter +=
                         ckt->CKTstat->STATnumIter - startIters;
                 ckt->CKTstat->STATtranDecompTime +=

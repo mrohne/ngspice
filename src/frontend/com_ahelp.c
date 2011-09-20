@@ -1,9 +1,9 @@
 #include <config.h>
-#include <ngspice.h>
+#include <ngspice/ngspice.h>
 
-#include <bool.h>
-#include <wordlist.h>
-#include <fteext.h>
+#include <ngspice/bool.h>
+#include <ngspice/wordlist.h>
+#include <ngspice/fteext.h>
 
 #include "variable.h"
 #include "com_help.h"
@@ -20,9 +20,9 @@ com_ahelp(wordlist *wl)
     int i, n;
     /* assert: number of commands must be less than 512 */
     struct comm *cc[512];
-    int env = 0;
+    unsigned int env = 0;
     struct comm *com;
-    int level;
+    unsigned int level;
     char slevel[256];
 
     if (wl) {
@@ -73,8 +73,7 @@ com_ahelp(wordlist *wl)
 	com = cc[i];
 	if ((com->co_env < (level << 13)) && (!(com->co_env & 4095) ||
 					      (env & com->co_env))) {
-	    if ((com->co_spiceonly && ft_nutmeg) ||
-		(com->co_help == (char *) NULL)) {
+	    if ((com->co_spiceonly && ft_nutmeg) || (com->co_help == NULL)) {
 		continue;
 	    }
 	    out_printf("%s ", com->co_comname);

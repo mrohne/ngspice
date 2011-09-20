@@ -4,30 +4,28 @@ Author: 1985 Thomas L. Quarles
 Modified: 2000 AlansFixes
 **********/
 
-#include "ngspice.h"
-#include "cktdefs.h"
-#include "sperror.h"
-#include "trandefs.h"
+#include <ngspice/ngspice.h>
+#include <ngspice/cktdefs.h>
+#include <ngspice/sperror.h>
+#include <ngspice/trandefs.h>
 
 #include "analysis.h"
 
 #ifdef XSPICE
 /* gtri - add - wbk - 11/26/90 - add include for MIF and EVT global data */
-#include "mif.h"
-#include "evtproto.h"
+#include <ngspice/mif.h>
+#include <ngspice/evtproto.h>
 /* gtri - end - wbk - 11/26/90 */
 /* gtri - add - 12/12/90 - wbk - include ipc stuff */
-#include "ipctiein.h"
+#include <ngspice/ipctiein.h>
 /* gtri - end - 12/12/90 */
 #endif
 
 extern SPICEanalysis *analInfo[];
 
 int
-CKTdoJob(CKTcircuit *inCkt, int reset, TSKtask *inTask)
+CKTdoJob(CKTcircuit *ckt, int reset, TSKtask *task)
 {
-    CKTcircuit	*ckt = /* fixme, drop that */ inCkt;
-    TSKtask	*task = /* fixme, drop that */ inTask;
     JOB		*job;
     double	startTime;
     int		error, i, error2;
@@ -40,7 +38,7 @@ CKTdoJob(CKTcircuit *inCkt, int reset, TSKtask *inTask)
     /* Sensitivity is special */
     if (sens_num < 0) {
 	for (i = 0; i <  ANALmaxnum; i++)
-	    if (!strcmp("SENS2", analInfo[i]->public.name))
+	    if (!strcmp("SENS2", analInfo[i]->if_analysis.name))
 		break;
 	sens_num = i;
     }
@@ -48,7 +46,7 @@ CKTdoJob(CKTcircuit *inCkt, int reset, TSKtask *inTask)
 
     ANALmaxnum = spice_num_analysis();
 
-    startTime = (*(SPfrontEnd->IFseconds))( );
+    startTime = SPfrontEnd->IFseconds();
 
     ckt->CKTtemp  = task->TSKtemp;
     ckt->CKTnomTemp  = task->TSKnomTemp;
@@ -119,7 +117,7 @@ CKTdoJob(CKTcircuit *inCkt, int reset, TSKtask *inTask)
 		    senflag = 1;
 		    ckt->CKTcurJob = job;
 		    ckt->CKTsenInfo = (SENstruct *) job;
-		    error = (*(analInfo[sens_num]->an_func))(ckt, reset);
+		    error = analInfo[sens_num]->an_func (ckt, reset);
 		}
 	    }
 
@@ -193,7 +191,7 @@ CKTdoJob(CKTcircuit *inCkt, int reset, TSKtask *inTask)
                 ckt->CKTcurJob=job;
 		error = OK;
 		if (analInfo[i]->an_init)
-		    error = (*(analInfo[i]->an_init))(ckt, job);
+		    error = analInfo[i]->an_init (ckt, job);
 		if (!error && analInfo[i]->do_ic)
 		    error = CKTic(ckt);
 		if (!error){
@@ -202,12 +200,12 @@ CKTdoJob(CKTcircuit *inCkt, int reset, TSKtask *inTask)
                   error = EVTsetup(ckt);
                   if(error) {
                     ckt->CKTstat->STATtotAnalTime +=
-                      (*(SPfrontEnd->IFseconds))()-startTime;
+                      SPfrontEnd->IFseconds() - startTime;
                     return(error);
                   }
                   /* gtri - end - 6/10/91 - wbk - Setup event-driven data */
 #endif
-		    error = (*(analInfo[i]->an_func))(ckt, reset);
+		    error = analInfo[i]->an_func (ckt, reset);
 			/* txl, cpl addition */
 			if (error == 1111) break;
 		}
@@ -217,7 +215,7 @@ CKTdoJob(CKTcircuit *inCkt, int reset, TSKtask *inTask)
 	}
     }
 
-    ckt->CKTstat->STATtotAnalTime += (*(SPfrontEnd->IFseconds))( ) - startTime;
+    ckt->CKTstat->STATtotAnalTime += SPfrontEnd->IFseconds() - startTime;
 
 #ifdef WANT_SENSE2
     if (ckt->CKTsenInfo)

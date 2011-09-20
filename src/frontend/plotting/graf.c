@@ -1,7 +1,7 @@
 /**********
 Copyright 1990 Regents of the University of California.  All rights reserved.
 Author: 1988 Jeffrey M. Hsu
-$Id: graf.c,v 1.32 2010/11/19 18:54:41 rlar Exp $
+$Id: graf.c,v 1.39 2011/08/20 17:27:11 rlar Exp $
 **********/
 
 /*
@@ -10,21 +10,21 @@ $Id: graf.c,v 1.32 2010/11/19 18:54:41 rlar Exp $
  *
  */
 
-#include <ngspice.h>
-#include "cpdefs.h"		/* for CP_ */
-#include "cpextern.h"
-#include <plot.h>
-#include "ftedebug.h"		/* for iplot */
-#include <dvec.h>		/* for struct dvec */
-#include "ftedefs.h"		/* for FTEextern.h and IPOINT{MIN,MAX} */
-#include "fteinput.h"
-#include <graph.h>
-#include "ftedbgra.h"
-#include "ftedev.h"
+#include <ngspice/ngspice.h>
+#include <ngspice/cpdefs.h>		/* for CP_ */
+#include <ngspice/cpextern.h>
+#include <ngspice/plot.h>
+#include <ngspice/ftedebug.h>		/* for iplot */
+#include <ngspice/dvec.h>		/* for struct dvec */
+#include <ngspice/ftedefs.h>		/* for FTEextern.h and IPOINT{MIN,MAX} */
+#include <ngspice/fteinput.h>
+#include <ngspice/graph.h>
+#include <ngspice/ftedbgra.h>
+#include <ngspice/ftedev.h>
 #include <terminal.h>
 #include "graf.h"
 #include "graphdb.h"
-#include "grid.h"
+#include <ngspice/grid.h>
 #include "../terminal.h"
 #include "../breakp2.h"
 #include "../error.h"
@@ -34,7 +34,7 @@ $Id: graf.c,v 1.32 2010/11/19 18:54:41 rlar Exp $
 /* static declarations */
 static void gr_start_internal(struct dvec *dv, bool copyvec);
 static int iplot(struct plot *pl, int id);
-static void set(struct plot *plot, struct dbcomm *db, bool unset, int mode);
+static void set(struct plot *plot, struct dbcomm *db, bool unset, short mode);
 static char * getitright(char *buf, double num);
 
 /* for legends, set in gr_start, reset in gr_iplot and gr_init */
@@ -107,7 +107,7 @@ gr_init(double *xlims, double *ylims, /* The size of the screen. */
     if (!cp_getvar("pointchars", CP_STRING, pointchars))
           (void) strcpy(pointchars, DEFPOINTCHARS);
 
-    if (!cp_getvar("ticmarks", CP_NUM, (char *) &graph->ticmarks)) {
+    if (!cp_getvar("ticmarks", CP_NUM, &graph->ticmarks)) {
       if (cp_getvar("ticmarks", CP_BOOL, NULL))
         graph->ticmarks = 10;
       else
@@ -132,7 +132,6 @@ gr_init(double *xlims, double *ylims, /* The size of the screen. */
     graph->data.ymin = ylims[0];
     graph->data.ymax = ylims[1];
 /* get title into plot window */
-#ifdef HAS_WINDOWS
     if (!pname)
 	pname = "(unknown)";
     if (!plotname)
@@ -140,7 +139,6 @@ gr_init(double *xlims, double *ylims, /* The size of the screen. */
     comb_title = TMALLOC(char, strlen(plotname) + strlen(pname) + 3);
     sprintf(comb_title, "%s: %s", pname, plotname);
     graph->plotname = comb_title;
-#endif
 
     /* note: have enum here or some better convention */
     if (NewViewport(graph) == 1) {
@@ -187,15 +185,7 @@ gr_init(double *xlims, double *ylims, /* The size of the screen. */
             graph->grid.ylabel = "imag";
         }
     }
-#ifndef HAS_WINDOWS
-    if (!pname)
-	pname = "(unknown)";
-    if (!plotname)
-	plotname = "(unknown)";
-    comb_title = TMALLOC(char, strlen(plotname) + strlen(pname) + 3);
-    sprintf(comb_title, "%s: %s", pname, plotname);
-    graph->plotname = comb_title;
-#endif
+
     gr_resize_internal(graph);
     gr_redrawgrid(graph);
 
@@ -307,13 +297,13 @@ gr_point(struct dvec *dv,
         break;
       case PLOT_COMB:
         DatatoScreen(currentgraph,
-                (double) 0, currentgraph->datawindow.ymin,
+                0.0, currentgraph->datawindow.ymin,
                 &dummy, &ymin);
         DevDrawLine(tox, ymin, tox, toy);
         break;
       case PLOT_POINT:
         /* Here, gi_linestyle is the character used for the point.  */
-        pointc[0] = dv->v_linestyle;
+        pointc[0] = (char) dv->v_linestyle;
         pointc[1] = '\0';
         DevDrawText(pointc, (int) (tox - currentgraph->fontwidth / 2),
             (int) (toy - currentgraph->fontheight / 2));
@@ -503,8 +493,8 @@ gr_resize(GRAPH *graph)
     scalex = oldxratio / graph->aspectratiox;
     scaley = oldyratio / graph->aspectratioy;
     for (k = graph->keyed; k; k = k->next) {
-      k->x = (k->x - graph->viewportxoff) * scalex + graph->viewportxoff;
-      k->y = (k->y - graph->viewportyoff) * scaley + graph->viewportyoff;
+      k->x = (int)((k->x - graph->viewportxoff) * scalex + graph->viewportxoff);
+      k->y = (int)((k->y - graph->viewportyoff) * scaley + graph->viewportyoff);
     }
 
     /* X also generates an expose after a resize.
@@ -529,8 +519,8 @@ gr_resize_internal(GRAPH *graph)
 {
 
     if (!graph->grid.xsized)
-	    graph->viewport.width = graph->absolute.width -
-		    1.4 * graph->viewportxoff;
+	    graph->viewport.width = (int)(graph->absolute.width -
+		    1.4 * graph->viewportxoff);
     if (!graph->grid.ysized)
 	    graph->viewport.height = graph->absolute.height -
 		    2 * graph->viewportyoff;
@@ -577,7 +567,7 @@ gr_redraw(GRAPH *graph)
             else pass vec's plot's scale
       */
       ft_graf(link->vector,
-          graph->onevalue ? (struct dvec *) NULL :
+          graph->onevalue ? NULL :
                     (link->vector->v_scale ?
                     link->vector->v_scale :
                     link->vector->v_plot->pl_scale),
@@ -685,7 +675,7 @@ iplot(struct plot *pl, int id)
         sprintf(commandline, "plot %s", yl);
 
         (void) gr_init(xlims, ylims, xs->v_name,
-            pl->pl_title, (char *) NULL, j, 0.0, 0.0,
+            pl->pl_title, NULL, j, 0.0, 0.0,
             GRID_LIN, PLOT_LIN, xs->v_name, yl, xs->v_type, yt,
             plot_cur->pl_typename, commandline);
         for (v = pl->pl_dvecs; v; v = v->v_next)
@@ -825,7 +815,7 @@ iplot(struct plot *pl, int id)
 }
 
 static void
-set(struct plot *plot, struct dbcomm *db, bool unset, int mode)
+set(struct plot *plot, struct dbcomm *db, bool unset, short mode)
 {
 
     struct dvec *v;
@@ -834,7 +824,7 @@ set(struct plot *plot, struct dbcomm *db, bool unset, int mode)
     if (db->db_type == DB_IPLOTALL || db->db_type == DB_TRACEALL) {
       for (v = plot->pl_dvecs; v; v = v->v_next) {
         if (unset)
-          v->v_flags &= ~mode;
+          v->v_flags &= (short) ~mode;
         else
           v->v_flags |= mode;
       }
@@ -851,7 +841,7 @@ set(struct plot *plot, struct dbcomm *db, bool unset, int mode)
           continue;
         }
         if (unset)
-          v->v_flags &= ~mode;
+          v->v_flags &= (short) ~mode;
         else
           v->v_flags |= mode;
     }

@@ -20,13 +20,13 @@ Modified by Paolo Nenzi 2002
 ngspice integration
 **********/
 
-#include "ngspice.h"
+#include <ngspice/ngspice.h>
 #include "soi3defs.h"
-#include "cktdefs.h"
-#include "iferrmsg.h"
-#include "noisedef.h"
-#include "const.h"
-#include "suffix.h"
+#include <ngspice/cktdefs.h>
+#include <ngspice/iferrmsg.h>
+#include <ngspice/noisedef.h>
+#include <ngspice/const.h>
+#include <ngspice/suffix.h>
 
 
 /* This routine is VERY closely based on the standard MOS noise function.
@@ -91,9 +91,9 @@ SOI3noise (int mode, int operation, GENmodel *genmodel, CKTcircuit *ckt,
 
 data->namelist = TREALLOC(IFuid, data->namelist, data->numPlots + 1);
 if (!data->namelist) return(E_NOMEM);
-		(*(SPfrontEnd->IFnewUid))(ckt,
+		SPfrontEnd->IFnewUid (ckt,
 			&(data->namelist[data->numPlots++]),
-			(IFuid)NULL, name, UID_OTHER, NULL);
+			NULL, name, UID_OTHER, NULL);
 				/* we've added one more plot */
 
 
@@ -107,9 +107,9 @@ if (!data->namelist) return(E_NOMEM);
 
 data->namelist = TREALLOC(IFuid, data->namelist, data->numPlots + 1);
 if (!data->namelist) return(E_NOMEM);
-		(*(SPfrontEnd->IFnewUid))(ckt,
+		SPfrontEnd->IFnewUid (ckt,
 			&(data->namelist[data->numPlots++]),
-			(IFuid)NULL, name, UID_OTHER, NULL);
+			NULL, name, UID_OTHER, NULL);
 				/* we've added one more plot */
 
              (void)sprintf(name,"inoise_total_%s%s",inst->SOI3name,SOI3nNames[i]);
@@ -117,9 +117,9 @@ if (!data->namelist) return(E_NOMEM);
 
 data->namelist = TREALLOC(IFuid, data->namelist, data->numPlots + 1);
 if (!data->namelist) return(E_NOMEM);
-		(*(SPfrontEnd->IFnewUid))(ckt,
+		SPfrontEnd->IFnewUid (ckt,
 			&(data->namelist[data->numPlots++]),
-			(IFuid)NULL, name, UID_OTHER, NULL);
+			NULL, name, UID_OTHER, NULL);
 				/* we've added one more plot */
 
 
@@ -140,7 +140,7 @@ if (!data->namelist) return(E_NOMEM);
  * is valid in ALL regions and not just saturation.
  */
                     EffectiveLength=inst->SOI3l - 2*model->SOI3latDiff;
-		    NevalSrc(&noizDens[SOI3RDNOIZ],(double*)NULL,
+		    NevalSrc(&noizDens[SOI3RDNOIZ], NULL,
 				 ckt,N_GAIN,inst->SOI3dNodePrime,inst->SOI3dNode,
 				 (double)0.0);
 		    noizDens[SOI3RDNOIZ] *= 4 * CONSTboltz *
@@ -148,7 +148,7 @@ if (!data->namelist) return(E_NOMEM);
 					    inst->SOI3drainConductance * inst->SOI3m;
 		    lnNdens[SOI3RDNOIZ] = log(MAX(noizDens[SOI3RDNOIZ],N_MINLOG));
 
-		    NevalSrc(&noizDens[SOI3RSNOIZ],(double*)NULL,
+		    NevalSrc(&noizDens[SOI3RSNOIZ], NULL,
 				 ckt,N_GAIN,inst->SOI3sNodePrime,inst->SOI3sNode,
 				 (double)0.0);
 		    noizDens[SOI3RSNOIZ] *= 4 * CONSTboltz *
@@ -156,7 +156,7 @@ if (!data->namelist) return(E_NOMEM);
 					    inst->SOI3sourceConductance * inst->SOI3m;
 		    lnNdens[SOI3RSNOIZ] = log(MAX(noizDens[SOI3RSNOIZ],N_MINLOG));
 
-		    NevalSrc(&gain,(double*)NULL,ckt,
+		    NevalSrc(&gain, NULL, ckt,
 				 N_GAIN,inst->SOI3dNodePrime, inst->SOI3sNodePrime,
 				 (double)0.0);
 

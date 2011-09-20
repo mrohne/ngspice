@@ -12,7 +12,7 @@ dnl Initialisation
 dnl ---------------
 
 dnl Initialisation of configure
-AC_INIT(ngspice,22,http://ngspice.sourceforge.net/bugrep.html)
+AC_INIT(ngspice,23,http://ngspice.sourceforge.net/bugrep.html)
 
 dnl Unique file in the source directory
 AC_CONFIG_SRCDIR([src/ngspice.c])
@@ -23,7 +23,7 @@ dnl problem to the user.  (2.52 is a guess and might need some adjustment)
 AC_PREREQ(2.59)
 
 dnl Revison stamp the generated ./configure script
-AC_REVISION($Revision: 1.17 $)
+AC_REVISION($Revision: 1.32 $)
 
 dnl Create a configuration header
 AC_CONFIG_HEADER([config.h])
@@ -162,8 +162,6 @@ AC_ARG_ENABLE(x,
     AS_HELP_STRING([--enable-x],[Enable X11 gui]))
 
 dnl --with-readline:  Includes GNU readline support into CLI.  Default is "no".
-dnl Including readline into ngspice is a violation of GPL license. It's use
-dnl is discouraged.
 AC_ARG_WITH(readline,
     AS_HELP_STRING([--with-readline[=yes/no]],[Enable GNU readline support for CLI. Default=no.]))
 
@@ -205,7 +203,7 @@ dnl the above AC_PROG_CC may set CFLAGS to "-O2 -g"
 if test "$enable_debug" = "no"; then
 	if test "x$GCC" = "xyes"; then
 		AC_MSG_WARN(Removing debugging option!)
-		CFLAGS="$ext_CFLAGS -O2 -Wall -Wextra -Wmissing-prototypes -Wstrict-prototypes -Wimplicit-function-declaration -Wnested-externs -Wold-style-definition -Wredundant-decls -Wno-unused-parameter -s"
+		CFLAGS="$ext_CFLAGS -O2 -Wall -Wextra -Wmissing-prototypes -Wstrict-prototypes -Wnested-externs -Wold-style-definition -Wredundant-decls -Wconversion -s"
 	else
 		AC_MSG_WARN(Removing debugging option!)
 		CFLAGS="$ext_CFLAGS -O2"
@@ -213,7 +211,7 @@ if test "$enable_debug" = "no"; then
 else
     AC_DEFINE(NGDEBUG,1,[Compile with debug info])
 	if test "x$GCC" = "xyes"; then
-		CFLAGS="$ext_CFLAGS -g -O0 -Wall -Wextra -Wmissing-prototypes -Wstrict-prototypes -Wimplicit-function-declaration -Wnested-externs -Wold-style-definition -Wredundant-decls -Wno-unused-parameter"
+		CFLAGS="$ext_CFLAGS -g -O1 -Wall -Wextra -Wmissing-prototypes -Wstrict-prototypes -Wnested-externs -Wold-style-definition -Wredundant-decls -Wconversion"
 	else
 		CFLAGS="$ext_CFLAGS -g"
 	fi
@@ -898,7 +896,7 @@ dnl The makefiles for adms (to be added to AC_CONFIG_FILES by ./autogen.sh --adm
    VLADEV=" spicelib/devices/adms/ekv/libekv.la \
             spicelib/devices/adms/hicum0/libhicum0.la \
             spicelib/devices/adms/hicum2/libhicum2.la \
-            spicelib/devices/adms/mextram/libmextram.la \
+            spicelib/devices/adms/mextram/libbjt504t.la \
             spicelib/devices/adms/psp102/libpsp102.la "
 
 else
@@ -999,7 +997,6 @@ dnl ------------
 AC_CONFIG_FILES([Makefile
                  man/Makefile
                  man/man1/Makefile
-                 doc/Makefile
                  src/Makefile
                  src/spinit
                  src/tclspinit
@@ -1008,20 +1005,16 @@ AC_CONFIG_FILES([Makefile
                  src/spicelib/devices/Makefile
                  src/spicelib/devices/asrc/Makefile
                  src/spicelib/devices/bjt/Makefile
-                 src/spicelib/devices/bjt2/Makefile
                  src/spicelib/devices/bsim1/Makefile
                  src/spicelib/devices/bsim2/Makefile
                  src/spicelib/devices/bsim3/Makefile
                  src/spicelib/devices/bsim3v0/Makefile
                  src/spicelib/devices/bsim3v1/Makefile
-                 src/spicelib/devices/bsim3v1a/Makefile
-                 src/spicelib/devices/bsim3v1s/Makefile
                  src/spicelib/devices/bsim3v32/Makefile
                  src/spicelib/devices/bsim4/Makefile
-                 src/spicelib/devices/bsim4v2/Makefile
-                 src/spicelib/devices/bsim4v3/Makefile
                  src/spicelib/devices/bsim4v4/Makefile
                  src/spicelib/devices/bsim4v5/Makefile
+                 src/spicelib/devices/bsim4v6/Makefile
                  src/spicelib/devices/bsim3soi/Makefile
                  src/spicelib/devices/bsim3soi_pd/Makefile
                  src/spicelib/devices/bsim3soi_fd/Makefile
@@ -1036,7 +1029,8 @@ AC_CONFIG_FILES([Makefile
                  src/spicelib/devices/isrc/Makefile
                  src/spicelib/devices/hfet1/Makefile
                  src/spicelib/devices/hfet2/Makefile
-                 src/spicelib/devices/hisim/Makefile
+                 src/spicelib/devices/hisim2/Makefile
+                 src/spicelib/devices/hisimhv/Makefile
                  src/spicelib/devices/jfet/Makefile
                  src/spicelib/devices/jfet2/Makefile
                  src/spicelib/devices/ltra/Makefile
@@ -1076,7 +1070,7 @@ AC_CONFIG_FILES([Makefile
                  src/frontend/plotting/Makefile
                  src/frontend/trannoise/Makefile
                  src/frontend/wdisp/Makefile
-                 src/include/Makefile
+                 src/include/ngspice/Makefile
                  src/maths/Makefile
                  src/maths/cmaths/Makefile
                  src/maths/fft/Makefile
@@ -1112,6 +1106,7 @@ AC_CONFIG_FILES([Makefile
                  tests/general/Makefile
                  tests/hfet/Makefile
                  tests/hisim/Makefile
+                 tests/hisimhv/Makefile
                  tests/jfet/Makefile
                  tests/mes/Makefile
                  tests/mesa/Makefile

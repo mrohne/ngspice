@@ -2,20 +2,20 @@
  *
  *  This file is part of Numparam, see:  readme.txt
  *  Free software under the terms of the GNU Lesser General Public License
- * $Id: mystring.c,v 1.33 2011/02/19 15:11:53 rlar Exp $
+ * $Id: mystring.c,v 1.35 2011/08/20 17:27:11 rlar Exp $
  */
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
 #include <string.h>
-#include <memory.h>
+#include <ngspice/memory.h>
 #include <math.h>
 #include <stdarg.h>
 
 #include "config.h"
 #ifdef HAS_WINDOWS
-#include "wstdio.h"
+#include <ngspice/wstdio.h>
 #endif
 
 #include "general.h"
@@ -184,7 +184,7 @@ char
 upcase (char c)
 {
     if ((c >= 'a') && (c <= 'z'))
-        return c + 'A' - 'a';
+        return (char) (c + 'A' - 'a');
     else
         return c;
 }
@@ -364,7 +364,7 @@ nadd ( SPICE_DSTRINGPTR dstr_p, long n)
         }
         for (j = k - 1; j >= 0; j--)
         {
-            load_str[0] = d[j] + '0';
+            load_str[0] = (char) ('0' + d[j]);
             spice_dstring_append( dstr_p, load_str, 1 ) ;
         }
     }
@@ -392,7 +392,7 @@ naddll (SPICE_DSTRINGPTR dstr_p, long long n)
 
     while (n > 0)
     {
-        d[k] = n % 10;
+        d[k] = (int) (n % 10);
         k++;
         n = n / 10;
     }
@@ -409,7 +409,7 @@ naddll (SPICE_DSTRINGPTR dstr_p, long long n)
         }
         for (j = k - 1; j >= 0; j--)
         {
-            load_str[0] = d[j] + '0';
+            load_str[0] = (char) ('0' + d[j]);
             spice_dstring_append( dstr_p, load_str, 1 ) ;
         }
     }

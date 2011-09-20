@@ -9,9 +9,9 @@ Modified to jfet2 for PS model definition ( Anthony E. Parker )
 /*
  */
 
-#include "ngspice.h"
+#include <ngspice/ngspice.h>
 #include "jfet2defs.h"
-#include "suffix.h"
+#include <ngspice/suffix.h>
 
 
 void
@@ -26,7 +26,7 @@ JFET2destroy(GENmodel **inModel)
     for( ; mod ; mod = mod->JFET2nextModel) {
         if(oldmod) FREE(oldmod);
         oldmod = mod;
-        prev = (JFET2instance *)NULL;
+        prev = NULL;
         for(here = mod->JFET2instances ; here ; here = here->JFET2nextInstance) {
             if(prev) FREE(prev);
             prev = here;

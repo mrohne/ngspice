@@ -9,10 +9,10 @@ Author: 1985 Thomas L. Quarles
      *   add the given time to the breakpoint table for the given circuit
      */
 
-#include "ngspice.h"
-#include "cktdefs.h"
-#include "ifsim.h"
-#include "sperror.h"
+#include <ngspice/ngspice.h>
+#include <ngspice/cktdefs.h>
+#include <ngspice/ifsim.h>
+#include <ngspice/sperror.h>
 
 /* define to enable breakpoint trace code */
 /* #define TRACE_BREAKPOINT */
@@ -28,8 +28,8 @@ CKTsetBreak(CKTcircuit *ckt, double time)
 #endif
 
     if(ckt->CKTtime > time) {
-        (*(SPfrontEnd->IFerror))(ERR_PANIC,"breakpoint in the past - HELP!",
-                (IFuid *)NULL);
+        SPfrontEnd->IFerror (ERR_PANIC, "breakpoint in the past - HELP!",
+                NULL);
         return(E_INTERN);
     }
     for(i=0;i<ckt->CKTbreakSize;i++) {
@@ -44,7 +44,7 @@ CKTsetBreak(CKTcircuit *ckt, double time)
                 *(ckt->CKTbreaks+i) = time;
                 return(OK);
             }
-            if(time-*(ckt->CKTbreaks+i-1) <= ckt->CKTminBreak) {
+            if(i>0 && time-*(ckt->CKTbreaks+i-1) <= ckt->CKTminBreak) {
                 /* very close together, but after, so skip */
 #ifdef TRACE_BREAKPOINT
                 printf("[t:%e] \t %e skipped\n", ckt->CKTtime, time);
@@ -54,7 +54,7 @@ CKTsetBreak(CKTcircuit *ckt, double time)
             }
             /* fits in middle - new array & insert */
             tmp = TMALLOC(double, ckt->CKTbreakSize + 1);
-            if(tmp == (double *)NULL) return(E_NOMEM);
+            if(tmp == NULL) return(E_NOMEM);
             for(j=0;j<i;j++) {
                 *(tmp+j) = *(ckt->CKTbreaks+j);
             }

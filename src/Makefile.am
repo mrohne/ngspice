@@ -1,8 +1,8 @@
 ## Process this file with automake to produce Makefile.in
-# $Id: Makefile.am,v 1.77 2011/02/19 16:47:30 rlar Exp $
+# $Id: Makefile.am,v 1.87 2011/08/20 17:45:23 rlar Exp $
 
-SUBDIRS = misc maths frontend spicelib include
-DIST_SUBDIRS = misc maths frontend spicelib include xspice ciderlib
+SUBDIRS = misc maths frontend spicelib include/ngspice
+DIST_SUBDIRS = misc maths frontend spicelib include/ngspice xspice ciderlib
 
 if XSPICE_WANTED
 SUBDIRS += xspice
@@ -26,7 +26,7 @@ endif !WINDOWS
 endif !TCL_MODULE
 
 EXTRA_DIST = ngspice.txt setplot spectrum \
-	     devload devaxis ciderinit winmain.c unsupported \
+	     devload devaxis ciderinit winmain.c winmain.h unsupported \
 	     tclspice.c tclspice.map pkgIndex.tcl.in tclspinit.in main.c
 
 
@@ -40,20 +40,16 @@ endif
 DYNAMIC_DEVICELIBS =					\
 	spicelib/devices/asrc/libasrc.la		\
 	spicelib/devices/bjt/libbjt.la			\
-	spicelib/devices/bjt2/libbjt2.la		\
 	spicelib/devices/bsim1/libbsim1.la		\
 	spicelib/devices/bsim2/libbsim2.la		\
 	spicelib/devices/bsim3/libbsim3.la		\
 	spicelib/devices/bsim3v0/libbsim3v0.la		\
 	spicelib/devices/bsim3v1/libbsim3v1.la		\
-	spicelib/devices/bsim3v1s/libbsim3v1s.la	\
-	spicelib/devices/bsim3v1a/libbsim3v1a.la	\
 	spicelib/devices/bsim3v32/libbsim3v32.la	\
 	spicelib/devices/bsim4/libbsim4.la		\
-	spicelib/devices/bsim4v2/libbsim4v2.la		\
-	spicelib/devices/bsim4v3/libbsim4v3.la		\
 	spicelib/devices/bsim4v4/libbsim4v4.la		\
 	spicelib/devices/bsim4v5/libbsim4v5.la		\
+	spicelib/devices/bsim4v6/libbsim4v6.la		\
 	spicelib/devices/cap/libcap.la			\
 	spicelib/devices/bsim3soi/libbsim4soi.la	\
 	spicelib/devices/bsim3soi_pd/libbsim3soipd.la	\
@@ -68,7 +64,8 @@ DYNAMIC_DEVICELIBS =					\
 	spicelib/devices/isrc/libisrc.la		\
 	spicelib/devices/hfet1/libhfet.la		\
 	spicelib/devices/hfet2/libhfet2.la		\
-	spicelib/devices/hisim/libhisim.la		\
+	spicelib/devices/hisim2/libhisim2.la		\
+	spicelib/devices/hisimhv/libhisimhv.la		\
 	spicelib/devices/jfet/libjfet.la		\
 	spicelib/devices/jfet2/libjfet2.la		\
 	spicelib/devices/ltra/libltra.la		\
@@ -117,12 +114,6 @@ endif
 ngspice_LDADD += \
 	frontend/plotting/libplotting.la
 
-if XSPICE_WANTED
-ngspice_LDADD += \
-	xspice/cm/libcmxsp.la \
-	xspice/mif/libmifxsp.la
-endif
-
 ngspice_LDADD += \
 	spicelib/devices/dev.lo \
 	$(DYNAMIC_DEVICELIBS)
@@ -146,6 +137,8 @@ ngspice_LDADD += \
 
 if XSPICE_WANTED
 ngspice_LDADD += \
+	xspice/cm/libcmxsp.la \
+	xspice/mif/libmifxsp.la \
 	xspice/evt/libevtxsp.la \
 	xspice/enh/libenhxsp.la \
 	xspice/ipc/libipcxsp.la \
@@ -282,8 +275,8 @@ ngmakeidx_SOURCES = makeidx.c
 
 ## create index for online help:
 
-ngspice.idx: ngmakeidx$(EXEEXT)
-	./ngmakeidx$(EXEEXT) $(srcdir)/ngspice.txt
+ngspice.idx: ngmakeidx$(EXEEXT) $(srcdir)/ngspice.txt
+	./ngmakeidx$(EXEEXT) -o ngspice.idx $(srcdir)/ngspice.txt
 
 endif !WINDOWS
 
@@ -397,7 +390,7 @@ libspice_la_LIBADD += \
 	$(LIBS)
 
 libspice_la_CFLAGS = $(AM_CFLAGS)
-libspice_la_LDFLAGS =  -shared -Wl,--version-script=tclspice.map
+libspice_la_LDFLAGS =  -shared -Wl,--version-script=$(srcdir)/tclspice.map
 if TCLWIN
 libspice_la_LDFLAGS +=  -no-undefined
 libspice_la_LDFLAGS += --def spice.def @TCL_LIB_SPEC@

@@ -8,14 +8,14 @@ Author: 1988 Jaijeet S Roychowdhury
  */
 
 
-#include "ngspice.h"
-#include "cktdefs.h"
-#include "devdefs.h"
+#include <ngspice/ngspice.h>
+#include <ngspice/cktdefs.h>
+#include <ngspice/devdefs.h>
 #include "vsrc/vsrcdefs.h"
 #include "isrc/isrcdefs.h"
-#include "iferrmsg.h"
-#include "distodef.h"
-#include "sperror.h"
+#include <ngspice/iferrmsg.h>
+#include <ngspice/distodef.h>
+#include <ngspice/sperror.h>
 
 
 int
@@ -31,8 +31,8 @@ CKTdisto (CKTcircuit *ckt, int mode)
     case D_SETUP:
 
 	    for (i=0;i<DEVmaxnum;i++) {
-		if ( DEVices[i] && ((*DEVices[i]).DEVdisto != NULL) && (ckt->CKThead[i] != NULL) ){
-		    error = (*((*DEVices[i]).DEVdisto))(mode,ckt->CKThead[i],ckt);
+		if ( DEVices[i] && DEVices[i]->DEVdisto && ckt->CKThead[i] ) {
+		    error = DEVices[i]->DEVdisto (mode, ckt->CKThead[i], ckt);
 		    if(error) return(error);
 		}
 	    }
@@ -52,8 +52,8 @@ CKTdisto (CKTcircuit *ckt, int mode)
 	    }
 
 	    for (i=0;i<DEVmaxnum;i++) {
-		if ( DEVices[i] && ((*DEVices[i]).DEVdisto != NULL) && (ckt->CKThead[i] != NULL) ){
-		    error = (*((*DEVices[i]).DEVdisto))(mode,ckt->CKThead[i],ckt);
+		if ( DEVices[i] && DEVices[i]->DEVdisto && ckt->CKThead[i] ) {
+		    error = DEVices[i]->DEVdisto (mode, ckt->CKThead[i], ckt);
 		    if(error) return(error);
 		}
 	    }

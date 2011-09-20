@@ -5,9 +5,9 @@ Author: 1985 Thomas L. Quarles
 /*
  */
 
-#include "ngspice.h"
+#include <ngspice/ngspice.h>
 #include "jfetdefs.h"
-#include "suffix.h"
+#include <ngspice/suffix.h>
 
 
 void
@@ -22,7 +22,7 @@ JFETdestroy(GENmodel **inModel)
     for( ; mod ; mod = mod->JFETnextModel) {
         if(oldmod) FREE(oldmod);
         oldmod = mod;
-        prev = (JFETinstance *)NULL;
+        prev = NULL;
         for(here = mod->JFETinstances ; here ; here = here->JFETnextInstance) {
             if(prev) FREE(prev);
             prev = here;

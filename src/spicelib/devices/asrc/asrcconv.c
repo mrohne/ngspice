@@ -3,11 +3,11 @@ Copyright 1990 Regents of the University of California.  All rights reserved.
 Author: 1988 Kanwar Jit Singh
 **********/
 
-#include "ngspice.h"
-#include "cktdefs.h"
+#include <ngspice/ngspice.h>
+#include <ngspice/cktdefs.h>
 #include "asrcdefs.h"
-#include "sperror.h"
-#include "suffix.h"
+#include <ngspice/sperror.h>
+#include <ngspice/suffix.h>
 
 int
 ASRCconvTest(GENmodel *inModel, CKTcircuit *ckt)
@@ -47,7 +47,7 @@ ASRCconvTest(GENmodel *inModel, CKTcircuit *ckt)
                 }
             }
 
-            if( (*(here->ASRCtree->IFeval))(here->ASRCtree, ckt->CKTgmin, &rhs,
+            if( here->ASRCtree->IFeval (here->ASRCtree, ckt->CKTgmin, &rhs,
                     asrc_vals,asrc_derivs) == OK){
 
                 prev = here->ASRCprev_value;

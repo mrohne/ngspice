@@ -11,12 +11,12 @@ Author: 1985 Thomas L. Quarles
      * **fast is a device, and will be set if possible.
      */
 
-#include "ngspice.h"
+#include <ngspice/ngspice.h>
 #include <stdio.h>
-#include "cpdefs.h"
-#include "fteext.h"
-#include "ifsim.h"
-#include "iferrmsg.h"
+#include <ngspice/cpdefs.h>
+#include <ngspice/fteext.h>
+#include <ngspice/ifsim.h>
+#include <ngspice/iferrmsg.h>
 #include "inp.h"
 
 int
@@ -40,8 +40,8 @@ INPaName(char *parm, IFvalue * val, CKTcircuit *ckt, int *dev, char *devnam,
      * (name, type, direct pointer) - the type and direct pointer
      * WILL be set on return unless error is not OK
      */
-    error = (*(sim->findInstance)) (ckt, dev, fast, devnam, (GENmodel *) NULL,
-				    (char *) NULL);
+    error = sim->findInstance (ckt, dev, fast, devnam, NULL,
+				    NULL);
     if (error)
 	return (error);
 
@@ -49,22 +49,19 @@ INPaName(char *parm, IFvalue * val, CKTcircuit *ckt, int *dev, char *devnam,
      * this device type and look for a name match of an 'ask'able
      * parameter.
      */
-    for (i = 0; i < (*(*(sim->devices)[*dev]).numInstanceParms); i++) {
-	if (strcmp(parm,
-		   ((*(sim->devices)[*dev]).instanceParms[i].keyword)) == 0
-	    && (((*(sim->devices)[*dev]).instanceParms[i].dataType) &
-		IF_ASK)) {
+    for (i = 0; i < *(sim->devices[*dev]->numInstanceParms); i++) {
+	if (strcmp(parm, sim->devices[*dev]->instanceParms[i].keyword) == 0
+	    && (sim->devices[*dev]->instanceParms[i].dataType & IF_ASK)) {
 	    /* found it, so we ask the question using the device info we got
 	     * above and put the results in the IFvalue structure our caller
 	     * gave us originally
 	     */
-	    error = (*(sim->askInstanceQuest)) (ckt, *fast,
-						(*(sim->devices)[*dev]).
-						instanceParms[i].id, val,
+	    error = sim->askInstanceQuest (ckt, *fast,
+                 sim->devices[*dev]->instanceParms[i].id, val,
 						selector);
 	    if (dataType)
 		*dataType =
-		    (*(sim->devices)[*dev]).instanceParms[i].dataType;
+		    sim->devices[*dev]->instanceParms[i].dataType;
 	    return (error);
 	}
     }

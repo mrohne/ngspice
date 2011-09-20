@@ -6,9 +6,9 @@ Modified: Alan Gillespie
 /*
  */
 
-#include "ngspice.h"
+#include <ngspice/ngspice.h>
 #include "mos9defs.h"
-#include "suffix.h"
+#include <ngspice/suffix.h>
 
 
 void
@@ -23,7 +23,7 @@ MOS9destroy(GENmodel **inModel)
     for( ; mod ; mod = mod->MOS9nextModel) {
         if(oldmod) FREE(oldmod);
         oldmod = mod;
-        prev = (MOS9instance *)NULL;
+        prev = NULL;
         for(here = mod->MOS9instances ; here ; here = here->MOS9nextInstance) {
             if(prev){
           if(prev->MOS9sens) FREE(prev->MOS9sens);

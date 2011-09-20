@@ -2,15 +2,15 @@
 Copyright 1991 Regents of the University of California.  All rights reserved.
 Author:	1987 Kartikeya Mayaram, U. C. Berkeley CAD Group
 Author:	1991 David A. Gates, U. C. Berkeley CAD Group
-$Id: twopoiss.c,v 1.4 2010/07/23 18:50:51 rlar Exp $
+$Id: twopoiss.c,v 1.5 2011/08/20 17:27:10 rlar Exp $
 **********/
 
-#include "ngspice.h"
-#include "numglobs.h"
-#include "numenum.h"
-#include "twomesh.h"
-#include "twodev.h"
-#include "spmatrix.h"
+#include <ngspice/ngspice.h>
+#include <ngspice/numglobs.h>
+#include <ngspice/numenum.h>
+#include <ngspice/twomesh.h>
+#include <ngspice/twodev.h>
+#include <ngspice/spmatrix.h>
 #include "twoddefs.h"
 #include "twodext.h"
 

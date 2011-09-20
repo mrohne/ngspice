@@ -4,12 +4,12 @@ Author: 1988 Thomas L. Quarles
 Modified: 2001 Paolo Nenzi (Cider Integration)
 **********/
 
-#include "ngspice.h"
+#include <ngspice/ngspice.h>
 #include <stdio.h>
-#include "ifsim.h"
-#include "inpdefs.h"
-#include "inpmacs.h"
-#include "fteext.h"
+#include <ngspice/ifsim.h>
+#include <ngspice/inpdefs.h>
+#include <ngspice/inpmacs.h>
+#include <ngspice/fteext.h>
 #include "inp.h"
 
 void INP2D(CKTcircuit *ckt, INPtables * tab, card * current)
@@ -67,7 +67,7 @@ void INP2D(CKTcircuit *ckt, INPtables * tab, card * current)
 	type = mytype;
 	if (!tab->defDmod) {
 	    /* create default D model */
-	    IFnewUid(ckt, &uid, (IFuid) NULL, "D", UID_MODEL,
+	    IFnewUid(ckt, &uid, NULL, "D", UID_MODEL,
 		     NULL);
 	    IFC(newModel, (ckt, type, &(tab->defDmod), uid));
 	}

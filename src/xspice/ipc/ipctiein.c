@@ -52,18 +52,18 @@ NON-STANDARD FEATURES
 
 #define CONFIG
 
-#include "ngspice.h"
-#include "inpdefs.h"
-#include "gendefs.h"
-#include "cktdefs.h"
+#include <ngspice/ngspice.h>
+#include <ngspice/inpdefs.h>
+#include <ngspice/gendefs.h>
+#include <ngspice/cktdefs.h>
 #include "bjt/bjtdefs.h"
 #include "jfet/jfetdefs.h"
 #include "mos1/mos1defs.h"
 #include "mos2/mos2defs.h"
 #include "mos3/mos3defs.h"
-#include "mifproto.h"
-#include "ipc.h"
-#include "ipctiein.h"
+#include <ngspice/mifproto.h>
+#include <ngspice/ipc.h>
+#include <ngspice/ipctiein.h>
 
 
 
@@ -374,7 +374,7 @@ determines what instances will have data returned over the IPC channel.
 
 
 int ipc_get_devices(
-    CKTcircuit  *circuit,     /* The circuit structure */
+    CKTcircuit  *ckt,         /* The circuit structure */
     char        *device,      /* The device name as it appears in the info struct */
     char        ***names,     /* Array of name strings to be built */
     double      **modtypes)   /* Array of types to be built */
@@ -383,7 +383,6 @@ int ipc_get_devices(
     int         num_instances;
     GENmodel    *model;
     GENinstance *here;
-    CKTcircuit  *ckt;
     char        *inst_name;
     int         inst_name_len;
     int         i;
@@ -395,7 +394,6 @@ int ipc_get_devices(
     MOS3model        *MOS3mod;
 
     /* Initialize local variables */
-    ckt = /* fixme, drop that */ circuit;
     num_instances = 0;
 
     /* Get the index into the circuit structure linked list of models */

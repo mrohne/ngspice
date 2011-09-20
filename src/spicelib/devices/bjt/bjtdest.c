@@ -10,9 +10,9 @@ Author: 1985 Thomas L. Quarles
  * all storage they were using.
  */
 
-#include "ngspice.h"
+#include <ngspice/ngspice.h>
 #include "bjtdefs.h"
-#include "suffix.h"
+#include <ngspice/suffix.h>
 
 
 void
@@ -29,7 +29,7 @@ BJTdestroy(GENmodel **inModel)
     for( ; mod ; mod = mod->BJTnextModel) {
         if(oldmod) FREE(oldmod);
         oldmod = mod;
-        prev = (BJTinstance *)NULL;
+        prev = NULL;
         for(here = mod->BJTinstances ; here ; here = here->BJTnextInstance) {
             if(prev){
                 if(prev->BJTsens) FREE(prev->BJTsens);

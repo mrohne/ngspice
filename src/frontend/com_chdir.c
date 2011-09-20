@@ -1,11 +1,11 @@
 /*************
 * com_chdir.c
-* $Id: com_chdir.c,v 1.6 2010/10/09 12:49:34 rlar Exp $
+* $Id: com_chdir.c,v 1.7 2011/08/20 17:27:10 rlar Exp $
 ************/
 
-#include "ngspice.h"
+#include <ngspice/ngspice.h>
 
-#include "wordlist.h"
+#include <ngspice/wordlist.h>
 
 #ifdef HAVE_PWD_H
 #include <pwd.h>
@@ -13,7 +13,7 @@
 
 #include "com_chdir.h"
 #include "quote.h"
-#include "cpextern.h"
+#include <ngspice/cpextern.h>
 
 
 void

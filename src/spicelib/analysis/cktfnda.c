@@ -9,20 +9,19 @@ Author: 1985 Thomas L. Quarles
      *  find the given Analysis given its name and return the Analysis pointer
      */
 
-#include "ngspice.h"
-#include "ifsim.h"
-#include "jobdefs.h"
-#include "tskdefs.h"
-#include "sperror.h"
-#include "cktdefs.h"
+#include <ngspice/ngspice.h>
+#include <ngspice/ifsim.h>
+#include <ngspice/jobdefs.h>
+#include <ngspice/tskdefs.h>
+#include <ngspice/sperror.h>
+#include <ngspice/cktdefs.h>
 
 
 
 /* ARGSUSED */
 int
-CKTfndAnal(CKTcircuit *ckt, int *analIndex, JOB **anal, IFuid name, TSKtask *inTask, IFuid taskName)
+CKTfndAnal(CKTcircuit *ckt, int *analIndex, JOB **anal, IFuid name, TSKtask *task, IFuid taskName)
 {
-    TSKtask *task = /* fixme, drop that */ inTask;
     JOB *here;
 
     NG_IGNORE(ckt);

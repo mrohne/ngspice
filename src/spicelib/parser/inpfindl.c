@@ -10,8 +10,8 @@ Modified: 1999 Paolo Nenzi - Now we can use a two digits level code -
      *
      */
 
-#include "ngspice.h"
-#include "inpdefs.h"
+#include <ngspice/ngspice.h>
+#include <ngspice/inpdefs.h>
 #include "inp.h"
 
 char *INPfindLev(char *line, int *level)
@@ -56,7 +56,7 @@ char *INPfindLev(char *line, int *level)
                (" illegal (too high) argument to level parameter - level=1 assumed"));
         }
 
-        return ((char *) NULL);
+        return (NULL);
     }
 
 
@@ -65,6 +65,6 @@ char *INPfindLev(char *line, int *level)
 #ifdef TRACE			/* this is annoying for bjt's */
         fprintf(stderr,"Warning -- Level not specified on line \"%s\"\nUsing level 1.\n", line);
 #endif
-        return ((char *) NULL);
+        return (NULL);
     }
 }

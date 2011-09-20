@@ -7,13 +7,13 @@ Author: 1990 Jaijeet S. Roychowdhury
  * This routine gives access to the internal device parameter of LTRA lines
  */
 
-#include "ngspice.h"
-#include "cktdefs.h"
-#include "devdefs.h"
-#include "ifsim.h"
+#include <ngspice/ngspice.h>
+#include <ngspice/cktdefs.h>
+#include <ngspice/devdefs.h>
+#include <ngspice/ifsim.h>
 #include "ltradefs.h"
-#include "sperror.h"
-#include "suffix.h"
+#include <ngspice/sperror.h>
+#include <ngspice/suffix.h>
 
 /* ARGSUSED */
 int
@@ -80,7 +80,7 @@ LTRAask(CKTcircuit *ckt, GENinstance *inst, int which, IFvalue *value, IFvalue *
      * value->v.numValue = temp = here->LTRAsizeDelay; while (temp--) {
      * value->v.vec.rVec++ = *here->LTRAdelays++;
      */
-    value->v.vec.rVec = (double *) NULL;
+    value->v.vec.rVec = NULL;
     value->v.numValue = temp = 0;
     return (OK);
   default:

@@ -4,12 +4,12 @@ Author: 1985 Thomas L. Quarles
 Modified: 2000 AlansFixes
 **********/
 
-#include "ngspice.h"
-#include "cktdefs.h"
+#include <ngspice/ngspice.h>
+#include <ngspice/cktdefs.h>
 #include "mos1defs.h"
-#include "const.h"
-#include "sperror.h"
-#include "suffix.h"
+#include <ngspice/const.h>
+#include <ngspice/sperror.h>
+#include <ngspice/suffix.h>
 
 int
 MOS1temp(GENmodel *inModel, CKTcircuit *ckt)
@@ -99,7 +99,7 @@ MOS1temp(GENmodel *inModel, CKTcircuit *ckt)
                     }
                 } else {
                     model->MOS1substrateDoping = 0;
-                    (*(SPfrontEnd->IFerror))(ERR_FATAL,
+                    SPfrontEnd->IFerror (ERR_FATAL,
                             "%s: Nsub < Ni",&model->MOS1modName);
                     return(E_BADPARM);
                 }
@@ -153,7 +153,7 @@ MOS1temp(GENmodel *inModel, CKTcircuit *ckt)
             }
 
             if(here->MOS1l - 2 * model->MOS1latDiff <=0) {
-                (*(SPfrontEnd->IFerror))(ERR_WARNING,
+                SPfrontEnd->IFerror (ERR_WARNING,
                         "%s: effective channel length less than zero",
                         &(model->MOS1modName));
             }

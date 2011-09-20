@@ -6,13 +6,13 @@ Sydney University mods Copyright(c) 1989 Anthony E. Parker, David J. Skellern
 	Sydney University Department of Electrical Engineering, Australia
 **********/
 
-#include "ngspice.h"
-#include "smpdefs.h"
-#include "cktdefs.h"
+#include <ngspice/ngspice.h>
+#include <ngspice/smpdefs.h>
+#include <ngspice/cktdefs.h>
 #include "jfetdefs.h"
-#include "const.h"
-#include "sperror.h"
-#include "suffix.h"
+#include <ngspice/const.h>
+#include <ngspice/sperror.h>
+#include <ngspice/suffix.h>
 
 int
 JFETtemp(GENmodel *inModel, CKTcircuit *ckt)
@@ -62,7 +62,7 @@ JFETtemp(GENmodel *inModel, CKTcircuit *ckt)
             model->JFETsourceConduct = 0;
         }
         if(model->JFETdepletionCapCoeff >.95) {
-            (*(SPfrontEnd->IFerror))(ERR_WARNING,
+            SPfrontEnd->IFerror (ERR_WARNING,
                     "%s: Depletion cap. coefficient too large, limited to .95",
                     &(model->JFETmodName));
             model->JFETdepletionCapCoeff = .95;

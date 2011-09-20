@@ -7,14 +7,14 @@ Author: 1985 Wayne A. Christopher, U. C. Berkeley CAD Group
  * Various post-processor commands having to do with vectors.
  */
 
-#include <ngspice.h>
-#include <cpdefs.h>
-#include <ftedefs.h>
-#include <dvec.h>
-#include <sim.h>
-#include <plot.h>
-#include <graph.h>
-#include "ftedbgra.h"
+#include <ngspice/ngspice.h>
+#include <ngspice/cpdefs.h>
+#include <ngspice/ftedefs.h>
+#include <ngspice/dvec.h>
+#include <ngspice/sim.h>
+#include <ngspice/plot.h>
+#include <ngspice/graph.h>
+#include <ngspice/ftedbgra.h>
 #include "com_display.h"
 
 #include "completion.h"
@@ -215,7 +215,7 @@ com_print(wordlist *wl)
             }  //end  if (v->v_rlength == 1)
         }
     } else {    /* Print in columns. */
-        if (cp_getvar("width", CP_NUM, (char *) &i))
+        if (cp_getvar("width", CP_NUM, &i))
             width = i;
         if (width < 40)
             width = 40;
@@ -223,7 +223,7 @@ com_print(wordlist *wl)
             buf = TREALLOC(char, buf, width + 1);
             buf2 = TREALLOC(char, buf2, width + 1); 
         }            
-        if (cp_getvar("height", CP_NUM, (char *) &i))
+        if (cp_getvar("height", CP_NUM, &i))
             height = i;
         if (height < 20)
             height = 20;
@@ -800,7 +800,6 @@ com_destroy(wordlist *wl)
             {
                 DelPlotWindows(pl);
                 killplot(pl);
-                plot_num--;
             }
             else
                 fprintf(cp_err, "Error: no such plot %s\n", wl->wl_word);

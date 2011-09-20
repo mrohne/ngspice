@@ -9,8 +9,8 @@ Author:	1991 David A. Gates, U. C. Berkeley CAD Group
  */
 
 
-#include "ngspice.h"
-#include "cidersupt.h"
+#include <ngspice/ngspice.h>
+#include <ngspice/cidersupt.h>
 
 #define MAXMAT 10
 #define MAXIMP 4
@@ -202,11 +202,17 @@ SUPbinRead(char *inFile, float *x, float *conc, int *impId, int *numNod)
   fclose( fpSuprem );
 
 /* shift silicon layer to beginning of array */
-  for ( j=0; j < numLay; j++ ) {
-    if (matTyp[ j ] == 1) {
-      siIndex = j;
-    }
+  for ( j=numLay; --j >= 0; )
+    if (matTyp[ j ] == 1)
+        break;
+
+  if(j < 0) {
+      fprintf(stderr, "internal error in %s, bye !\n", __FUNCTION__);
+      exit(1);
   }
+
+  siIndex = j;
+
   offset = topNod[ siIndex ] - 1;
   numGrid -= offset;
   xStart = x[1 + offset];
@@ -332,11 +338,17 @@ SUPascRead(char *inFile, float *x, float *conc, int *impId, int *numNod)
 
 
 /* shift silicon layer to beginning of array */
-  for ( j=0; j < numLay; j++ ) {
-    if (matTyp[ j ] == 1) {
-      siIndex = j;
-    }
+  for ( j=numLay; --j >= 0; )
+    if (matTyp[ j ] == 1)
+        break;
+
+  if(j < 0) {
+      fprintf(stderr, "internal error in %s, bye !\n", __FUNCTION__);
+      exit(1);
   }
+
+  siIndex = j;
+
   offset = topNod[ siIndex ] - 1;
   numGrid -= offset;
   xStart = x[1 + offset];

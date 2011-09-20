@@ -43,18 +43,18 @@ NON-STANDARD FEATURES
 #include <stdio.h>
 #include <string.h>
 
-#include "ngspice.h"
+#include <ngspice/ngspice.h>
 //#include "misc.h"
 
-#include "cktdefs.h"
-#include "sperror.h"
+#include <ngspice/cktdefs.h>
+#include <ngspice/sperror.h>
 //#include "util.h"
 
-#include "mif.h"
-#include "evt.h"
-#include "evtudn.h"
-#include "mifproto.h"
-#include "evtproto.h"
+#include <ngspice/mif.h>
+#include <ngspice/evt.h>
+#include <ngspice/evtudn.h>
+#include <ngspice/mifproto.h>
+#include <ngspice/evtproto.h>
 
 
 
@@ -355,21 +355,21 @@ static int EVTsetup_data(
             CKALLOC(rhs->output_value, num_outputs, void *)
             CKALLOC(rhsold->output_value, num_outputs, void *)
             for(j = 0; j < num_outputs; j++) {
-                (*(g_evt_udn_info[udn_index]->create)) (&(rhs->output_value[j]));
-                (*(g_evt_udn_info[udn_index]->initialize)) (rhs->output_value[j]);
-                (*(g_evt_udn_info[udn_index]->create)) (&(rhsold->output_value[j]));
-                (*(g_evt_udn_info[udn_index]->initialize)) (rhsold->output_value[j]);
+                g_evt_udn_info[udn_index]->create (&(rhs->output_value[j]));
+                g_evt_udn_info[udn_index]->initialize (rhs->output_value[j]);
+                g_evt_udn_info[udn_index]->create (&(rhsold->output_value[j]));
+                g_evt_udn_info[udn_index]->initialize (rhsold->output_value[j]);
             }
         }
-        (*(g_evt_udn_info[udn_index]->create)) (&(rhs->node_value));
-        (*(g_evt_udn_info[udn_index]->initialize)) (rhs->node_value);
-        (*(g_evt_udn_info[udn_index]->create)) (&(rhsold->node_value));
-        (*(g_evt_udn_info[udn_index]->initialize)) (rhsold->node_value);
+        g_evt_udn_info[udn_index]->create (&(rhs->node_value));
+        g_evt_udn_info[udn_index]->initialize (rhs->node_value);
+        g_evt_udn_info[udn_index]->create (&(rhsold->node_value));
+        g_evt_udn_info[udn_index]->initialize (rhsold->node_value);
         if(invert) {
-            (*(g_evt_udn_info[udn_index]->create)) (&(rhs->inverted_value));
-            (*(g_evt_udn_info[udn_index]->initialize)) (rhs->inverted_value);
-            (*(g_evt_udn_info[udn_index]->create)) (&(rhsold->inverted_value));
-            (*(g_evt_udn_info[udn_index]->initialize)) (rhsold->inverted_value);
+            g_evt_udn_info[udn_index]->create (&(rhs->inverted_value));
+            g_evt_udn_info[udn_index]->initialize (rhs->inverted_value);
+            g_evt_udn_info[udn_index]->create (&(rhsold->inverted_value));
+            g_evt_udn_info[udn_index]->initialize (rhsold->inverted_value);
         }
 
         /* Initialize the total load value to zero */

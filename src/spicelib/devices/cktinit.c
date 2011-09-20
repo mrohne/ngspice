@@ -6,17 +6,17 @@ Modifed: 2000 AlansFixes
 
 #include "config.h"
 
-#include "memory.h"
-#include "cktdefs.h"
-#include "devdefs.h"
-#include "sperror.h"
-#include "fteext.h"
-#include "ifsim.h"
+#include <ngspice/memory.h>
+#include <ngspice/cktdefs.h>
+#include <ngspice/devdefs.h>
+#include <ngspice/sperror.h>
+#include <ngspice/fteext.h>
+#include <ngspice/ifsim.h>
 #include "dev.h"
 
 #ifdef XSPICE
 /* gtri - add - wbk - 11/26/90 - add include for MIF global data */
-#include "mif.h"
+#include <ngspice/mif.h>
 /* gtri - end - wbk - 11/26/90 */
 #endif
 
@@ -38,11 +38,11 @@ CKTinit(CKTcircuit **ckt)		/* new circuit to create */
 
 	
     for (i = 0; i < DEVmaxnum; i++)
-        sckt->CKThead[i] = (GENmodel *) NULL;
+        sckt->CKThead[i] = NULL;
 
     sckt->CKTmaxEqNum = 1;
-    sckt->CKTnodes = (CKTnode *) NULL;
-    sckt->CKTlastNode = (CKTnode *) NULL;
+    sckt->CKTnodes = NULL;
+    sckt->CKTlastNode = NULL;
     sckt->CKTmatrix = NULL;
 
     sckt->CKTgmin = 1e-12;
@@ -74,11 +74,17 @@ CKTinit(CKTcircuit **ckt)		/* new circuit to create */
     sckt->CKTdefaultMosAS = 0;
     sckt->CKTsrcFact=1;
     sckt->CKTdiagGmin=0;
+    /* PN: additions for circuit inventory */
     sckt->CKTstat = TMALLOC(STATistics, 1);
+    if(sckt->CKTstat == NULL)
+        return(E_NOMEM);
+    sckt->CKTstat->STATdevNum = TMALLOC(STATdevList, DEVmaxnum);
+    if(sckt->CKTstat->STATdevNum == NULL)
+        return(E_NOMEM);
     sckt->CKTtroubleNode = 0;
     sckt->CKTtroubleElt = NULL;
     sckt->CKTtimePoints = NULL;
-    if (sckt->CKTstat == (STATistics *)NULL)
+    if (sckt->CKTstat == NULL)
 	return E_NOMEM;
     sckt->CKTnodeDamping = 0;
     sckt->CKTabsDv = 0.5;

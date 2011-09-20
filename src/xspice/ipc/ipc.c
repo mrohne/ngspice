@@ -8,7 +8,7 @@ Georgia Tech Research Corporation
 Atlanta, Georgia 30332
 All Rights Reserved
 
-$Id: ipc.c,v 1.13 2010/11/06 17:39:18 rlar Exp $
+$Id: ipc.c,v 1.16 2011/08/20 17:27:16 rlar Exp $
 
 PROJECT A-8503
 
@@ -70,17 +70,17 @@ SUMMARY
 
 ============================================================================*/
 
-#include "ngspice.h"
+#include <ngspice/ngspice.h>
 
 #include <assert.h>
-#include <memory.h>     /* NOTE: I think this is a Sys5ism (there is not man
+#include <ngspice/memory.h>     /* NOTE: I think this is a Sys5ism (there is not man
                          * page for it under Bsd, but it's in /usr/include
                          * and it has a BSD copyright header. Go figure.
                          */
 
-#include "ipc.h"
-#include "ipctiein.h"
-#include "ipcproto.h"
+#include <ngspice/ipc.h>
+#include <ngspice/ipctiein.h>
+#include <ngspice/ipcproto.h>
 
  
 /*
@@ -394,7 +394,7 @@ ipc_flush (void)
 
          /* write the records to the .log file */
          if ((end_of_record_index [i] - last) !=
-             write (batch_fd, &out_buffer[last], end_of_record_index [i] - last)) {
+             write (batch_fd, &out_buffer[last], (size_t) (end_of_record_index [i] - last))) {
 	/*		 fprintf (stderr,"ERROR: IPC: Error writing to batch output file\n"); */
             perror ("IPC");
             return IPC_STATUS_ERROR;
@@ -809,15 +809,14 @@ stuff_binary_v1 (
    assert (sizeof(char)  == 1);
    assert ((n >= 1) && (n <= 2));
 
-   trick.float_val[0] = d1;
+   trick.float_val[0] = (float)d1;
    if (n > 1) {
-      trick.float_val[1] = d2;
+      trick.float_val[1] = (float)d2;
    }
-   for (i = 0, j = pos; i < n*sizeof(float); j++, i++)
+   for (i = 0, j = pos; i < n * (int) sizeof(float); j++, i++)
       buf[j] = trick.ch[i];
-   i = sizeof(float)*n + pos;
-   buf[0] = 'A' + i - 1; 
-   return i;
+   buf[0] = (char) ('A' + j - 1);
+   return j;
 }
 
 /*---------------------------------------------------------------------------*/
@@ -847,7 +846,7 @@ ipc_send_double (
       /* If talking to Mentor tools, must force upper case for Mspice 7.0 */
       strtoupper(fmt_buffer);
 
-      len = stuff_binary_v1 (value, 0.0, 1, fmt_buffer, strlen(fmt_buffer));
+      len = stuff_binary_v1 (value, 0.0, 1, fmt_buffer, (int) strlen(fmt_buffer));
       break;
    case IPC_PROTOCOL_V2:
       break;
@@ -883,7 +882,7 @@ ipc_send_complex (
       strtoupper(fmt_buffer);
 
       len = stuff_binary_v1 (value.real, value.imag, 2, fmt_buffer,
-                             strlen(fmt_buffer));
+                             (int) strlen(fmt_buffer));
       break;
    case IPC_PROTOCOL_V2:
       break;
@@ -922,7 +921,7 @@ ipc_send_event (
    float        fvalue;
 
    /* Report error if size of data is too big for IPC channel block size */
-   if((len + strlen(print_val) + 100) >= OUT_BUFFER_SIZE) {
+   if((len + (int) strlen(print_val) + 100) >= OUT_BUFFER_SIZE) {
       printf("ERROR - Size of event-driven data too large for IPC channel\n");
       return IPC_STATUS_ERROR;
    }
@@ -936,7 +935,7 @@ ipc_send_event (
    /* Put the analysis step bytes in */
    buff_len = (int) strlen(buff);
    buff_ptr = buff + buff_len;
-   fvalue = step;
+   fvalue = (float)step;
    temp_ptr = (char *) &fvalue;
    for(i = 0; i < 4; i++) {
       *buff_ptr = temp_ptr[i];
@@ -945,7 +944,7 @@ ipc_send_event (
    }
 
    /* Put the plot value in */
-   fvalue = plot_val;
+   fvalue = (float)plot_val;
    temp_ptr = (char *) &fvalue;
    for(i = 0; i < 4; i++) {
       *buff_ptr = temp_ptr[i];
@@ -970,8 +969,8 @@ ipc_send_event (
 
    /* Put the print value in */
    strcpy(buff_ptr, print_val);
-   buff_ptr += strlen(print_val);
-   buff_len += strlen(print_val);
+   buff_ptr +=       strlen(print_val);
+   buff_len += (int) strlen(print_val);
 
    /* Send the data to the IPC channel */
    return ipc_send_line_binary(buff, buff_len);

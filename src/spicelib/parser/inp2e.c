@@ -3,12 +3,12 @@ Copyright 1990 Regents of the University of California.  All rights reserved.
 Author: 1988 Thomas L. Quarles
 **********/
 
-#include "ngspice.h"
+#include <ngspice/ngspice.h>
 #include <stdio.h>
-#include "ifsim.h"
-#include "inpdefs.h"
-#include "inpmacs.h"
-#include "fteext.h"
+#include <ngspice/ifsim.h>
+#include <ngspice/inpdefs.h>
+#include <ngspice/inpmacs.h>
+#include <ngspice/fteext.h>
 #include "inp.h"
 
 void INP2E(CKTcircuit *ckt, INPtables * tab, card * current)
@@ -52,7 +52,7 @@ void INP2E(CKTcircuit *ckt, INPtables * tab, card * current)
     INPtermInsert(ckt, &nname4, tab, &node4);
     if (!tab->defEmod) {
 	/* create default E model */
-	IFnewUid(ckt, &uid, (IFuid) NULL, "E", UID_MODEL, NULL);
+	IFnewUid(ckt, &uid, NULL, "E", UID_MODEL, NULL);
 	IFC(newModel, (ckt, type, &(tab->defEmod), uid));
     }
     IFC(newInstance, (ckt, tab->defEmod, &fast, name));

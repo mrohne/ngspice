@@ -1,8 +1,11 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
 <!--
-  $Id: ngspiceMODULEdefs.h.xml,v 1.17 2011/01/13 17:05:46 dwarning Exp $
+  $Id: ngspiceMODULEdefs.h.xml,v 1.18 2011/08/20 17:49:37 rlar Exp $
   $Log: ngspiceMODULEdefs.h.xml,v $
+  Revision 1.18  2011/08/20 17:49:37  rlar
+  #6/7 use a subdirectory "ngspice" for includes to create a uniq namespace
+
   Revision 1.17  2011/01/13 17:05:46  dwarning
   set version parameter to 2.3.0
 
@@ -96,11 +99,11 @@
 #ifndef $(module)
 #define $(module)
 
-#include &quot;cktdefs.h&quot;
-#include &quot;ifsim.h&quot;
-#include &quot;gendefs.h&quot;
-#include &quot;complex.h&quot;
-#include &quot;noisedef.h&quot;
+#include &lt;ngspice/cktdefs.h&gt;
+#include &lt;ngspice/ifsim.h&gt;
+#include &lt;ngspice/gendefs.h&gt;
+#include &lt;ngspice/complex.h&gt;
+#include &lt;ngspice/noisedef.h&gt;
 
 <admst:for-each select="variable">
 <admst:value-of select="name"/>

@@ -5,9 +5,9 @@ Author: 1985 Thomas L. Quarles
 /*
  */
 
-#include "ngspice.h"
+#include <ngspice/ngspice.h>
 #include "ccvsdefs.h"
-#include "suffix.h"
+#include <ngspice/suffix.h>
 
 
 void
@@ -22,7 +22,7 @@ CCVSdestroy(GENmodel **inModel)
     for( ; mod ; mod = mod->CCVSnextModel) {
         if(oldmod) FREE(oldmod);
         oldmod = mod;
-        prev = (CCVSinstance *)NULL;
+        prev = NULL;
         for(here = mod->CCVSinstances ; here ; here = here->CCVSnextInstance) {
             if(prev) FREE(prev);
             prev = here;

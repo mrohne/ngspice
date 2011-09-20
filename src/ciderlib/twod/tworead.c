@@ -1,22 +1,22 @@
 /**********
 Copyright 1992 Regents of the University of California.  All rights reserved.
 Author:	1992 David A. Gates, U. C. Berkeley CAD Group
-$Id: tworead.c,v 1.2 2005/05/21 12:37:24 sjborley Exp $
+$Id: tworead.c,v 1.3 2011/08/20 17:27:10 rlar Exp $
 **********/
 
 /*
  * Functions needed to read solutions for 2D devices.
  */
 
-#include "ngspice.h"
-#include "plot.h"
-#include "numglobs.h"
-#include "numenum.h"
-#include "twodev.h"
-#include "twomesh.h"
+#include <ngspice/ngspice.h>
+#include <ngspice/plot.h>
+#include <ngspice/numglobs.h>
+#include <ngspice/numenum.h>
+#include <ngspice/twodev.h>
+#include <ngspice/twomesh.h>
 #include "twoddefs.h"
 #include "twodext.h"
-#include "cidersupt.h"
+#include <ngspice/cidersupt.h>
 
 
 int

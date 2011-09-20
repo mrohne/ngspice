@@ -5,12 +5,12 @@ Model Author: 1995 Colin McAndrew Motorola
 Spice3 Implementation: 2003 Dietmar Warning DAnalyse GmbH
 **********/
 
-#include "ngspice.h"
+#include <ngspice/ngspice.h>
 #include "vbicdefs.h"
-#include "cktdefs.h"
-#include "iferrmsg.h"
-#include "noisedef.h"
-#include "suffix.h"
+#include <ngspice/cktdefs.h>
+#include <ngspice/iferrmsg.h>
+#include <ngspice/noisedef.h>
+#include <ngspice/suffix.h>
 
 /*
  * VBICnoise (mode, operation, firstModel, ckt, data, OnDens)
@@ -81,9 +81,9 @@ VBICnoise (int mode, int operation, GENmodel *genmodel, CKTcircuit *ckt, Ndata *
 
                         data->namelist = TREALLOC(IFuid, data->namelist, data->numPlots + 1);
                         if (!data->namelist) return(E_NOMEM);
-                        (*(SPfrontEnd->IFnewUid))(ckt,
+                        SPfrontEnd->IFnewUid (ckt,
                             &(data->namelist[data->numPlots++]),
-                            (IFuid)NULL, name, UID_OTHER, NULL);
+                            NULL, name, UID_OTHER, NULL);
                                 /* we've added one more plot */
                         }
                         break;
@@ -95,9 +95,9 @@ VBICnoise (int mode, int operation, GENmodel *genmodel, CKTcircuit *ckt, Ndata *
 
                         data->namelist = TREALLOC(IFuid, data->namelist, data->numPlots + 1);
                         if (!data->namelist) return(E_NOMEM);
-                        (*(SPfrontEnd->IFnewUid))(ckt,
+                        SPfrontEnd->IFnewUid (ckt,
                             &(data->namelist[data->numPlots++]),
-                            (IFuid)NULL, name, UID_OTHER, NULL);
+                            NULL, name, UID_OTHER, NULL);
                                 /* we've added one more plot */
 
                             (void)sprintf(name,"inoise_total_%s%s",
@@ -105,9 +105,9 @@ VBICnoise (int mode, int operation, GENmodel *genmodel, CKTcircuit *ckt, Ndata *
 
 data->namelist = TREALLOC(IFuid, data->namelist, data->numPlots + 1);
 if (!data->namelist) return(E_NOMEM);
-                (*(SPfrontEnd->IFnewUid))(ckt,
+                SPfrontEnd->IFnewUid (ckt,
                         &(data->namelist[data->numPlots++]),
-                        (IFuid)NULL, name, UID_OTHER, NULL);
+                        NULL, name, UID_OTHER, NULL);
                                 /* we've added one more plot */
                         }
                         break;
@@ -165,7 +165,7 @@ if (!data->namelist) return(E_NOMEM);
                                  *(ckt->CKTstate0 + inst->VBICiccp));
 
 
-                    NevalSrc(&noizDens[VBICFLBENOIZ],(double*)NULL,ckt,
+                    NevalSrc(&noizDens[VBICFLBENOIZ], NULL, ckt,
                                  N_GAIN,inst->VBICbaseBINode, inst->VBICemitEINode,
                                  (double)0.0);
                     noizDens[VBICFLBENOIZ] *= inst->VBICm * model->VBICfNcoef * 
@@ -175,7 +175,7 @@ if (!data->namelist) return(E_NOMEM);
                     lnNdens[VBICFLBENOIZ] = 
                                  log(MAX(noizDens[VBICFLBENOIZ],N_MINLOG));
 
-                    NevalSrc(&noizDens[VBICFLBEPNOIZ],(double*)NULL,ckt,
+                    NevalSrc(&noizDens[VBICFLBEPNOIZ], NULL, ckt,
                                  N_GAIN,inst->VBICbaseBXNode, inst->VBICbaseBPNode,
                                  (double)0.0);
                     noizDens[VBICFLBEPNOIZ] *= inst->VBICm * model->VBICfNcoef * 

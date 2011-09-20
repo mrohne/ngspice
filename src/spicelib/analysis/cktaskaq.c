@@ -3,12 +3,12 @@ Copyright 1990 Regents of the University of California.  All rights reserved.
 Author: 1985 Thomas L. Quarles
 **********/
 
-#include "ngspice.h"
-#include "tskdefs.h"
-#include "jobdefs.h"
-#include "cktdefs.h"
-#include "ifsim.h"
-#include "iferrmsg.h"
+#include <ngspice/ngspice.h>
+#include <ngspice/tskdefs.h>
+#include <ngspice/jobdefs.h>
+#include <ngspice/cktdefs.h>
+#include <ngspice/ifsim.h>
+#include <ngspice/iferrmsg.h>
 
 #include "analysis.h"
 
@@ -23,5 +23,5 @@ CKTaskAnalQ(CKTcircuit *ckt, JOB *analPtr, int parm, IFvalue *value, IFvalue *se
     NG_IGNORE(selector);
 
     if((analInfo[type]->askQuest) == NULL) return(E_BADPARM);
-    return( (*(analInfo[type]->askQuest))(ckt,analPtr,parm,value));
+    return( analInfo[type]->askQuest (ckt, analPtr, parm, value));
 }

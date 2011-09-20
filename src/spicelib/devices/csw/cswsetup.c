@@ -5,11 +5,11 @@ Author: 1985 Gordon Jacobs
 /*
  */
 
-#include "ngspice.h"
-#include "cktdefs.h"
+#include <ngspice/ngspice.h>
+#include <ngspice/cktdefs.h>
 #include "cswdefs.h"
-#include "sperror.h"
-#include "suffix.h"
+#include <ngspice/sperror.h>
+#include <ngspice/suffix.h>
 
 
 int
@@ -55,14 +55,14 @@ matrixpointers:
                 IFuid namarray[2];
                 namarray[0] = here->CSWname;
                 namarray[1] = here->CSWcontName;
-                (*(SPfrontEnd->IFerror))(ERR_FATAL,
+                SPfrontEnd->IFerror (ERR_FATAL,
                         "%s: unknown controlling source %s",namarray);
                 return(E_BADPARM);
             }
 
 /* macro to make elements with built in test for out of memory */
 #define TSTALLOC(ptr,first,second) \
-if((here->ptr = SMPmakeElt(matrix,here->first,here->second))==(double *)NULL){\
+if((here->ptr = SMPmakeElt(matrix, here->first, here->second)) == NULL){\
     return(E_NOMEM);\
 }
 

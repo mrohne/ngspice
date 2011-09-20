@@ -1,13 +1,13 @@
 /**********
 Copyright 1990 Regents of the University of California.  All rights reserved.
 Author: 1985 Wayne A. Christopher, U. C. Berkeley CAD Group
-$Id: linear.c,v 1.6 2010/11/16 19:41:24 h_vogt Exp $
+$Id: linear.c,v 1.8 2011/08/20 17:27:11 rlar Exp $
 **********/
 
-#include "ngspice.h"
-#include "cpdefs.h"
-#include "ftedefs.h"
-#include "dvec.h"
+#include <ngspice/ngspice.h>
+#include <ngspice/cpdefs.h>
+#include <ngspice/ftedefs.h>
+#include <ngspice/dvec.h>
 
 #include "circuits.h"
 #include "linear.h"
@@ -64,7 +64,7 @@ com_linearize(wordlist *wl)
     plot_new(new);
     plot_setcur(new->pl_typename);
     plot_list = new;
-    len = (tstop - tstart) / tstep + 1.5;
+    len = (int)((tstop - tstart) / tstep + 1.5);
     newtime = alloc(struct dvec);
     newtime->v_name = copy(oldtime->v_name);
     newtime->v_type = oldtime->v_type;

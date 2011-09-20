@@ -9,17 +9,16 @@ Author: 1985 Thomas L. Quarles
  * the specified model in the named circuit.  */
 
 #include <config.h>
-#include <devdefs.h>
-#include <sperror.h>
+#include <ngspice/devdefs.h>
+#include <ngspice/sperror.h>
 
 #include "dev.h"
-#include "memory.h"
+#include <ngspice/memory.h>
 
 int
-CKTcrtElt(CKTcircuit *ckt, GENmodel *inModPtr, GENinstance **inInstPtr, IFuid name)
+CKTcrtElt(CKTcircuit *ckt, GENmodel *modPtr, GENinstance **inInstPtr, IFuid name)
 {
   GENinstance *instPtr = NULL;             /* instPtr points to the data struct for per-instance data */
-  GENmodel *modPtr = /*fixme*/ inModPtr;  /* modPtr points to the data struct for per-model data */
 
     SPICEdev **DEVices;
     int error;
@@ -32,8 +31,8 @@ CKTcrtElt(CKTcircuit *ckt, GENmodel *inModPtr, GENinstance **inInstPtr, IFuid na
 
     type = modPtr->GENmodType;
 
-    error = CKTfndDev(ckt, &type, &instPtr, name, inModPtr,
-		      (char *)NULL );
+    error = CKTfndDev(ckt, &type, &instPtr, name, modPtr, NULL);
+
     if (error == OK) { 
         if (inInstPtr)
 	    *inInstPtr = instPtr;
@@ -47,8 +46,17 @@ CKTcrtElt(CKTcircuit *ckt, GENmodel *inModPtr, GENinstance **inInstPtr, IFuid na
 #endif
 
     instPtr = (GENinstance *) tmalloc((size_t) *DEVices[type]->DEVinstSize);
-    if (instPtr == (GENinstance *)NULL)
+    if (instPtr == NULL)
 	return E_NOMEM;
+
+    /* PN: adding instance number for statistical purpose */
+    ckt->CKTstat->STATdevNum[type].instNum ++;
+    ckt->CKTstat->STATtotalDev ++;
+
+#if 0
+    printf("device: %s number %d\n",
+           DEVices[type]->DEVpublic.name, ckt->CKTstat->STATdevNum[type].instNum);
+#endif
 
     instPtr->GENname = name;
 

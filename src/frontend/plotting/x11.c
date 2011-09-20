@@ -1,14 +1,14 @@
 /**********
 Copyright 1990 Regents of the University of California.  All rights reserved.
 Author: 1988 Jeffrey M. Hsu
-$Id: x11.c,v 1.41 2011/02/11 19:02:49 rlar Exp $
+$Id: x11.c,v 1.50 2011/08/20 17:27:11 rlar Exp $
 **********/
 
 /*
     X11 drivers.
 */
 
-#include <ngspice.h>
+#include <ngspice/ngspice.h>
 
 #ifndef X_DISPLAY_MISSING
 
@@ -16,12 +16,12 @@ $Id: x11.c,v 1.41 2011/02/11 19:02:49 rlar Exp $
 #  include <sys/types.h>  /* PN */
 #  include <unistd.h>     /* PN */
 
-#  include <graph.h>
-#  include <ftedbgra.h>
-#  include <ftedev.h>
-#  include <fteinput.h>
-#  include <cpdefs.h>
-#  include <ftedefs.h>
+#  include <ngspice/graph.h>
+#  include <ngspice/ftedbgra.h>
+#  include <ngspice/ftedev.h>
+#  include <ngspice/fteinput.h>
+#  include <ngspice/cpdefs.h>
+#  include <ngspice/ftedefs.h>
 #  include <variable.h>
 #  include "../com_hardcopy.h"
 
@@ -36,6 +36,7 @@ $Id: x11.c,v 1.41 2011/02/11 19:02:49 rlar Exp $
 #  include <X11/Xaw/Command.h>
 #  include <X11/Xaw/Form.h>
 #  include <X11/Shell.h>
+#  include <X11/Intrinsic.h>
 
 #  ifdef DEBUG
 #     include <X11/Xlib.h> /* for _Xdebug */
@@ -55,6 +56,8 @@ $Id: x11.c,v 1.41 2011/02/11 19:02:49 rlar Exp $
 #define MW_LINEWIDTH 2  /* MW. I want larger lines */
 #define NXPLANES 5      /* note: What is this used for? */
 #define BOXSIZE 30      /* initial size of bounding box for zoomin */
+
+#define NUMCOLORS 20
 
 typedef struct x11info {
     Window window;
@@ -96,6 +99,19 @@ static void initlinestyles (void);
 static void initcolors (GRAPH *graph);
 static void X_ScreentoData (GRAPH *graph, int x, int y, double *fx, double *fy);
 static void linear_arc(int x0, int y0, int radius, double theta, double delta_theta);
+static void slopelocation(GRAPH *graph, int x0, int y0);
+static void zoomin(GRAPH *graph);
+
+//XtEventHandler
+static void handlekeypressed(Widget w, XtPointer clientdata, XEvent *ev, Boolean *continue_dispatch);
+static void handlebuttonev(Widget w, XtPointer graph, XEvent *ev, Boolean *continue_dispatch);
+static void redraw(Widget w, XtPointer client_data, XEvent *ev, Boolean *continue_dispatch);
+static void resize(Widget w, XtPointer client_data, XEvent *ev, Boolean *continue_dispatch);
+
+//XtCallbackProc
+static void hardcopy(Widget w, XtPointer client_data, XtPointer call_data);
+static void killwin(Widget w, XtPointer client_data, XtPointer call_data);
+
 
 static int
 errorhandler(Display *display, XErrorEvent *errorev)
@@ -261,16 +277,17 @@ initcolors(GRAPH *graph)
 }
 
 
-void
-handlekeypressed(Widget w, caddr_t clientdata, caddr_t calldata)
+static void
+handlekeypressed(Widget w, XtPointer client_data, XEvent *ev, Boolean *continue_dispatch)
 {
 
-    XKeyEvent *keyev = (XKeyPressedEvent *) calldata;
-    GRAPH *graph = (GRAPH *) clientdata;
+    XKeyEvent *keyev = & ev->xkey;
+    GRAPH *graph = (GRAPH *) client_data;
     char text[4];
     int nbytes;
 
     NG_IGNORE(w);
+    NG_IGNORE(continue_dispatch);
 
     nbytes = XLookupString(keyev, text, 4, NULL, NULL);
     if (!nbytes) return;
@@ -290,48 +307,47 @@ handlekeypressed(Widget w, caddr_t clientdata, caddr_t calldata)
 }
 
 
-void
-handlebuttonev(Widget w, caddr_t clientdata, caddr_t calldata)
-{
 
-    XButtonEvent *buttonev = (XButtonEvent *) calldata;
+static void
+handlebuttonev(Widget w, XtPointer client_data, XEvent *ev, Boolean *continue_dispatch)
+{
+    GRAPH *graph = (GRAPH *) client_data;
 
     NG_IGNORE(w);
+    NG_IGNORE(continue_dispatch);
 
-    switch (buttonev->button) {
+    switch (ev->xbutton.button) {
       case Button1:
-	slopelocation((GRAPH *) clientdata, buttonev->x, buttonev->y);
+	slopelocation(graph, ev->xbutton.x, ev->xbutton.y);
 	break;
       case Button3:
-	zoomin((GRAPH *) clientdata);
+	zoomin(graph);
 	break;
     }
 
 }
 
 /* callback function for catching window deletion by WM x-button */
-static void handle_wm_messages(Widget w, XtPointer client_data, XEvent *event, Boolean *cont) {
+static void
+handle_wm_messages(Widget w, XtPointer client_data, XEvent *ev, Boolean *cont)
+{
     GRAPH *graph = (GRAPH *) client_data;
 
-    NG_IGNORE(cont);
     NG_IGNORE(w);
+    NG_IGNORE(cont);
 
-    if (event->type == ClientMessage
-            && event->xclient.message_type == atom_wm_protocols
-            && (Atom) event->xclient.data.l[0] == atom_wm_delete_window) {
+    if (ev->type == ClientMessage
+            && ev->xclient.message_type == atom_wm_protocols
+            && (Atom) ev->xclient.data.l[0] == atom_wm_delete_window) {
 
-    /* Iplots are done asynchronously */
-    DEVDEP(graph).isopen = 0;
-    /* MW. Not sure but DestroyGraph might free() to much - try Xt...() first */	
-    XtDestroyWidget(DEVDEP(graph).shell);
-    DestroyGraph(graph->graphid);
+        RemoveWindow(graph);
     }
 }
 
 
 /* Recover from bad NewViewPort call. */
 #define RECOVERNEWVIEWPORT()    tfree(graph);\
-	            graph = (GRAPH *) NULL; 
+	            graph = NULL; 
 	    /* need to do this or else DestroyGraph will free it again */
 
 /* NewViewport is responsible for filling in graph->viewport */
@@ -390,13 +406,13 @@ X11_NewViewport(GRAPH *graph)
 					       viewargs,
 					       XtNumber(viewargs));
     XtAddEventHandler(DEVDEP(graph).view, ButtonPressMask, FALSE,
-		      (XtEventHandler) handlebuttonev, graph);
+		      handlebuttonev, graph);
     XtAddEventHandler(DEVDEP(graph).view, KeyPressMask, FALSE,
-		     (XtEventHandler) handlekeypressed, graph);
+		      handlekeypressed, graph);
     XtAddEventHandler(DEVDEP(graph).view, StructureNotifyMask, FALSE,
-		     (XtEventHandler) resize, graph);
+		      resize, graph);
     XtAddEventHandler(DEVDEP(graph).view, ExposureMask, FALSE,
-	    (XtEventHandler) redraw, graph);
+                      redraw, graph);
 
     /* set up button box */
     XtSetArg(bboxargs[1], XtNfromHoriz, DEVDEP(graph).view);
@@ -409,14 +425,14 @@ X11_NewViewport(GRAPH *graph)
     DEVDEP(graph).buttons[0] = XtCreateManagedWidget("quit",
 	commandWidgetClass, DEVDEP(graph).buttonbox,
 	buttonargs, 1);
-    XtAddCallback(DEVDEP(graph).buttons[0], XtNcallback, (XtCallbackProc) killwin, graph);
+    XtAddCallback(DEVDEP(graph).buttons[0], XtNcallback, killwin, graph);
 
     XtSetArg(buttonargs[0], XtNlabel, "hardcopy");
     XtSetArg(bboxargs[1], XtNfromVert, DEVDEP(graph).buttons[0]);
     DEVDEP(graph).buttons[1] = XtCreateManagedWidget("hardcopy",
 	commandWidgetClass, DEVDEP(graph).buttonbox,
 	buttonargs, 1);
-    XtAddCallback(DEVDEP(graph).buttons[1], XtNcallback, (XtCallbackProc) hardcopy, graph);
+    XtAddCallback(DEVDEP(graph).buttons[1], XtNcallback, hardcopy, graph);
 
     /* set up fonts */
     if (!cp_getvar("font", CP_STRING, fontname)) {
@@ -523,8 +539,8 @@ X11_Arc(int x0, int y0, int radius, double theta, double delta_theta)
     }
 
     if (DEVDEP(currentgraph).isopen) {
-	t1 = 64 * (180.0 / M_PI) * theta;
-	t2 = 64 * (180.0 / M_PI) * delta_theta;
+	t1 = (int) (64 * (180.0 / M_PI) * theta);
+	t2 = (int) (64 * (180.0 / M_PI) * delta_theta);
 	if (t2 == 0)
 		return 0;
 	XDrawArc(display, DEVDEP(currentgraph).window, DEVDEP(currentgraph).gc,
@@ -664,7 +680,7 @@ X_ScreentoData(GRAPH *graph, int x, int y, double *fx, double *fy)
 
 
 
-void
+static void
 slopelocation(GRAPH *graph, int x0, int y0)
              
                     /* initial position of mouse */
@@ -714,7 +730,7 @@ slopelocation(GRAPH *graph, int x0, int y0)
 	    angle = RAD_TO_DEG * atan2( fy0, fx0 );
 	    fprintf(stdout, "r0 = %g, a0 = %g\n",
 		sqrt( fx0*fx0 + fy0*fy0 ),
-		(angle>0)?angle:(double) 360+angle);
+		(angle>0)?angle:360.0+angle);
 	}
 
 
@@ -737,7 +753,7 @@ slopelocation(GRAPH *graph, int x0, int y0)
 }
 
 /* should be able to do this by sleight of hand on graph parameters */
-void
+static void
 zoomin(GRAPH *graph)
 {
 /* note: need to add circular boxes XXX */
@@ -842,8 +858,8 @@ zoomin(GRAPH *graph)
 
 }
 
-void
-hardcopy(Widget w, caddr_t client_data, caddr_t call_data)
+static void
+hardcopy(Widget w, XtPointer client_data, XtPointer call_data)
 {
 	NG_IGNORE(call_data);
 	NG_IGNORE(w);
@@ -858,18 +874,23 @@ hardcopy(Widget w, caddr_t client_data, caddr_t call_data)
 
     lasthardcopy = (GRAPH *) client_data;
 
-    if (currentgraph->devdep) {
-        X11devdep tempdevdep = DEVDEP(currentgraph);
+    /* FIXME #1: this should print currentgraph with
+    *            currentgraph dynamically bound to client_data
+    *  FIXME #2: the !currentgraphs case,
+    *            don't bother do call com_hardcopy
+    */
+
+    if (currentgraph) {
+        void *devdep = currentgraph->devdep;
         com_hardcopy(NULL);
-        DEVDEP(currentgraph) = tempdevdep;
+        currentgraph->devdep = devdep;
     } else {
         com_hardcopy(NULL);
-        currentgraph->devdep = NULL;
     }
 }
 
-void
-killwin(Widget w, caddr_t client_data, caddr_t call_data)
+static void
+killwin(Widget w, XtPointer client_data, XtPointer call_data)
 {
 
     GRAPH *graph = (GRAPH *) client_data;
@@ -877,14 +898,7 @@ killwin(Widget w, caddr_t client_data, caddr_t call_data)
     NG_IGNORE(call_data);
     NG_IGNORE(w);
 
-    /* Iplots are done asynchronously */
-    DEVDEP(graph).isopen = 0;
-    /* MW. Not sure but DestroyGraph might free() to much - try Xt...() first */	
-    XtDestroyWidget(DEVDEP(graph).shell);
-    if (graph == currentgraph)
-        currentgraph = FindGraph(graph->graphid - 1);
-    DestroyGraph(graph->graphid);
-
+    RemoveWindow(graph);
 }
 
 /* called from postcoms.c 
@@ -893,26 +907,33 @@ killwin(Widget w, caddr_t client_data, caddr_t call_data)
 void 
 RemoveWindow(GRAPH *graph)
 {
-    /* Iplots are done asynchronously */
-    DEVDEP(graph).isopen = 0;
-    /* MW. Not sure but DestroyGraph might free() to much - try Xt...() first */	
-    XtDestroyWidget(DEVDEP(graph).shell);
+    if(graph->devdep) {
+        /* Iplots are done asynchronously */
+        DEVDEP(graph).isopen = 0;
+        /* MW. Not sure but DestroyGraph might free() to much - try Xt...() first */
+        XtDestroyWidget(DEVDEP(graph).shell);
+    }
+
+    if (graph == currentgraph)
+        currentgraph = NULL;
+
     DestroyGraph(graph->graphid);
 }
 
 
 /* call higher gr_redraw routine */
-void
-redraw(Widget w, caddr_t client_data, caddr_t call_data)
+static void
+redraw(Widget w, XtPointer client_data, XEvent *event, Boolean *continue_dispatch)
 {
 
     GRAPH *graph = (GRAPH *) client_data;
-    XExposeEvent *pev = (XExposeEvent *) call_data;
+    XExposeEvent *pev = & event->xexpose;
     XEvent ev;
     XRectangle rects[30];
     int n = 1;
 
     NG_IGNORE(w);
+    NG_IGNORE(continue_dispatch);
 
     DEVDEP(graph).isopen = 1;
 
@@ -937,21 +958,27 @@ redraw(Widget w, caddr_t client_data, caddr_t call_data)
 	    rects, n, Unsorted);
 
     noclear = True;
-    gr_redraw(graph);
+    {
+        GRAPH *tmp = currentgraph;
+        currentgraph = graph;
+        gr_redraw(graph);
+        currentgraph = tmp;
+    }
     noclear = False;
 
     XSetClipMask(display, DEVDEP(graph).gc, None);
 
 }
 
-void
-resize(Widget w, caddr_t client_data, caddr_t call_data)
+static void
+resize(Widget w, XtPointer client_data, XEvent *call_data, Boolean *continue_dispatch)
 {
 
     GRAPH *graph = (GRAPH *) client_data;
     XEvent ev;
 
     NG_IGNORE(call_data);
+    NG_IGNORE(continue_dispatch);
 
     /* pull out all other exposure events
        Also, get rid of other StructureNotify events on this window. */
@@ -963,7 +990,12 @@ resize(Widget w, caddr_t client_data, caddr_t call_data)
     XClearWindow(display, DEVDEP(graph).window);
     graph->absolute.width = w->core.width;
     graph->absolute.height = w->core.height;
-    gr_resize(graph);
+    {
+        GRAPH *tmp = currentgraph;
+        currentgraph = graph;
+        gr_resize(graph);
+        currentgraph = tmp;
+    }
 
 }
 
@@ -999,8 +1031,8 @@ X11_Input(REQUEST *request, RESPONSE *response)
 		      FD_SET(ConnectionNumber(display), &rfds);
 		      select (nfds + 1,
 			      &rfds,
-			      (fd_set *)NULL,
-			      (fd_set *)NULL,
+			      NULL,
+			      NULL,
 			      NULL);
 		      
 		      /* handle X events first */

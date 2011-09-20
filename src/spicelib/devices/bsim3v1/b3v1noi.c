@@ -1,22 +1,22 @@
 /**********
  * Copyright 1990 Regents of the University of California. All rights reserved.
- * File: b3v1noi.c
+ * File: b3noi.c
  * Author: 1995 Min-Chie Jeng and Mansun Chan. 
  * Modified by Paolo Nenzi 2002
  **********/
  
 /* 
  * Release Notes: 
- * BSIM3v3.1,   Released by yuhua  96/12/08
+ * BSIM3v1v3.1,   Released by yuhua  96/12/08
  */
 
-#include "ngspice.h"
+#include <ngspice/ngspice.h>
 #include "bsim3v1def.h"
-#include "cktdefs.h"
-#include "iferrmsg.h"
-#include "noisedef.h"
-#include "suffix.h"
-#include "const.h"  /* jwan */
+#include <ngspice/cktdefs.h>
+#include <ngspice/iferrmsg.h>
+#include <ngspice/noisedef.h>
+#include <ngspice/suffix.h>
+#include <ngspice/const.h>  /* jwan */
 
 /*
  * BSIM3v1noise (mode, operation, firstModel, ckt, data, OnDens)
@@ -46,7 +46,7 @@
 
 
 static double
-StrongInversionNoiseEval_b3v1(double vgs, double vds, BSIM3v1model *model, 
+StrongInversionNoiseEval_b3(double vgs, double vds, BSIM3v1model *model, 
                          BSIM3v1instance *here, double freq, double temp)
 {
 struct bsim3v1SizeDependParam *pParam;
@@ -143,12 +143,14 @@ int i;
 				  {    (void) sprintf(name, "onoise.%s%s",
 					              here->BSIM3v1name,
 						      BSIM3v1nNames[i]);
-                                       data->namelist = TREALLOC(IFuid, data->namelist, data->numPlots + 1);
-                                       if (!data->namelist)
-					   return(E_NOMEM);
-		                       (*(SPfrontEnd->IFnewUid)) (ckt,
+						      data->namelist = TREALLOC(
+						      IFuid, data->namelist, 
+						      data->numPlots + 1);
+						      if (!data->namelist)
+							      return(E_NOMEM);
+		                       SPfrontEnd->IFnewUid (ckt,
 			                  &(data->namelist[data->numPlots++]),
-			                  (IFuid) NULL, name, UID_OTHER,
+			                  NULL, name, UID_OTHER,
 					  NULL);
 				       /* we've added one more plot */
 			          }
@@ -158,24 +160,28 @@ int i;
 				  {    (void) sprintf(name, "onoise_total.%s%s",
 						      here->BSIM3v1name,
 						      BSIM3v1nNames[i]);
-                                       data->namelist = TREALLOC(IFuid, data->namelist, data->numPlots + 1);
-                                       if (!data->namelist)
-					   return(E_NOMEM);
-		                       (*(SPfrontEnd->IFnewUid)) (ckt,
+						      data->namelist = TREALLOC(
+						      IFuid, data->namelist, 
+						      data->numPlots + 1);
+						      if (!data->namelist)
+							      return(E_NOMEM);
+		                       SPfrontEnd->IFnewUid (ckt,
 			                  &(data->namelist[data->numPlots++]),
-			                  (IFuid) NULL, name, UID_OTHER,
+			                  NULL, name, UID_OTHER,
 					  NULL);
 				       /* we've added one more plot */
 
 			               (void) sprintf(name, "inoise_total.%s%s",
 						      here->BSIM3v1name,
 						      BSIM3v1nNames[i]);
-                                       data->namelist = TREALLOC(IFuid, data->namelist, data->numPlots + 1);
-                                       if (!data->namelist)
-					   return(E_NOMEM);
-		                       (*(SPfrontEnd->IFnewUid)) (ckt,
+						      data->namelist = TREALLOC(
+						      IFuid, data->namelist, 
+						      data->numPlots + 1);
+						      if (!data->namelist)
+							      return(E_NOMEM);
+		                       SPfrontEnd->IFnewUid (ckt,
 			                  &(data->namelist[data->numPlots++]),
-			                  (IFuid) NULL, name, UID_OTHER,
+			                  NULL, name, UID_OTHER,
 					  NULL);
 				       /* we've added one more plot */
 			          }
@@ -219,7 +225,7 @@ int i;
 					       * pParam->BSIM3v1leff))));
 				      break;
 			      }
-		              NevalSrc(&noizDens[BSIM3v1FLNOIZ], (double*) NULL,
+		              NevalSrc(&noizDens[BSIM3v1FLNOIZ], NULL,
 				       ckt, N_GAIN, here->BSIM3v1dNodePrime,
 				       here->BSIM3v1sNodePrime, (double) 0.0);
 
@@ -244,7 +250,7 @@ int i;
 				          vgs = vgs + vds;
 			              }
                                       if (vgs >= here->BSIM3v1von + 0.1)
-			              {   Ssi = StrongInversionNoiseEval_b3v1(vgs,
+			              {   Ssi = StrongInversionNoiseEval_b3(vgs,
 					      vds, model, here, data->freq,
 					      ckt->CKTtemp);
                                           noizDens[BSIM3v1FLNOIZ] *= Ssi;
@@ -259,7 +265,7 @@ int i;
 				              * 4.0e36;
 		                          Swi = T10 / T11 * here->BSIM3v1cd * here->BSIM3v1m
 				              * here->BSIM3v1cd * here->BSIM3v1m;
-                                          Slimit = StrongInversionNoiseEval_b3v1(
+                                          Slimit = StrongInversionNoiseEval_b3(
 				               here->BSIM3v1von + 0.1, vds, model,
 					       here, data->freq, ckt->CKTtemp);
 				          T1 = Swi + Slimit;

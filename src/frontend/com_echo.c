@@ -1,16 +1,16 @@
 /*************
 * com_echo.c
-* $Id: com_echo.c,v 1.4 2010/10/09 12:49:34 rlar Exp $
+* $Id: com_echo.c,v 1.5 2011/08/20 17:27:10 rlar Exp $
 ************/
 
 #include <config.h>
-#include <ngspice.h>
-#include <wordlist.h>
-#include <bool.h>
+#include <ngspice/ngspice.h>
+#include <ngspice/wordlist.h>
+#include <ngspice/bool.h>
 
 #include "com_echo.h"
 #include "quote.h"
-#include "cpextern.h"
+#include <ngspice/cpextern.h>
 
 void
 com_echo(wordlist *wlist)

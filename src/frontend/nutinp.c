@@ -1,18 +1,18 @@
 /**********
 Copyright 1990 Regents of the University of California.  All rights reserved.
 Author: 1985 Wayne A. Christopher
-$Id: nutinp.c,v 1.18 2010/11/19 18:54:41 rlar Exp $
+$Id: nutinp.c,v 1.21 2011/08/20 17:27:11 rlar Exp $
 **********/
 
 /*
  * For dealing with nutmeg input decks and command scripts
  */
 
-#include "ngspice.h"
-#include "cpdefs.h"
-#include "ftedefs.h"
-#include "dvec.h"
-#include "fteinp.h"
+#include <ngspice/ngspice.h>
+#include <ngspice/cpdefs.h>
+#include <ngspice/ftedefs.h>
+#include <ngspice/dvec.h>
+#include <ngspice/fteinp.h>
 #include "nutinp.h"
 #include "variable.h"
 #include "../misc/mktemp.h"
@@ -230,7 +230,7 @@ nutcom_source(wordlist *wl)
             (void) fclose(tp);
             wl = wl->wl_next;
         }
-        (void) fseek(fp, (long) 0, 0);
+        (void) fseek(fp, 0L, SEEK_SET);
     } else
         fp = inp_pathopen(wl->wl_word, "r");
     if (fp == NULL) {
@@ -242,9 +242,9 @@ nutcom_source(wordlist *wl)
     /* Don't print the title if this is a .spiceinit file. */
     if (ft_nutmeg || substring(INITSTR, owl->wl_word)
             || substring(ALT_INITSTR, owl->wl_word))
-        inp_nutsource(fp, TRUE, tempfile ? (char *) NULL : wl->wl_word);
+        inp_nutsource(fp, TRUE, tempfile ? NULL : wl->wl_word);
     else
-        inp_nutsource(fp, FALSE, tempfile ? (char *) NULL : wl->wl_word);
+        inp_nutsource(fp, FALSE, tempfile ? NULL : wl->wl_word);
     cp_interactive = inter;
     if (tempfile)
         (void) unlink(tempfile);

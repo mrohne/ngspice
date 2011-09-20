@@ -1,13 +1,13 @@
 /* The 'compose' command.  This is a more powerful and convenient form
  * of the 'let' command.  */
-#include <ngspice.h>
-#include <complex.h>
-#include <dvec.h>
-#include <bool.h>
-#include <sim.h>
-#include <pnode.h>
-#include <fteext.h>
-#include <cpextern.h>
+#include <ngspice/ngspice.h>
+#include <ngspice/complex.h>
+#include <ngspice/dvec.h>
+#include <ngspice/bool.h>
+#include <ngspice/sim.h>
+#include <ngspice/pnode.h>
+#include <ngspice/fteext.h>
+#include <ngspice/cpextern.h>
 
 #include "quote.h"
 #include "com_compose.h"
@@ -338,7 +338,7 @@ com_compose(wordlist *wl)
                         var, val);
                     return;
                 }
-                log = *td;
+                log = (int)(*td);
             } else if (cieq(var, "dec")) {
                 decgiven = TRUE;
                 if ((td = ft_numparse(&val, FALSE)) == NULL) {
@@ -347,7 +347,7 @@ com_compose(wordlist *wl)
                         var, val);
                     return;
                 }
-                dec = *td;
+                dec = (int)(*td);
             } else if (cieq(var, "gauss")) {
                 gaussgiven = TRUE;
                 if ((td = ft_numparse(&val, FALSE)) == NULL) {
@@ -356,7 +356,7 @@ com_compose(wordlist *wl)
                         var, val);
                     return;
                 }
-                gauss = *td;
+                gauss = (int)(*td);
             } else if (cieq(var, "random")) {
                 randmgiven = TRUE;
                 if ((td = ft_numparse(&val, FALSE)) == NULL) {
@@ -365,7 +365,7 @@ com_compose(wordlist *wl)
                         var, val);
                     return;
                 }
-                randm = *td;
+                randm = (int)(*td);
             } else if (cieq(var, "pool")) {
                 poolgiven = TRUE;
                 pool = val;
@@ -453,7 +453,7 @@ com_compose(wordlist *wl)
                 for (i = 0, tt = start; i < lin;
                         i++, tt += step)
                     data[i] = tt;
-            length = lin;
+            length = (int)lin;
         } else if (loggiven || decgiven) {
             /* Create a log sweep... */
         } else if (randmgiven) {

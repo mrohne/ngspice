@@ -1,12 +1,12 @@
 /**********
 Copyright 1991 Regents of the University of California.  All rights reserved.
 Author:	1987 Kartikeya Mayaram, U. C. Berkeley CAD Group
-$Id: integset.c,v 1.3 2010/10/15 18:29:10 rlar Exp $
+$Id: integset.c,v 1.4 2011/08/20 17:27:10 rlar Exp $
 **********/
 
-#include "ngspice.h"
-#include "numenum.h"
-#include "cidersupt.h"
+#include <ngspice/ngspice.h>
+#include <ngspice/numenum.h>
+#include <ngspice/cidersupt.h>
 
 /* compute the coefficient for the integration and predictor methods */
 /* based on the Lagrange polynomial method in Liniger et. al. */

@@ -7,14 +7,14 @@ Author: 1985 Wayne A. Christopher, U. C. Berkeley CAD Group
  * Main routine for sconvert.
  */
 
-#include "ngspice.h"
+#include <ngspice/ngspice.h>
 #include <stdio.h>
 
-#include <fteinput.h>
-#include <cpdefs.h>
-#include <ftedefs.h>
-#include <sim.h>
-#include "suffix.h"
+#include <ngspice/fteinput.h>
+#include <ngspice/cpdefs.h>
+#include <ngspice/ftedefs.h>
+#include <ngspice/sim.h>
+#include <ngspice/suffix.h>
 #include "frontend/display.h"
 #include "../misc/mktemp.h"
 
@@ -37,12 +37,12 @@ char *cp_program = "sconvert";
 char out_pbuf[BSIZE_SP];
 
 
-#define tfread(ptr, siz, nit, fp)   if (fread((char *) (ptr), (siz), \
+#define tfread(ptr, siz, nit, fp)   if (fread((ptr), (siz), \
                         (nit), (fp)) != (nit)) { \
                 fprintf(cp_err, "Error: unexpected EOF\n"); \
                     return (NULL); }
 
-#define tfwrite(ptr, siz, nit, fp)  if (fwrite((char *) (ptr), (siz), \
+#define tfwrite(ptr, siz, nit, fp)  if (fwrite((ptr), (siz), \
                         (nit), (fp)) != (nit)) { \
                     fprintf(cp_err, "Write error\n"); \
                     return; }
@@ -100,7 +100,7 @@ oldread(char *name)
     pl = alloc(struct plot);
     tfread(buf, 1, 80, fp);
     buf[80] = '\0';
-    for (i = strlen(buf) - 1; (i > 1) && (buf[i] == ' '); i--)
+    for (i = (int) strlen(buf) - 1; (i > 1) && (buf[i] == ' '); i--)
         ;
     buf[i + 1] = '\0';
     pl->pl_title = copy(buf);
@@ -156,9 +156,9 @@ oldread(char *name)
      * the file. 
      */
     i = ftell(fp);
-    (void) fseek(fp, (long) 0, 2);
+    (void) fseek(fp, 0L, SEEK_END);
     j = ftell(fp);
-    (void) fseek(fp, i, 0);
+    (void) fseek(fp, i, SEEK_SET);
     i = j - i;
     if (i % 8) {    /* Data points are always 8 bytes... */
         fprintf(cp_err, "Error: alignment error in data\n");
@@ -174,7 +174,7 @@ oldread(char *name)
     np = i / nv;
 
     for (v = pl->pl_dvecs; v; v = v->v_next) {
-        v->v_length = np;
+        v->v_length = (int) np;
         if (isreal(v)) {
             v->v_realdata = TMALLOC(double, np);
         } else {
@@ -285,25 +285,22 @@ oldwrite(char *name, bool app, struct plot *pl)
     tfwrite(&v->v_realdata[v->v_length - 1], sizeof (double), 1, fp);
                 }
             } else if ((tp == VF_REAL) && iscomplex(v)) {
-                if (i < v->v_length)
-                    f1 = realpart(&v->v_compdata[i]);
-                else
-                    f1 = realpart(&v->v_compdata[v-> v_length - 1]);
-                tfwrite(&f1, sizeof (double), 1, fp);
+                fprintf(cp_err, "internal error, everything real, yet complex ...\n");
+                exit(1);
             } else if ((tp == VF_COMPLEX) && isreal(v)) {
                 if (i < v->v_length)
-                    f1 = v->v_realdata[i];
+                    f1 = (float) v->v_realdata[i];
                 else
-                    f1 = v->v_realdata[v->v_length - 1];
+                    f1 = (float) v->v_realdata[v->v_length - 1];
                 tfwrite(&f1, sizeof (float), 1, fp);
                 tfwrite(&zero, sizeof (float), 1, fp);
             } else if ((tp == VF_COMPLEX) && iscomplex(v)) {
                 if (i < v->v_length) {
-                    f1 = realpart(&v->v_compdata[i]);
-                    f2 = imagpart(&v->v_compdata[i]);
+                    f1 = (float) realpart(&v->v_compdata[i]);
+                    f2 = (float) imagpart(&v->v_compdata[i]);
                 } else {
-                    f1 = realpart(&v->v_compdata[v-> v_length - 1]);
-                    f2 = imagpart(&v->v_compdata[v-> v_length - 1]);
+                    f1 = (float) realpart(&v->v_compdata[v-> v_length - 1]);
+                    f2 = (float) imagpart(&v->v_compdata[v-> v_length - 1]);
                 }
                 tfwrite(&f1, sizeof (float), 1, fp);
                 tfwrite(&f2, sizeof (float), 1, fp);
@@ -437,7 +434,7 @@ void cp_pushcontrol(void) { }
 void cp_popcontrol(void) { }
 void out_init(void) { }
 void cp_doquit(void) { exit(0); }
-void cp_usrvars(struct variable **v1, struct variable **v2) { NG_IGNORE(v2); NG_IGNORE(v1); return; }
+void cp_usrvars(struct variable **v1, struct variable **v2) { *v1 = NULL; *v2 = NULL;  return; }
 int cp_evloop(char *s) { NG_IGNORE(s); return (0); }
 void cp_ccon(bool o) { NG_IGNORE(o); }
 char*if_errstring(int c) { NG_IGNORE(c); return ("error"); }

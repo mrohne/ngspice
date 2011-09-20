@@ -41,15 +41,15 @@ NON-STANDARD FEATURES
 ============================================================================*/
 
 #include <stdio.h>
-#include "ngspice.h"
-#include "cktdefs.h"
+#include <ngspice/ngspice.h>
+#include <ngspice/cktdefs.h>
 //#include "util.h"
-#include "sperror.h"
+#include <ngspice/sperror.h>
 
-#include "mif.h"
-#include "evt.h"
-#include "evtproto.h"
-#include "evtudn.h"
+#include <ngspice/mif.h>
+#include <ngspice/evt.h>
+#include <ngspice/evtproto.h>
+#include <ngspice/evtudn.h>
 
 
 static void EVTnode_compare(
@@ -174,9 +174,9 @@ int EVTop(
         if(ckt->evt->data.statistics->op_alternations >=
                 ckt->evt->limits.max_op_alternations) {
 
-            (*(SPfrontEnd->IFerror)) (ERR_WARNING,
+            SPfrontEnd->IFerror (ERR_WARNING,
                 "Too many analog/event-driven solution alternations",
-                (IFuid *) NULL);
+                NULL);
 
             err_msg = TMALLOC(char, 10000);
             output_queue = &(ckt->evt->queue.output);
@@ -314,7 +314,7 @@ static void EVTnode_compare(
 
 
     /* Do compare based on changes in resolved node value only */
-    (*(g_evt_udn_info[udn_index]->compare)) (
+    g_evt_udn_info[udn_index]->compare (
             node1->node_value,
             node2->node_value,
             equal);

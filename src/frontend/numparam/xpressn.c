@@ -2,7 +2,7 @@
 
    This file is part of Numparam, see:  readme.txt
    Free software under the terms of the GNU Lesser General Public License
-   $Id: xpressn.c,v 1.67 2011/02/19 15:11:53 rlar Exp $
+   $Id: xpressn.c,v 1.74 2011/08/20 17:27:11 rlar Exp $
  */
 
 #include <stdio.h>                /* for function message() only. */
@@ -10,12 +10,13 @@
 
 #include "general.h"
 #include "numparam.h"
-#include "ngspice.h"
-#include "cpdefs.h"
-#include "ftedefs.h"
-#include "dvec.h"
+#include <ngspice/ngspice.h>
+#include <ngspice/cpdefs.h>
+#include <ngspice/ftedefs.h>
+#include <ngspice/dvec.h>
 #include "../frontend/variable.h"
-#include "compatmode.h"
+#include <ngspice/compatmode.h>
+#include "../frontend/error.h"
 
 /* random numbers in /maths/misc/randnumb.c */
 extern double gauss0(void);
@@ -29,7 +30,6 @@ static SPICE_DSTRING fmathS ;     /* all math functions */
 
 extern char *nupa_inst_name; /* see spicenum.c */
 extern long dynsubst;        /* see inpcom.c */
-extern unsigned int dynLlen;
 
 #define MAX_STRING_INSERT 17 /* max. string length to be inserted and replaced */
 #define ACT_CHARACTS 17      /* actual string length to be inserted and replaced */
@@ -228,10 +228,10 @@ initdico (tdico * dico)
 
     compat_mode = ngspice_compat_mode() ;
 
-    if( compat_mode == COMPATMODE_HSPICE )
-        dico->hspice_compatibility = 1 ;
+    if( compat_mode == COMPATMODE_HS )
+        dico->hs_compatibility = 1 ;
     else
-        dico->hspice_compatibility = 0 ;
+        dico->hs_compatibility = 0 ;
 }
 
 void dico_free_entry( entry *entry_p )
@@ -1395,8 +1395,8 @@ evaluate (tdico * dico, SPICE_DSTRINGPTR qstr_p, char *t, unsigned char mode)
 
         char buf[17+1];
         if(snprintf(buf, sizeof(buf), "% 17.9le", u) != 17) {
-            fprintf(stderr, "internal ERROR in %s(%d)\n", __FUNCTION__, __LINE__);
-            exit(1);
+            fprintf(stderr, "ERROR: xpressn.c, %s(%d)\n", __FUNCTION__, __LINE__);
+            controlled_exit(1);
         }
         scopys(qstr_p, buf);
     }
@@ -1431,9 +1431,9 @@ scanline (tdico * dico, char *s, char *r, bool err)
     {
         i++;
         c = s[i - 1];
-        if (c == Pspice)
+        if (c == Psp)
         {
-            /* try pspice expression syntax */
+            /* try ps expression syntax */
             k = i;
             nnest = 1;
             do
@@ -1453,7 +1453,7 @@ scanline (tdico * dico, char *s, char *r, bool err)
             else
             {
                 pscopy (t, s, i + 1, k - i - 1);
-                if( dico->hspice_compatibility && (strcasecmp(t,"LAST")==0) )
+                if( dico->hs_compatibility && (strcasecmp(t,"LAST")==0) )
                 {
                     strcpy(q,"last") ;
                     err=0;
@@ -1591,7 +1591,7 @@ insertnumber (tdico * dico, int i, char *s, SPICE_DSTRINGPTR ustr_p)
         (snprintf(buf, sizeof(buf), "%-17s", u) == ACT_CHARACTS))
     {
         memcpy(p, buf, ACT_CHARACTS);
-        return p - s + ACT_CHARACTS;
+        return (int)(p - s) + ACT_CHARACTS;
     }
 
     message
@@ -1601,7 +1601,7 @@ insertnumber (tdico * dico, int i, char *s, SPICE_DSTRINGPTR ustr_p)
           s+i, u, id );
 
     /* swallow everything on failure */
-    return i + strlen(s+i);
+    return i + (int) strlen(s+i);
 }
 
 bool
@@ -1629,9 +1629,9 @@ nupa_substitute (tdico * dico, char *s, char *r, bool err)
         i++;
         c = s[i - 1];
 
-        if (c == Pspice)
+        if (c == Psp)
         {
-            /* try pspice expression syntax */
+            /* try ps expression syntax */
             k = i;
             nnest = 1;
             do

@@ -5,12 +5,12 @@ Author: 1985 Thomas L. Quarles
 
 #include "spice.h"
 #include <stdio.h>
-#include "ifsim.h"
-#include "cktdefs.h"
+#include <ngspice/ifsim.h>
+#include <ngspice/cktdefs.h>
 #include "util.h"
-#include "const.h"
-#include "sperror.h"
-#include "suffix.h"
+#include <ngspice/const.h>
+#include <ngspice/sperror.h>
+#include <ngspice/suffix.h>
 
 /* This is a routine to initialize the sensitivity
  * data structure
@@ -37,10 +37,10 @@ SENstartup(ckt)
     parmtemp.iValue = 1;
     for(i=0;i<ckt->CKTsenInfo->SENnumVal;i++) {
         type = -1;
-        fast = (GENinstance *)NULL;
+        fast = NULL;
         err = CKTfndDev((GENERIC*)ckt,&type,(GENERIC**)&fast,
             (*((ckt->CKTsenInfo->SENdevices)+i)), 
-            (GENERIC *)NULL, (GENERIC *)NULL);
+            NULL, NULL);
         if(err != OK) return(err);
         err = CKTpName(
         (*((ckt->CKTsenInfo->SENparmNames)+i)),

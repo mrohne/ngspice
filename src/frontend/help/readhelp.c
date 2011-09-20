@@ -12,10 +12,10 @@ Modified 1999 Emmanuel Rouat
  */
 
 #include <config.h>
-#include "ngspice.h"
-#include "cpstd.h"
-#include "hlpdefs.h"
-#include "suffix.h"
+#include <ngspice/ngspice.h>
+#include <ngspice/cpstd.h>
+#include <ngspice/hlpdefs.h>
+#include <ngspice/suffix.h>
 
 #if defined (_MSC_VER)
 #define strncasecmp _strnicmp
@@ -81,7 +81,7 @@ hlp_read(fplace *place)
     /* get the title */
     if (!place->fp) place->fp = hlp_fopen(place->filename);
     if (!place->fp) return(NULL);
-    fseek(place->fp, place->fpos, 0);
+    fseek(place->fp, place->fpos, SEEK_SET);
     (void) fgets(buf, BSIZE_SP, place->fp);    /* skip subject */
     (void) fgets(buf, BSIZE_SP, place->fp);
     for (s = buf; *s && (*s != '\n'); s++)
@@ -255,7 +255,7 @@ findsubject(char *filename, char *subject)
     }
 
     /* try it exactly (but ignore case) */
-    while(fread((char *) &indexitem, sizeof (struct hlp_index), 1, fp)) {
+    while(fread(&indexitem, sizeof (struct hlp_index), 1, fp)) {
       if (!strncasecmp(subject, indexitem.subject, 64)) { /* sjb - ignore case */
         fclose(fp);
         return(indexitem.fpos);
@@ -270,7 +270,7 @@ findsubject(char *filename, char *subject)
     }
 
     /* try it abbreviated (ignore case)  */
-    while(fread((char *) &indexitem, sizeof (struct hlp_index), 1, fp)) {
+    while(fread(&indexitem, sizeof (struct hlp_index), 1, fp)) {
       if (!strncasecmp(indexitem.subject,subject, strlen(subject))) {
         fclose(fp);
         return(indexitem.fpos);
@@ -285,7 +285,7 @@ findsubject(char *filename, char *subject)
     }
 
 	/* try it within */ /* FIXME: need a case independent version of strstr() */
-    while(fread((char *) &indexitem, sizeof (struct hlp_index), 1, fp)) {
+    while(fread(&indexitem, sizeof (struct hlp_index), 1, fp)) {
 	  if (strstr(indexitem.subject,subject)) {
         fclose(fp);
         return(indexitem.fpos);
@@ -305,7 +305,7 @@ getsubject(fplace *place)
     if (!place->fp) place->fp = hlp_fopen(place->filename);
     if (!place->fp) return(NULL);
 
-    fseek(place->fp, place->fpos, 0);
+    fseek(place->fp, place->fpos, SEEK_SET);
     (void) fgets(buf, BSIZE_SP, place->fp);
     for (s = buf; *s && (*s != '\n'); s++)
         ;

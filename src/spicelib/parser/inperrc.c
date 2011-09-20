@@ -5,17 +5,17 @@ Author: 1985 Thomas L. Quarles
 /*
  */
 
-#include "ngspice.h"
+#include <ngspice/ngspice.h>
 #include <stdio.h>
-#include "inpdefs.h"
+#include <ngspice/inpdefs.h>
 #include "inp.h"
 
 
 char *INPerrCat(char *a, char *b)
 {
 
-    if (a != (char *) NULL) {
-	if (b == (char *) NULL) {	/* a valid, b null, return a */
+    if (a != NULL) {
+	if (b == NULL) {	/* a valid, b null, return a */
 	    return (a);
 	} else {		/* both valid  - hard work... */
 	    register char *errtmp;

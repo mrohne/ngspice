@@ -5,13 +5,13 @@
 
    Authors: Holger Vogt,  Hendrik Vogt
    
-   $Id: com_sysinfo.c,v 1.18 2010/11/16 20:38:24 rlar Exp $
+   $Id: com_sysinfo.c,v 1.24 2011/08/20 17:27:11 rlar Exp $
  */
  
 #include "config.h"
-#include "ngspice.h" 
-#include "cpdefs.h"
-#include "fteext.h"
+#include <ngspice/ngspice.h> 
+#include <ngspice/cpdefs.h>
+#include <ngspice/fteext.h>
 #include "com_commands.h"
 
 /* We might compile for Windows, but only as a console application (e.g. tcl) */
@@ -47,33 +47,33 @@
 /* system info */
 typedef struct TSI {
 	char* cpuModelName;
-	int numPhysicalProcessors;
-	int numLogicalProcessors;
+	unsigned numPhysicalProcessors;
+	unsigned numLogicalProcessors;
 	char* osName;
 } TesSystemInfo;
 
 /* memory info */
 struct sys_memory {
-   long long size_m;  /* Total memory size */
-   long long free_m;  /* Free memory */
-   long long swap_t;  /* Swap total */
-   long long swap_f;  /* Swap free */
+   unsigned long long size_m;  /* Total memory size */
+   unsigned long long free_m;  /* Free memory */
+   unsigned long long swap_t;  /* Swap total */
+   unsigned long long swap_f;  /* Swap free */
 };
 
 static struct sys_memory mem_t_act; 
 
 TesError tesCreateSystemInfo(TesSystemInfo *info);
-static size_t get_sysmem(struct sys_memory *memall);
+static int get_sysmem(struct sys_memory *memall);
 
 /* Print to stream the given memory size in a human friendly format */
 static void
 fprintmem(FILE* stream, unsigned long long memory) {
     if (memory > 1048576)
-      fprintf(stream, "%8.6f MB", memory/1048576.);
-    else if (memory > 1024) 
-      fprintf(stream, "%5.3f kB", memory/1024.);
+	fprintf(stream, "%8.6f MB", (double)memory /1048576.);
+    else if (memory > 1024)
+	fprintf(stream, "%5.3f kB", (double)memory / 1024.);
     else
-      fprintf(stream, "%lu bytes", (unsigned long)memory);
+	fprintf(stream, "%u bytes", (unsigned)memory);
 }
 
 
@@ -101,8 +101,8 @@ void com_sysinfo(wordlist *wl)
       fprintf(cp_out, "\nOS: %s\n", info->osName);
       fprintf(cp_out, "CPU: %s\n", info->cpuModelName);
       if (info->numPhysicalProcessors > 0) 
-         fprintf(cp_out, "Physical processors: %d, ", info->numPhysicalProcessors);
-      fprintf(cp_out, "Logical processors: %d\n", 
+         fprintf(cp_out, "Physical processors: %u, ", info->numPhysicalProcessors);
+      fprintf(cp_out, "Logical processors: %u\n",
          info->numLogicalProcessors);
    }
 #if defined(HAVE_WIN32) || defined(HAVE__PROC_MEMINFO) 	
@@ -128,7 +128,7 @@ void com_sysinfo(wordlist *wl)
 #ifdef HAVE__PROC_MEMINFO 
 
 /* Get memory information */
-static size_t get_sysmem(struct sys_memory *memall) {
+static int get_sysmem(struct sys_memory *memall) {
    FILE *fp;
    char buffer[2048];
    size_t bytes_read;
@@ -176,22 +176,19 @@ static size_t get_sysmem(struct sys_memory *memall) {
 
 
 /* Return length of first line in a string */
-static tInt getLineLength(const char *str) {
-	tInt length = strlen(str);
-	char c = str[0];
-	tInt index = 0;
-	
-	while((c != '\n') && (index < length)) {
-		index++;
-		c = str[index];
-	}
-	return index;
+static size_t getLineLength(const char *str) {
+	const char *p = str;
+
+	while(*p  &&  (*p != '\n'))
+	    p++;
+
+	return (size_t) (p - str);
 }
 
 /* Checks if number 'match' is found in a vector 'set' of size 'size'
    Returns 1 if yes, otherwise, 0 */
-static tInt searchInSet(const tInt *set, tInt size, tInt match) {
-	tInt index;
+static tInt searchInSet(const tInt *set, unsigned size, tInt match) {
+	unsigned index;
 	for(index = 0; index < size; index++) {
 		if(match == set[index]) {
 			return 1;
@@ -214,17 +211,14 @@ TesError tesCreateSystemInfo(TesSystemInfo *info) {
 	/* get kernel version string */
 	file = fopen("/proc/version", "rb");
 	if(file != NULL) {	
-		tInt size = 0;
-		char buf;
+		size_t size;
 		
 		/* read bytes and find end of file */
-		buf = fgetc(file);	
-		while(buf != EOF) {
-			size++;
-			buf = fgetc(file);
-		}
+		for(size=0; ; size++)
+		    if(EOF == fgetc(file))
+			break;
 
-		info->osName = (char*) malloc((size) * sizeof(char));
+		info->osName = (char*) malloc(size * sizeof(char));
 		rewind(file);
 		fread(info->osName, sizeof(char), size, file);
 		fclose(file);
@@ -238,15 +232,14 @@ TesError tesCreateSystemInfo(TesSystemInfo *info) {
 	/* get cpu information */
    file = fopen("/proc/cpuinfo", "rb");
 	if(file != NULL) {	
-		tInt size = 0;
-		char buf, *inStr;
+		size_t size;
+		char *inStr;
 		
 		/* read bytes and find end of file */
-		buf = fgetc(file);	
-		while(buf != EOF) {
-			size++;
-			buf = fgetc(file);
-		}
+		for(size=0; ; size++)
+		    if(EOF == fgetc(file))
+			break;
+
 		/* get complete string */
 		inStr = (char*) malloc((size+1) * sizeof(char));
 		rewind(file);
@@ -262,7 +255,7 @@ TesError tesCreateSystemInfo(TesSystemInfo *info) {
 				const char *modelPtr = strchr(modelStr, ':');
 				if(modelPtr != NULL) {
                /*length of string from ':' till end of line */
-					tInt numToEOL = getLineLength(modelPtr);
+					size_t numToEOL = getLineLength(modelPtr);
 					if(numToEOL > 2) {
                   /* skip ": "*/
 						numToEOL-=2;
@@ -283,7 +276,7 @@ TesError tesCreateSystemInfo(TesSystemInfo *info) {
 			const char *matchStrProc = "processor";
 			const char *matchStrPhys = "physical id";
 			char *strPtr = inStr;
-			tInt numProcs = 0;
+			unsigned numProcs = 0;
 			tInt *physIDs;
 			
 			/* get number of logical processors */
@@ -359,7 +352,7 @@ TesError tesCreateSystemInfo(TesSystemInfo *info) {
 #elif defined(HAVE_WIN32)
 
 /* get memory information */
-static size_t get_sysmem(struct sys_memory *memall) {
+static int get_sysmem(struct sys_memory *memall) {
 #if ( _WIN32_WINNT >= 0x0500)
    MEMORYSTATUSEX ms;
    ms.dwLength = sizeof(MEMORYSTATUSEX);
@@ -384,7 +377,7 @@ static size_t get_sysmem(struct sys_memory *memall) {
 TesError tesCreateSystemInfo(TesSystemInfo *info) {
 	OSVERSIONINFOA version;
 	char *versionStr = NULL, *procStr, *freeStr;
-	tInt major, minor;
+	DWORD major, minor;
 	DWORD dwLen;
    HKEY hkBaseCPU;
 	LONG lResult;
@@ -439,8 +432,8 @@ TesError tesCreateSystemInfo(TesSystemInfo *info) {
 	}
 
 	if(versionStr != NULL) {
-		tInt lengthCSD = strlen(version.szCSDVersion);
-		tInt lengthVer = strlen(versionStr);
+		size_t lengthCSD = strlen(version.szCSDVersion);
+		size_t lengthVer = strlen(versionStr);
 
 		info->osName = malloc(lengthVer + lengthCSD + 2);
 		memcpy(info->osName, versionStr, lengthVer);

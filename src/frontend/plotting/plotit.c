@@ -1,13 +1,13 @@
-/* $Id: plotit.c,v 1.22 2010/11/19 18:54:41 rlar Exp $ */
-#include <ngspice.h>
+/* $Id: plotit.c,v 1.28 2011/08/20 17:27:11 rlar Exp $ */
+#include <ngspice/ngspice.h>
 #include <config.h>
-#include <bool.h>
-#include <wordlist.h>
-#include <graph.h>
-#include <cpdefs.h>
-#include <pnode.h>
-#include <sim.h>
-#include <fteext.h>
+#include <ngspice/bool.h>
+#include <ngspice/wordlist.h>
+#include <ngspice/graph.h>
+#include <ngspice/cpdefs.h>
+#include <ngspice/pnode.h>
+#include <ngspice/sim.h>
+#include <ngspice/fteext.h>
 
 #include <circuits.h>
 
@@ -21,7 +21,7 @@ static wordlist *wl_root;
 static bool sameflag;
 
 #ifdef TCL_MODULE
-#include <tclspice.h>
+#include <ngspice/tclspice.h>
 #endif
 
 /* This routine gets parameters from the command line, which are of
@@ -30,55 +30,69 @@ static bool sameflag;
 static double *
 getlims(wordlist *wl, char *name, int number)
 {
-    double *d, *td;
+    double *d;
     wordlist *beg, *wk;
-    char *ss;
     int n;
 
-    for (beg = wl; beg; beg = beg->wl_next) {
-        if (eq(beg->wl_word, name)) {
-            if (beg == wl) {
-                fprintf(cp_err,
-			"Syntax error: looking for plot parameters \"%s\".\n",
-			name);
-                return (NULL);
-            }
-            wk = beg;
-            if (number) {
-                d = TMALLOC(double, number);
-                for (n = 0; n < number; n++) {
-                    wk = wk->wl_next;
-                    if (!wk) {
-                        fprintf(cp_err,
-                            "Syntax error: not enough parameters for \"%s\".\n",
-			    name);
-                        return (NULL);
-                    }
-                    ss = wk->wl_word;
-                    td = ft_numparse(&ss, FALSE);
-                    if (td == NULL)
-                        goto bad;
-                    d[n] = *td;
-                }
-            } else
-                /* Minor hack... */
-                d = (double  *) 1;
+    if(number < 1)
+        return NULL;
 
-            if (beg->wl_prev)
-                beg->wl_prev->wl_next = wk->wl_next;
-            if (wk->wl_next) {
-                wk->wl_next->wl_prev = beg->wl_prev;
-                wk->wl_next = NULL;
-            }
-	    if (beg != wl_root)
-		wl_free(beg);
-            return (d);
-        }
+    for (beg = wl; beg; beg = beg->wl_next)
+        if (eq(beg->wl_word, name))
+            break;
+
+    if(!beg)
+        return NULL;
+
+    if (beg == wl) {
+        fprintf(cp_err,
+                "Syntax error: looking for plot parameters \"%s\".\n", name);
+        return NULL;
     }
-    return (NULL);
-bad:
-    fprintf(cp_err, "Syntax error: bad parameters for \"%s\".\n", name);
-    return (NULL);
+
+    wk = beg;
+
+    d = TMALLOC(double, number);
+
+    for (n = 0; n < number; n++) {
+
+        char *ss;
+        double *td;
+
+        wk = wk->wl_next;
+
+        if (!wk) {
+            fprintf(cp_err,
+                    "Syntax error: not enough parameters for \"%s\".\n", name);
+            txfree(d);
+            return NULL;
+        }
+
+        ss = wk->wl_word;
+        td = ft_numparse(&ss, FALSE);
+
+        if (!td) {
+            fprintf(cp_err,
+                    "Syntax error: bad parameters for \"%s\".\n", name);
+            txfree(d);
+            return NULL;
+        }
+
+        d[n] = *td;
+    }
+
+    if (beg->wl_prev)
+        beg->wl_prev->wl_next = wk->wl_next;
+
+    if (wk->wl_next) {
+        wk->wl_next->wl_prev = beg->wl_prev;
+        wk->wl_next = NULL;
+    }
+
+    if (beg != wl_root)
+        wl_free(beg);
+
+    return d;
 }
 
 
@@ -644,8 +658,8 @@ plotit(wordlist *wl, char *hcopy, char *devname)
 
 	/* The following line displays the unit at the time of 
 	 temp-sweep and res-sweep. This may not be a so good solution. by H.T */
-	if(!strcmp(vecs->v_scale->v_name,"temp-sweep")) vecs->v_scale->v_type=14;
-	if(!strcmp(vecs->v_scale->v_name,"res-sweep")) vecs->v_scale->v_type=15;
+	if(!strcmp(vecs->v_scale->v_name,"temp-sweep")) vecs->v_scale->v_type=SV_TEMP; /* simulation_types in sim.h */
+	if(!strcmp(vecs->v_scale->v_name,"res-sweep")) vecs->v_scale->v_type=SV_RES;
 
     /* See if the log flag is set anywhere... */
     if (!gfound) {
@@ -934,7 +948,7 @@ plotit(wordlist *wl, char *hcopy, char *devname)
             !isreal(plot_cur->pl_scale) ||
             !ciprefix("tran", plot_cur->pl_typename))) {
 
-          newlen = (tstop - tstart) / tstep + 1.5;
+          newlen = (int)((tstop - tstart) / tstep + 1.5);
 
           newscale = TMALLOC(double, newlen);
 
@@ -1025,7 +1039,7 @@ plotit(wordlist *wl, char *hcopy, char *devname)
     if (devname && eq(devname, "blt")) {
     /* Just send the pairs to Tcl/Tk */
       for (d = vecs; d; d = d->v_link2) {
-        blt_plot(d, oneval ? (struct dvec *) NULL : d->v_scale,(d==vecs?1:0));
+        blt_plot(d, oneval ? NULL : d->v_scale, (d == vecs) ? 1 : 0);
       }
       rtn = TRUE;
       goto quit;
@@ -1041,7 +1055,7 @@ plotit(wordlist *wl, char *hcopy, char *devname)
 
     pname = plot_cur->pl_typename;
 
-    if (!gr_init(xlims, ylims, (oneval ? (char *) NULL : xn),
+    if (!gr_init(xlims, ylims, (oneval ? NULL : xn),
             title ? title : vecs->v_plot->pl_title, hcopy, i,
             xdelta ? *xdelta : 0.0, ydelta ? *ydelta : 0.0, gtype,
             ptype, xlabel, ylabel, xt, j, pname, cline))
@@ -1049,7 +1063,7 @@ plotit(wordlist *wl, char *hcopy, char *devname)
 
     /* Now plot all the graphs. */
     for (d = vecs; d; d = d->v_link2)
-        ft_graf(d, oneval ? (struct dvec *) NULL : d->v_scale, FALSE);
+        ft_graf(d, oneval ? NULL : d->v_scale, FALSE);
 
     gr_clean();
 

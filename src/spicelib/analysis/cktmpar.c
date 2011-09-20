@@ -7,11 +7,11 @@ Author: 1985 Thomas L. Quarles
      *  attach the given parameter to the specified model in the given circuit
      */
 
-#include "ngspice.h"
-#include "cktdefs.h"
-#include "ifsim.h"
-#include "devdefs.h"
-#include "sperror.h"
+#include <ngspice/ngspice.h>
+#include <ngspice/cktdefs.h>
+#include <ngspice/ifsim.h>
+#include <ngspice/devdefs.h>
+#include <ngspice/sperror.h>
 
 
 /* ARGSUSED */
@@ -23,9 +23,8 @@ CKTmodParam(CKTcircuit *ckt, GENmodel *modfast, int param, IFvalue *val, IFvalue
     NG_IGNORE(ckt);
     NG_IGNORE(selector);
 
-    if (((*DEVices[type]).DEVmodParam)) {
-        return(((*((*DEVices[type]).DEVmodParam)) (param,val,
-                modfast)));
+    if (DEVices[type]->DEVmodParam) {
+        return(DEVices[type]->DEVmodParam (param, val, modfast));
     } else {
         return(E_BADPARM);
     }

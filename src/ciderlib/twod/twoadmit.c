@@ -1,25 +1,25 @@
 /**********
 Copyright 1991 Regents of the University of California.  All rights reserved.
 Author: 1987 Kartikeya Mayaram, U. C. Berkeley CAD Group
-$Id: twoadmit.c,v 1.5 2010/11/16 20:38:24 rlar Exp $
+$Id: twoadmit.c,v 1.7 2011/08/20 17:27:10 rlar Exp $
 **********/
 
 /* Functions to compute the ac admittances of a device. */
 
-#include "ngspice.h"
-#include "numglobs.h"
-#include "numenum.h"
-#include "numconst.h"
-#include "twodev.h"
-#include "twomesh.h"
-#include "complex.h"
-#include "spmatrix.h"
-#include "bool.h"
-#include "macros.h"
-#include "ifsim.h"
+#include <ngspice/ngspice.h>
+#include <ngspice/numglobs.h>
+#include <ngspice/numenum.h>
+#include <ngspice/numconst.h>
+#include <ngspice/twodev.h>
+#include <ngspice/twomesh.h>
+#include <ngspice/complex.h>
+#include <ngspice/spmatrix.h>
+#include <ngspice/bool.h>
+#include <ngspice/macros.h>
+#include <ngspice/ifsim.h>
 #include "twoddefs.h"  
 #include "twodext.h"
-#include "cidersupt.h"
+#include <ngspice/cidersupt.h>
 
 extern IFfrontEnd *SPfrontEnd;
 
@@ -180,6 +180,8 @@ NBJT2admittance(TWOdevice *pDevice, double omega, SPcomplex *yIeVce,
   /* use a normalized radian frequency */
   omega *= TNorm;
   CMPLX_ASSIGN_VALUE(cOmega, 0.0, omega);
+  CMPLX_ASSIGN_VALUE(pIeVce, NAN, NAN);
+  CMPLX_ASSIGN_VALUE(pIcVce, NAN, NAN);
 
   if ((AcAnalysisMethod == SOR) || (AcAnalysisMethod == SOR_ONLY)) {
     /* LOAD */

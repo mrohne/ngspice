@@ -9,18 +9,16 @@ Author: 1985 Thomas L. Quarles
      *  specify the node to be the ground node of the given circuit
      */
 
-#include "ngspice.h"
-#include "cktdefs.h"
-#include "ifsim.h"
-#include "sperror.h"
+#include <ngspice/ngspice.h>
+#include <ngspice/cktdefs.h>
+#include <ngspice/ifsim.h>
+#include <ngspice/sperror.h>
 
 
 
 int
-CKTground(CKTcircuit *inCkt, CKTnode **node, IFuid name)
+CKTground(CKTcircuit *ckt, CKTnode **node, IFuid name)
 {
-    CKTcircuit *ckt = /* fixme, drop that */ inCkt;
-
     if(ckt->CKTnodes) {
         if(ckt->CKTnodes->name) {
             /*already exists - keep old name, but return it */
@@ -36,7 +34,7 @@ CKTground(CKTcircuit *inCkt, CKTnode **node, IFuid name)
         ckt->CKTnodes->name = name;
         ckt->CKTnodes->type = SP_VOLTAGE;
         ckt->CKTnodes->number = 0;
-        ckt->CKTnodes->next = (CKTnode *)NULL;
+        ckt->CKTnodes->next = NULL;
         ckt->CKTlastNode = ckt->CKTnodes;
     }
     if(node) *node = ckt->CKTnodes;

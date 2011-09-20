@@ -2,20 +2,23 @@
 Copyright 1992 Regents of the University of California.  All rights reserved.
 Author:	1987 Kartikeya Mayaram, U. C. Berkeley CAD Group
 Author:	1992 David A. Gates, U. C. Berkeley CAD Group
-$Id: twoprint.c,v 1.5 2010/11/23 19:36:21 rlar Exp $
+$Id: twoprint.c,v 1.9 2011/08/20 17:27:10 rlar Exp $
 **********/
 
-#include "ngspice.h"
-#include "numglobs.h"
-#include "numconst.h"
-#include "numenum.h"
-#include "twomesh.h"
-#include "twodev.h"
-#include "carddefs.h"
-#include "spmatrix.h"
-#include "bool.h"
+#include <ngspice/ngspice.h>
+#include <ngspice/numglobs.h>
+#include <ngspice/numconst.h>
+#include <ngspice/numenum.h>
+#include <ngspice/twomesh.h>
+#include <ngspice/twodev.h>
+#include <ngspice/carddefs.h>
+#include <ngspice/spmatrix.h>
+#include <ngspice/bool.h>
 #include "twoddefs.h"
 #include "twodext.h"
+
+#include <inttypes.h>
+
 
 void
 TWOprnSolution(FILE *file, TWOdevice *pDevice, OUTPcard *output)
@@ -24,7 +27,6 @@ TWOprnSolution(FILE *file, TWOdevice *pDevice, OUTPcard *output)
   int numVars = 0;
   TWOnode ***nodeArray = NULL;
   TWOnode *pNode;
-  TWOelem *pElem;
   TWOmaterial *info;
   double data[50];
   double ex, ey, refPsi = 0.0, eGap, dGap;
@@ -33,7 +35,6 @@ TWOprnSolution(FILE *file, TWOdevice *pDevice, OUTPcard *output)
   double jcy, jdy, jny, jpy, jty;
   double *xScale = pDevice->xScale;
   double *yScale = pDevice->yScale;
-  BOOLEAN foundElem;
 
   if (output->OUTPnumVars == -1) {
     /* First pass. Need to count number of variables in output. */
@@ -106,12 +107,12 @@ TWOprnSolution(FILE *file, TWOdevice *pDevice, OUTPcard *output)
   /* store the nodes in this work array and print out later */
   for (xIndex = 1; xIndex < pDevice->numXNodes; xIndex++) {
     for (yIndex = 1; yIndex < pDevice->numYNodes; yIndex++) {
-      pElem = pDevice->elemArray[xIndex][yIndex];
+      TWOelem *pElem = pDevice->elemArray[xIndex][yIndex];
       if (pElem != NIL(TWOelem)) {
 	if (refPsi == 0.0 && pElem->matlInfo->type == SEMICON) {
 	  refPsi = pElem->matlInfo->refPsi;
 	}
-	for (index = 0; index <= 3; index++) {
+	for (index = 0; index < 4; index++) {
 	  if (pElem->evalNodes[index]) {
 	    pNode = pElem->pNodes[index];
 	    nodeArray[pNode->nodeI][pNode->nodeJ] = pNode;
@@ -211,13 +212,12 @@ TWOprnSolution(FILE *file, TWOdevice *pDevice, OUTPcard *output)
     for (yIndex = 1; yIndex <= pDevice->numYNodes; yIndex++) {
       pNode = nodeArray[xIndex][yIndex];
       if (pNode != NIL(TWOnode)) {
+	TWOelem *pElem = NULL;
 	/* Find the element to which this node belongs. */
-	foundElem = FALSE;
-	for (index = 0; (index <= 3) && (!foundElem); index++) {
+	for (index = 0; index < 4; index++) {
 	  pElem = pNode->pElems[index];
-	  if (pElem != NIL(TWOelem) && pElem->evalNodes[(index + 2) % 4]) {
-	    foundElem = TRUE;
-	  }
+	  if (pElem != NIL(TWOelem) && pElem->evalNodes[(index + 2) % 4])
+	      break;
 	}
 	nodeFields(pElem, pNode, &ex, &ey);
 	nodeCurrents(pElem, pNode, &mun, &mup,
@@ -344,10 +344,10 @@ struct  MatrixElement
 void
 TWOmemStats(FILE *file, TWOdevice *pDevice)
 {
-  static const char memFormat[] = "%-20s%10d%10d\n";
+  const char memFormat[] = "%-20s" "%10d" "%10" PRIuPTR "\n";
 /*  static const char sumFormat[] = "%20s          %-10d\n"; */
-  unsigned int size;
-  unsigned int memory;
+  int size;
+  size_t memory;
   TWOmaterial *pMaterial;
   TWOcontact *pContact;
   TWOchannel *pChannel;
@@ -359,73 +359,73 @@ TWOmemStats(FILE *file, TWOdevice *pDevice)
   fprintf(file, "----------------------------------------\n");
 
   size = 1;
-  memory = size * sizeof(TWOdevice);
+  memory = (size_t) size * sizeof(TWOdevice);
   fprintf( file, memFormat, "Device", size, memory );
   size = pDevice->numElems;
-  memory = size * sizeof(TWOelem);
+  memory = (size_t) size * sizeof(TWOelem);
   fprintf( file, memFormat, "Elements", size, memory );
   size = pDevice->numNodes;
-  memory = size * sizeof(TWOnode);
+  memory = (size_t) size * sizeof(TWOnode);
   fprintf( file, memFormat, "Nodes", size, memory );
   size = pDevice->numEdges;
-  memory = size * sizeof(TWOedge);
+  memory = (size_t) size * sizeof(TWOedge);
   fprintf( file, memFormat, "Edges", size, memory );
 
   size = pDevice->numXNodes;
-  memory = size * sizeof(TWOelem **);
+  memory = (size_t) size * sizeof(TWOelem **);
   size = (pDevice->numXNodes-1) * pDevice->numYNodes;
-  memory += size * sizeof(TWOelem *);
+  memory += (size_t) size * sizeof(TWOelem *);
   size = pDevice->numElems + 1;
-  memory += size * sizeof(TWOelem *);
+  memory += (size_t) size * sizeof(TWOelem *);
   size = pDevice->numXNodes + pDevice->numYNodes;
-  memory += size * sizeof(double);
+  memory += (size_t) size * sizeof(double);
   size = 0;
   for (pMaterial = pDevice->pMaterials; pMaterial; pMaterial = pMaterial->next)
     size++;
-  memory += size * sizeof(TWOmaterial);
+  memory += (size_t) size * sizeof(TWOmaterial);
   size = numContactNodes = 0;
   for (pContact = pDevice->pFirstContact; pContact; pContact = pContact->next) {
     numContactNodes += pContact->numNodes;
     size++;
   }
-  memory += size * sizeof(TWOcontact);
+  memory += (size_t) size * sizeof(TWOcontact);
   size = numContactNodes;
-  memory += size * sizeof(TWOnode *);
+  memory += (size_t) size * sizeof(TWOnode *);
   size = 0;
   for (pChannel = pDevice->pChannel; pChannel; pChannel = pChannel->next)
     size++;
-  memory += size * sizeof(TWOchannel);
-  fprintf(file, "%-20s%10s%10d\n", "Misc Mesh", "n/a", memory);
+  memory += (size_t) size * sizeof(TWOchannel);
+  fprintf(file, "%-20s%10s%10" PRIuPTR "\n", "Misc Mesh", "n/a", memory);
 
   size = pDevice->numOrigEquil;
-  memory = size * sizeof(struct MatrixElement);
+  memory = (size_t) size * sizeof(struct MatrixElement);
   fprintf( file, memFormat, "Equil Orig NZ", size, memory );
   size = pDevice->numFillEquil;
-  memory = size * sizeof(struct MatrixElement);
+  memory = (size_t) size * sizeof(struct MatrixElement);
   fprintf( file, memFormat, "Equil Fill NZ", size, memory );
   size = pDevice->numOrigEquil + pDevice->numFillEquil;
-  memory = size * sizeof(struct MatrixElement);
+  memory = (size_t) size * sizeof(struct MatrixElement);
   fprintf( file, memFormat, "Equil Tot  NZ", size, memory );
   size = pDevice->dimEquil;
-  memory = size * 4 * sizeof(double);
+  memory = (size_t) size * 4 * sizeof(double);
   fprintf( file, memFormat, "Equil Vectors", size, memory );
 
   size = pDevice->numOrigBias;
-  memory = size * sizeof(struct MatrixElement);
+  memory = (size_t) size * sizeof(struct MatrixElement);
   fprintf( file, memFormat, "Bias Orig NZ", size, memory );
   size = pDevice->numFillBias;
-  memory = size * sizeof(struct MatrixElement);
+  memory = (size_t) size * sizeof(struct MatrixElement);
   fprintf( file, memFormat, "Bias Fill NZ", size, memory );
   size = pDevice->numOrigBias + pDevice->numFillBias;
-  memory = size * sizeof(struct MatrixElement);
+  memory = (size_t) size * sizeof(struct MatrixElement);
   fprintf( file, memFormat, "Bias Tot  NZ", size, memory );
   size = pDevice->dimBias;
-  memory = size * 5 * sizeof(double);
+  memory = (size_t) size * 5 * sizeof(double);
   fprintf( file, memFormat, "Bias Vectors", size, memory );
 
   size = pDevice->numEdges * TWOnumEdgeStates +
       pDevice->numNodes * TWOnumNodeStates;
-  memory = size * sizeof(double);
+  memory = (size_t) size * sizeof(double);
   fprintf( file, memFormat, "State Vector", size, memory );
 }
 

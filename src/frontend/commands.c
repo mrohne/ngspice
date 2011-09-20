@@ -1,5 +1,5 @@
 /* NG-SPICE -- An electrical circuit simulator
- * $Id: commands.c,v 1.23 2010/11/27 16:36:03 h_vogt Exp $
+ * $Id: commands.c,v 1.28 2011/08/20 17:27:11 rlar Exp $
  *
  * Copyright (c) 1990 University of California
  * Copyright (c) 2000 Arno W. Peters
@@ -31,14 +31,15 @@
 /* Table of available commands.  Note that they're sorted so that the
  * commands that appear in the spiceinit file are at the top.  */
 
-#include <ngspice.h>
-#include <ftedefs.h>
-#include <cpdefs.h>
+#include <ngspice/ngspice.h>
+#include <ngspice/ftedefs.h>
+#include <ngspice/cpdefs.h>
 
 #include "ftehelp.h"
 #include "commands.h"
 
 #include "com_ahelp.h"
+#include "com_ghelp.h"
 #include "com_asciiplot.h"
 #include "com_compose.h"
 #include "com_display.h"
@@ -95,7 +96,7 @@
 
 #ifdef XSPICE
 /* gtri - begin - wbk - add include files */
-#include "evtproto.h"
+#include <ngspice/evtproto.h>
 /* gtri - end - wbk - add include files */
 #endif
 
@@ -276,6 +277,12 @@ struct comm spcp_coms[] = {
       { 0, 0, 0, 0 }, E_DEFHMASK, 0, LOTS,
       NULL,
       "[.tran line args] : Do a transient analysis." } ,
+/* SP: Steady State Analysis */
+    { "pss", com_pss, TRUE, TRUE,
+      { 0, 0, 0, 0 }, E_DEFHMASK, 0, LOTS,
+      NULL,
+      "[.pss line args] : Do a periodic state analysis." } ,
+/* SP */
     { "ac", com_ac, TRUE, TRUE,
       { 0, 0, 0, 0 }, E_DEFHMASK, 0, LOTS,
       NULL,
@@ -388,6 +395,10 @@ struct comm spcp_coms[] = {
       { 0, 0, 0, 0 }, E_DEFHMASK, 0, 1,
       NULL,
       "[number] : Iterate number times, or one." } ,
+    { "remcirc", com_remcirc, TRUE, TRUE,
+      { 0, 0, 0, 0 }, E_DEFHMASK, 0, 0,
+      NULL,
+      ": Remove current citcuit." } ,
     { "reset", com_rset, TRUE, TRUE,
       { 0, 0, 0, 0 }, E_DEFHMASK, 0, 0,
       NULL,
@@ -549,7 +560,16 @@ struct comm spcp_coms[] = {
       { 040000, 040000, 040000, 040000 }, E_DEFHMASK, 0, LOTS,
       NULL,
       " [ vec ... ] : Convert plot into one with linear scale." } ,
-    { 0, NULL, FALSE, FALSE, { 0, 0, 0, 0 }, E_DEFHMASK, 0, LOTS,
+    { "devhelp", com_devhelp, FALSE, FALSE,
+      { 040000, 0400000, 040000, 040000 }, E_DEFHMASK, 0, 5 ,
+      NULL,
+      "devspecs : show device information." },
+    { "inventory", com_inventory, TRUE, FALSE,
+      { 0, 0, 0, 0 }, E_DEFHMASK, 0, 0,
+      NULL,
+      ": Print circuit inventory" },
+    { 0, NULL, FALSE, FALSE,
+      { 0, 0, 0, 0 }, E_DEFHMASK, 0, LOTS,
       NULL,
       NULL }
 };
@@ -678,6 +698,12 @@ struct comm nutcp_coms[] = {
       { 0, 0, 0, 0 }, E_DEFHMASK, 0, LOTS,
       NULL,
       "[.tran line args] : Do a transient analysis." } ,
+/* SP: Steady State Analysis */
+    { "pss", NULL, TRUE, TRUE,
+      { 0, 0, 0, 0 }, E_DEFHMASK, 0, LOTS,
+      NULL,
+      "[.pss line args] : Do a periodic steady state analysis." } ,
+/* SP */
     { "ac", NULL, TRUE, TRUE,
       { 0, 0, 0, 0 }, E_DEFHMASK, 0, LOTS,
       NULL,
@@ -923,9 +949,16 @@ struct comm nutcp_coms[] = {
       { 040000, 040000, 040000, 040000 }, E_DEFHMASK, 0, LOTS,
       NULL,
       " [ vec ... ] : Convert plot into one with linear scale." } ,
-
-    { 0, NULL, FALSE, FALSE, { 0, 0, 0, 0 }, E_DEFHMASK, 0, LOTS,
+    { "devhelp",NULL, FALSE, FALSE,
+      { 040, 040, 040, 040 }, E_DEFHMASK, 0, 5 ,
+      NULL,
+      " devspecs : show device information." },
+    { "inventory", NULL, TRUE, FALSE,
+      { 0, 0, 0, 0 }, E_DEFHMASK, 0, 0,
+      NULL,
+      ": Print circuit inventory" } ,
+    { 0, NULL, FALSE, FALSE,
+      { 0, 0, 0, 0 }, E_DEFHMASK, 0, LOTS,
       NULL,
       NULL }
-
 } ;

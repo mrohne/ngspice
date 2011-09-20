@@ -4,25 +4,25 @@ Author: 1985 Thomas L. Quarles
 Modified: 1999 Paolo Nenzi
 **********/
 
-#include "ngspice.h"
+#include <ngspice/ngspice.h>
 
 #include "vsrc/vsrcdefs.h"
 #include "isrc/isrcdefs.h"
 #include "res/resdefs.h"
 
-#include "cktdefs.h"
-#include "const.h"
-#include "sperror.h"
+#include <ngspice/cktdefs.h>
+#include <ngspice/const.h>
+#include <ngspice/sperror.h>
 
 #ifdef XSPICE
 /* gtri - add - wbk - 12/19/90 - Add headers */
-#include "mif.h"
-#include "evtproto.h"
-#include "ipctiein.h"
+#include <ngspice/mif.h>
+#include <ngspice/evtproto.h>
+#include <ngspice/ipctiein.h>
 /* gtri - end - wbk */
 #endif
 
-#include <devdefs.h>
+#include <ngspice/devdefs.h>
 
 #ifdef HAS_WINDOWS
 void SetAnalyse( char * Analyse, int Percent);
@@ -66,9 +66,8 @@ DCtrCurv(CKTcircuit *ckt, int restart)
         /* continuing */
         i = cv->TRCVnestState;
         /* resume to work? saj*/
-        error = (*(SPfrontEnd->OUTpBeginPlot))(ckt,
-           ckt->CKTcurJob, ckt->CKTcurJob->JOBname,
-           varUid,IF_REAL,666,nameList, 666,&plot);	
+        error = SPfrontEnd->OUTpBeginPlot
+            (NULL, NULL, NULL, NULL, 0, 666, NULL, 666, &plot);
         goto resume;
     }
     ckt->CKTtime = 0;
@@ -156,8 +155,8 @@ DCtrCurv(CKTcircuit *ckt, int restart)
             CKTtemp(ckt);
             goto found;
         }
-   
-        (*(SPfrontEnd->IFerror))(ERR_FATAL, 
+
+        SPfrontEnd->IFerror (ERR_FATAL,
                 "DCtrCurv: source / resistor %s not in circuit", &(cv->TRCVvName[i]));
         return(E_NODEV);
 
@@ -190,32 +189,32 @@ found:;
     
     
     if (cv->TRCVvType[i]==vcode)
-         (*(SPfrontEnd->IFnewUid))(ckt,&varUid,(IFuid )NULL,
+         SPfrontEnd->IFnewUid (ckt, &varUid, NULL,
             "v-sweep", UID_OTHER, NULL);
         
     else {
         if (cv->TRCVvType[i]==icode)
-            (*(SPfrontEnd->IFnewUid))(ckt,&varUid,(IFuid )NULL,
+            SPfrontEnd->IFnewUid (ckt, &varUid, NULL,
                  "i-sweep", UID_OTHER, NULL);
                      
         else {
             if (cv->TRCVvType[i]==TEMP_CODE)
-                (*(SPfrontEnd->IFnewUid))(ckt,&varUid,(IFuid )NULL,
+                SPfrontEnd->IFnewUid (ckt, &varUid, NULL,
                    "temp-sweep", UID_OTHER, NULL);
        
             else {
                 if (cv->TRCVvType[i]==rcode)
-                    (*(SPfrontEnd->IFnewUid))(ckt,&varUid,(IFuid )NULL,
+                    SPfrontEnd->IFnewUid (ckt, &varUid, NULL,
                         "res-sweep", UID_OTHER, NULL);
                                 
                 else
-                    (*(SPfrontEnd->IFnewUid))(ckt,&varUid,(IFuid )NULL,
+                    SPfrontEnd->IFnewUid (ckt, &varUid, NULL,
                         "?-sweep", UID_OTHER, NULL);
             } /* icode */
         } /* TEMP_CODE */
     } /* rcode*/
     
-    error = (*(SPfrontEnd->OUTpBeginPlot))(ckt,
+    error = SPfrontEnd->OUTpBeginPlot (ckt,
         ckt->CKTcurJob, ckt->CKTcurJob->JOBname,
         varUid,IF_REAL,numNames,nameList, IF_REAL,&plot);
     
@@ -416,7 +415,7 @@ resume:
 
         if(g_ipc.enabled && firstTime) {
             ipc_send_dcop_prefix();
-            CKTdump(ckt,(double) 0,plot);
+            CKTdump(ckt, 0.0, plot);
             ipc_send_dcop_suffix();
         }
 
@@ -508,7 +507,7 @@ nextstep:;
             CKTtemp(ckt);	    
         } /* else not possible */
         
-        if( (*(SPfrontEnd->IFpauseTest))() ) {
+        if(SPfrontEnd->IFpauseTest()) {
             /* user asked us to pause, so save state */
             cv->TRCVnestState = i;
             return(E_PAUSE);
@@ -516,7 +515,7 @@ nextstep:;
 #ifdef HAS_WINDOWS
         if (i == cv->TRCVnestLevel) {
             actval += cv->TRCVvStep[cv->TRCVnestLevel];
-            SetAnalyse( "dc", (int)abs(((actval * 1000.) / actdiff)));
+            SetAnalyse( "dc", abs((int)(actval * 1000. / actdiff)));
         } 
 #endif
     }
@@ -551,7 +550,7 @@ nextstep:;
             CKTtemp(ckt);
         } /* else not possible */
     }
-    (*(SPfrontEnd->OUTendPlot))(plot);
+    SPfrontEnd->OUTendPlot (plot);
 
     return(OK);
 }

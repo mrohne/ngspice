@@ -1,15 +1,15 @@
 /**********
 Copyright 1992 Regents of the University of California.  All rights reserved.
 Author:	1987 Kartikeya Mayaram, U. C. Berkeley CAD Group
-$Id: onemesh.c,v 1.2 2005/05/21 12:37:23 sjborley Exp $
+$Id: onemesh.c,v 1.5 2011/08/20 17:27:10 rlar Exp $
 **********/
 
-#include "ngspice.h"
-#include "numglobs.h"
-#include "numenum.h"
-#include "onemesh.h"
-#include "onedev.h"
-#include "macros.h"
+#include <ngspice/ngspice.h>
+#include <ngspice/numglobs.h>
+#include <ngspice/numenum.h>
+#include <ngspice/onemesh.h>
+#include <ngspice/onedev.h>
+#include <ngspice/macros.h>
 #include "onedext.h"
 #include "oneddefs.h"
 
@@ -240,7 +240,7 @@ adjustBaseContact(ONEdevice *pDevice, int indexEB, int indexBC)
   /* Initialize the base contact to be the center of the two junctions */
   /* This should take care of uniform dopings. */
 
-  midPoint = 0.5 * (indexEB + indexBC);
+  midPoint = (indexEB + indexBC) / 2;
   newBaseIndex = midPoint;
 
   if (pBaseNode->baseType == P_TYPE) {

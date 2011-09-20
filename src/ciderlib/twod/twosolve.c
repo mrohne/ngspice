@@ -2,24 +2,24 @@
 Copyright 1991 Regents of the University of California.  All rights reserved.
 Author:	1987 Kartikeya Mayaram, U. C. Berkeley CAD Group
 Author:	1991 David A. Gates, U. C. Berkeley CAD Group
-$Id: twosolve.c,v 1.3 2005/05/21 12:37:24 sjborley Exp $
+$Id: twosolve.c,v 1.5 2011/08/20 17:27:10 rlar Exp $
 **********/
 
-#include "ngspice.h"
-#include "numglobs.h"
-#include "numenum.h"
-#include "twodev.h"
-#include "twomesh.h"
-#include "spmatrix.h"
-#include "bool.h"
-#include "macros.h"
+#include <ngspice/ngspice.h>
+#include <ngspice/numglobs.h>
+#include <ngspice/numenum.h>
+#include <ngspice/twodev.h>
+#include <ngspice/twomesh.h>
+#include <ngspice/spmatrix.h>
+#include <ngspice/bool.h>
+#include <ngspice/macros.h>
 #include "twoddefs.h"
 #include "twodext.h"
-#include "cidersupt.h"
+#include <ngspice/cidersupt.h>
 #include "../../maths/misc/norm.h"
 
 
-#include "ifsim.h"
+#include <ngspice/ifsim.h>
 extern IFfrontEnd *SPfrontEnd;
 
 
@@ -485,7 +485,7 @@ TWOequilSolve(TWOdevice *pDevice)
   setupTime += SPfrontEnd->IFseconds() - startTime;
 
   /* SOLVE */
-  TWOdcSolve(pDevice, MaxIterations, newSolver, FALSE, (TWOtranInfo *) NULL);
+  TWOdcSolve(pDevice, MaxIterations, newSolver, FALSE, NULL);
 
   /* MISCELLANEOUS */
   startTime = SPfrontEnd->IFseconds();

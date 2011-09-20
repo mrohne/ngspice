@@ -1,7 +1,7 @@
 /**********
 Copyright 1990 Regents of the University of California.  All rights reserved.
 Author: 1985 Wayne A. Christopher, U. C. Berkeley CAD Group
-$Id: options.c,v 1.14 2010/11/19 18:52:44 rlar Exp $
+$Id: options.c,v 1.17 2011/08/20 17:27:11 rlar Exp $
 **********/
 
 /*
@@ -11,11 +11,11 @@ $Id: options.c,v 1.14 2010/11/19 18:52:44 rlar Exp $
  */
 
 
-#include "ngspice.h"
-#include "cpdefs.h"
-#include "ftedefs.h"
-#include "dvec.h"
-#include "fteinp.h"
+#include <ngspice/ngspice.h>
+#include <ngspice/cpdefs.h>
+#include <ngspice/ftedefs.h>
+#include <ngspice/dvec.h>
+#include <ngspice/fteinp.h>
 
 #include "circuits.h"
 #include "options.h"
@@ -296,7 +296,7 @@ cp_usrset(struct variable *var, bool isset)
         if ((var->va_type == CP_BOOL) && (isset == FALSE))
             raw_prec = -1;
         else if (var->va_type == CP_REAL)
-            raw_prec = var->va_real;
+            raw_prec = (int)floor(var->va_real + 0.5);
         else if (var->va_type == CP_NUM)
             raw_prec = var->va_num;
         else
@@ -305,7 +305,7 @@ cp_usrset(struct variable *var, bool isset)
         if ((var->va_type == CP_BOOL) && (isset == FALSE))
             cp_numdgt = -1;
         else if (var->va_type == CP_REAL)
-            cp_numdgt = var->va_real;
+            cp_numdgt = (int)floor(var->va_real + 0.5);
         else if (var->va_type == CP_NUM)
             cp_numdgt = var->va_num;
         else

@@ -1,8 +1,8 @@
-/**** BSIM4.6.2 Released by Wenwei Yang 07/31/2008 ****/
+/**** BSIM4.7.0 Released by Darsen Lu 04/08/2011 ****/
 
 /**********
  * Copyright 2006 Regents of the University of California. All rights reserved.
- * File: b4par.c of BSIM4.6.2.
+ * File: b4par.c of BSIM4.7.0.
  * Author: 2000 Weidong Liu
  * Authors: 2001- Xuemei Xi, Mohan Dunga, Ali Niknejad, Chenming Hu.
  * Authors: 2006- Mohan Dunga, Ali Niknejad, Chenming Hu
@@ -14,12 +14,11 @@
  * Modified by Xuemei Xi, Mohan Dunga, 07/29/2005.
 **********/
 
-#include "ngspice.h"
-#include "ifsim.h"
+#include <ngspice/ngspice.h>
+#include <ngspice/ifsim.h>
 #include "bsim4def.h"
-#include "sperror.h"
-#include "suffix.h"
-#include "fteext.h"
+#include <ngspice/sperror.h>
+#include <ngspice/suffix.h>
 
 int
 BSIM4param(
@@ -28,21 +27,17 @@ IFvalue *value,
 GENinstance *inst,
 IFvalue *select)
 {
-    double scale;
-
     BSIM4instance *here = (BSIM4instance*)inst;
 
     NG_IGNORE(select);
 
-    if ( !cp_getvar( "scale", CP_REAL, (double*) &scale ) ) scale = 1;
-
     switch(param) 
     {   case BSIM4_W:
-            here->BSIM4w = value->rValue*scale;
+            here->BSIM4w = value->rValue;
             here->BSIM4wGiven = TRUE;
             break;
         case BSIM4_L:
-            here->BSIM4l = value->rValue*scale;
+            here->BSIM4l = value->rValue;
             here->BSIM4lGiven = TRUE;
             break;
         case BSIM4_M:
@@ -58,19 +53,19 @@ IFvalue *select)
             here->BSIM4minGiven = TRUE;
             break;
         case BSIM4_AS:
-            here->BSIM4sourceArea = value->rValue*scale*scale;
+            here->BSIM4sourceArea = value->rValue;
             here->BSIM4sourceAreaGiven = TRUE;
             break;
         case BSIM4_AD:
-            here->BSIM4drainArea = value->rValue*scale*scale;
+            here->BSIM4drainArea = value->rValue;
             here->BSIM4drainAreaGiven = TRUE;
             break;
         case BSIM4_PS:
-            here->BSIM4sourcePerimeter = value->rValue*scale;
+            here->BSIM4sourcePerimeter = value->rValue;
             here->BSIM4sourcePerimeterGiven = TRUE;
             break;
         case BSIM4_PD:
-            here->BSIM4drainPerimeter = value->rValue*scale;
+            here->BSIM4drainPerimeter = value->rValue;
             here->BSIM4drainPerimeterGiven = TRUE;
             break;
         case BSIM4_NRS:

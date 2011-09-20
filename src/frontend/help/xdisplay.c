@@ -5,10 +5,10 @@ Modified 1999 Emmanuel Rouat
 **********/
 
 #include <config.h>
-#include "ngspice.h"
-#include "cpstd.h"
-#include "hlpdefs.h"
-#include "suffix.h"
+#include <ngspice/ngspice.h>
+#include <ngspice/cpstd.h>
+#include <ngspice/hlpdefs.h>
+#include <ngspice/suffix.h>
 
 
 char *hlp_boldfontname = BOLD_FONT;
@@ -24,11 +24,17 @@ int hlp_buttonstyle = BS_LEFT;
 
 
 #ifdef X_DISPLAY_MISSING
-/* ARGSUSED */ bool hlp_xdisplay(topic *top)  { return (FALSE); }
-/* ARGSUSED */ void hlp_xkillwin(topic *top)  { }
+bool hlp_xdisplay(topic *top)  { 
+    NG_IGNORE(top);
+    return (FALSE); 
+}
+
+void hlp_xkillwin(topic *top)  {
+    NG_IGNORE(top);
+}
 #endif
 
-/* ARGSUSED */ void hlp_xwait(topic *top, bool on)
+void hlp_xwait(topic *top, bool on)
 {
     NG_IGNORE(on);
     NG_IGNORE(top);

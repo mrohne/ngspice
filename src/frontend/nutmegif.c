@@ -4,12 +4,12 @@
  * making sure that nutmeg doesn't try to load spice in also.
  */
 
-#include "ngspice.h"
-#include "ifsim.h"
-#include "sperror.h"
-#include "cpdefs.h"
-#include "ftedefs.h"
-#include "fteinp.h"
+#include <ngspice/ngspice.h>
+#include <ngspice/ifsim.h>
+#include <ngspice/sperror.h>
+#include <ngspice/cpdefs.h>
+#include <ngspice/ftedefs.h>
+#include <ngspice/fteinp.h>
 #include "nutmegif.h"
 
 
@@ -21,7 +21,7 @@ struct variable * nutif_getparam(CKTcircuit *ckt, char **name, char *param, int 
     NG_IGNORE(name);
     NG_IGNORE(ckt);
 
-    return ((struct variable *) NULL);
+    return (NULL);
 }
 
 

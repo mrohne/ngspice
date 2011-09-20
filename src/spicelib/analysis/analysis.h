@@ -1,8 +1,8 @@
 #ifndef _ANALYSIS_H
 #define _ANALYSIS_H
 
-typedef struct {
-    IFanalysis public;
+struct SPICEanalysis {
+    IFanalysis if_analysis;
     int size;
     int domain;
     int do_ic;
@@ -10,7 +10,7 @@ typedef struct {
     int (*(askQuest))(CKTcircuit *ckt, JOB *anal, int which, IFvalue *value);
     int (*an_init)(CKTcircuit *ckt, JOB *job);
     int (*an_func)(CKTcircuit *ckt, int restart);
-} SPICEanalysis;
+};
 
 
 char *spice_analysis_get_name(int index);

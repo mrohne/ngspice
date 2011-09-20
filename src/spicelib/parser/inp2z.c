@@ -10,12 +10,12 @@ Author: 1988 Thomas L. Quarles
 */
 
 
-#include "ngspice.h"
+#include <ngspice/ngspice.h>
 #include <stdio.h>
-#include "ifsim.h"
-#include "inpdefs.h"
-#include "inpmacs.h"
-#include "fteext.h"
+#include <ngspice/ifsim.h>
+#include <ngspice/inpdefs.h>
+#include <ngspice/inpmacs.h>
+#include <ngspice/fteext.h>
 #include "inp.h"
 
 void INP2Z(CKTcircuit *ckt, INPtables * tab, card * current)
@@ -54,7 +54,7 @@ void INP2Z(CKTcircuit *ckt, INPtables * tab, card * current)
     INPtermInsert(ckt, &nname3, tab, &node3);
     INPgetTok(&line, &model, 1);
     INPinsert(&model, tab);
-    thismodel = (INPmodel *) NULL;
+    thismodel = NULL;
     current->error = INPgetMod(ckt, model, &thismodel, tab);
     if (thismodel != NULL) {
 		if (   thismodel->INPmodType != INPtypelook("MES") 
@@ -79,7 +79,7 @@ void INP2Z(CKTcircuit *ckt, INPtables * tab, card * current)
 		
 	if (!tab->defZmod) {
 	    /* create default Z model */
-	    IFnewUid(ckt, &uid, (IFuid) NULL, "Z", UID_MODEL,
+	    IFnewUid(ckt, &uid, NULL, "Z", UID_MODEL,
 		     NULL);
 	    IFC(newModel, (ckt, type, &(tab->defZmod), uid));
 	}
@@ -90,7 +90,9 @@ void INP2Z(CKTcircuit *ckt, INPtables * tab, card * current)
     IFC(bindNode, (ckt, fast, 2, node2));
     IFC(bindNode, (ckt, fast, 3, node3));
     PARSECALL((&line, ckt, type, fast, &leadval, &waslead, tab));
-    if ( (waslead) && ( thismodel->INPmodType != INPtypelook("MES") ) ) {
+  /* use type - not thismodel->INPmodType as it might not exist! */
+    /* FIXME: Why do we need checking for type here? */
+    if ( (waslead) && ( type /*thismodel->INPmodType*/ != INPtypelook("MES") ) ) {
 	ptemp.rValue = leadval;
 	GCA(INPpName, ("area", &ptemp, ckt, type, fast));
     }

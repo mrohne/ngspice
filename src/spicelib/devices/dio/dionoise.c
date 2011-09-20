@@ -4,12 +4,12 @@ Author: 1987 Gary W. Ng
 Modified by Dietmar Warning 2003
 **********/
 
-#include "ngspice.h"
+#include <ngspice/ngspice.h>
 #include "diodefs.h"
-#include "cktdefs.h"
-#include "iferrmsg.h"
-#include "noisedef.h"
-#include "suffix.h"
+#include <ngspice/cktdefs.h>
+#include <ngspice/iferrmsg.h>
+#include <ngspice/noisedef.h>
+#include <ngspice/suffix.h>
 
 /*
  * DIOnoise (mode, operation, firstModel, ckt, data, OnDens)
@@ -65,8 +65,8 @@ DIOnoise (int mode, int operation, GENmodel *genmodel, CKTcircuit *ckt,
 
                             data->namelist = TREALLOC(IFuid, data->namelist, data->numPlots + 1);
                             if (!data->namelist) return(E_NOMEM);
-		            (*(SPfrontEnd->IFnewUid))(ckt, &(data->namelist[data->numPlots++]),
-			                              (IFuid)NULL, name, UID_OTHER, NULL);
+		            SPfrontEnd->IFnewUid (ckt, &(data->namelist[data->numPlots++]),
+			                              NULL, name, UID_OTHER, NULL);
 				/* we've added one more plot */
 
 			}
@@ -78,16 +78,16 @@ DIOnoise (int mode, int operation, GENmodel *genmodel, CKTcircuit *ckt,
 
                             data->namelist = TREALLOC(IFuid, data->namelist, data->numPlots + 1);
                             if (!data->namelist) return(E_NOMEM);
-		            (*(SPfrontEnd->IFnewUid))(ckt, &(data->namelist[data->numPlots++]),
-			                              (IFuid)NULL, name, UID_OTHER, NULL);
+		            SPfrontEnd->IFnewUid (ckt, &(data->namelist[data->numPlots++]),
+			                              NULL, name, UID_OTHER, NULL);
 				/* we've added one more plot */
 
 			    (void)sprintf(name,"inoise_total_%s%s",inst->DIOname,DIOnNames[i]);
 
                             data->namelist = TREALLOC(IFuid, data->namelist, data->numPlots + 1);
                             if (!data->namelist) return(E_NOMEM);
-		            (*(SPfrontEnd->IFnewUid))(ckt, &(data->namelist[data->numPlots++]),
-			                              (IFuid)NULL, name, UID_OTHER, NULL);
+		            SPfrontEnd->IFnewUid (ckt, &(data->namelist[data->numPlots++]),
+			                              NULL, name, UID_OTHER, NULL);
 				/* we've added one more plot */
 
 			}
@@ -107,7 +107,7 @@ DIOnoise (int mode, int operation, GENmodel *genmodel, CKTcircuit *ckt,
 			         ckt,SHOTNOISE,inst->DIOposPrimeNode, inst->DIOnegNode,
 				 *(ckt->CKTstate0 + inst->DIOcurrent));
 
-		    NevalSrc(&noizDens[DIOFLNOIZ],(double*)NULL,ckt,
+		    NevalSrc(&noizDens[DIOFLNOIZ], NULL, ckt,
 				 N_GAIN,inst->DIOposPrimeNode, inst->DIOnegNode,
 				 (double)0.0);
 		    noizDens[DIOFLNOIZ] *= model->DIOfNcoef * 

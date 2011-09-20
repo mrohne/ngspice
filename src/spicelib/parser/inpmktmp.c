@@ -5,9 +5,9 @@ Author: 1985 Thomas L. Quarles
 /*
  */
 
-#include "ngspice.h"
+#include <ngspice/ngspice.h>
 #include <stdio.h>
-#include "inpdefs.h"
+#include <ngspice/inpdefs.h>
 #include "inp.h"
 
 
@@ -18,7 +18,7 @@ char *INPmkTemp(char *string)
 
     len = strlen(string);
     temp = TMALLOC(char, len + 1);
-    if (temp != (char *) NULL)
+    if (temp != NULL)
 	(void) strcpy(temp, string);
     return (temp);
 

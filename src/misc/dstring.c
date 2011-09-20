@@ -4,6 +4,15 @@ DESCRIPTION:This file contains the routines for manipulating dynamic strings.
 CONTENTS:   
 DATE:	    Wed Mar 24 18:38:28 CDT 2010
 REVISIONS:  $Log: dstring.c,v $
+REVISIONS:  Revision 1.9  2011/08/20 17:27:12  rlar
+REVISIONS:  #1/7 use a subdirectory "ngspice" for includes to create a uniq namespace
+REVISIONS:
+REVISIONS:  Revision 1.8  2011/06/26 20:00:03  rlar
+REVISIONS:  swallow type conversion warnings
+REVISIONS:
+REVISIONS:  Revision 1.7  2011/06/22 17:17:41  rlar
+REVISIONS:  remove some useless casts
+REVISIONS:
 REVISIONS:  Revision 1.6  2010/11/06 20:17:20  rlar
 REVISIONS:  add `int' casts to some strlen() expressions, and center labels on a xlog scale
 REVISIONS:
@@ -23,9 +32,9 @@ REVISIONS:  Revision 1.1  2010/03/25 22:44:38  dwarning
 REVISIONS:  Bill Swartz patch
 REVISIONS:
 ----------------------------------------------------------------- */
-#include "ngspice.h"
+#include <ngspice/ngspice.h>
 #include <stdarg.h>
-#include "dstring.h"
+#include <ngspice/dstring.h>
 
 /* definitions local to this file only */
 
@@ -100,7 +109,7 @@ char *spice_dstring_append(SPICE_DSTRINGPTR dsPtr,char *string,int length)
     if (newSize >= dsPtr->spaceAvl) {
 	dsPtr->spaceAvl = 2 * newSize ;
 	newString = TMALLOC(char, dsPtr->spaceAvl) ;
-	memcpy((void *) newString, (void *) dsPtr->string, (size_t) dsPtr->length) ;
+	memcpy(newString, dsPtr->string, (size_t) dsPtr->length) ;
 	if (dsPtr->string != dsPtr->staticSpace) {
 	    txfree(dsPtr->string) ;
 	}
@@ -143,7 +152,7 @@ static int spice_format_length( va_list args, char *fmt )
     int size_format ;				/* width of field */
     int found_special ;				/* look for special characters */
     char *s ;					/* string */
-    char c ;					/* character */
+    double d ;
 
     /* -----------------------------------------------------------------
      * First find length of buffer.
@@ -187,7 +196,7 @@ static int spice_format_length( va_list args, char *fmt )
 		found_special = TRUE ;
 		break ;
 	      case 'c':
-		c = va_arg(args, int) ;
+		i = va_arg(args, int) ;
 		len++ ;
 		found_special = TRUE ;
 		break ;
@@ -196,7 +205,7 @@ static int spice_format_length( va_list args, char *fmt )
 	      case 'F':
 	      case 'g':
 	      case 'G':
-		c = va_arg(args, double) ;
+		d = va_arg(args, double) ;
 		len += 35 ;
 		found_special = TRUE ;
 		break ;
@@ -294,7 +303,7 @@ char *_spice_dstring_setlength(SPICE_DSTRINGPTR dsPtr,int length)
 	 * to a larger buffer, since there may be embedded NULLs in the
 	 * string in some cases.
 	----------------------------------------------------------------- */
-	memcpy((void *) newString, (void *) dsPtr->string, (size_t) dsPtr->length) ;
+	memcpy(newString, dsPtr->string, (size_t) dsPtr->length) ;
 	if( dsPtr->string != dsPtr->staticSpace ) {
 	    txfree(dsPtr->string) ;
 	}

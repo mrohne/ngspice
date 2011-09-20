@@ -1,12 +1,12 @@
 /**********
  * Header file for control.c
- * $Id: control.h,v 1.4 2010/10/16 15:58:14 rlar Exp $
+ * $Id: control.h,v 1.5 2011/08/20 17:27:11 rlar Exp $
 **********/
 
 #ifndef CONTROL_H
 #define CONTROL_H
 
-#include <bool.h>
+#include <ngspice/bool.h>
 
 /* Stuff to do control structures. We keep a history (seperate from
  * the cshpar history, for now at least) of commands and their event

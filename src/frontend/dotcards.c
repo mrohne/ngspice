@@ -2,20 +2,20 @@
 Copyright 1990 Regents of the University of California.  All rights reserved.
 Author: 1985 Wayne A. Christopher, U. C. Berkeley CAD Group
 Modified: 2000 AlansFixes
-$Id: dotcards.c,v 1.34 2010/11/19 18:54:41 rlar Exp $
+$Id: dotcards.c,v 1.35 2011/08/20 17:27:11 rlar Exp $
 **********/
 
 /*
  * Spice-2 compatibility stuff for .plot, .print, .four, and .width.
  */
 
-#include "ngspice.h"
+#include <ngspice/ngspice.h>
 #include <assert.h>
-#include "cpdefs.h"
-#include "ftedefs.h"
-#include "dvec.h"
-#include "fteinp.h"
-#include <sim.h>
+#include <ngspice/cpdefs.h>
+#include <ngspice/ftedefs.h>
+#include <ngspice/dvec.h>
+#include <ngspice/fteinp.h>
+#include <ngspice/sim.h>
 #include "circuits.h"
 #include "dotcards.h"
 #include "variable.h"

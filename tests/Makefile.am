@@ -12,6 +12,7 @@ SUBDIRS = bsim1			\
 	general			\
 	hfet			\
 	hisim			\
+	hisimhv			\
 	jfet			\
 	mes			\
 	mesa			\
@@ -36,6 +37,7 @@ DIST_SUBDIRS =	bsim1	\
 	general		\
 	hfet		\
 	hisim		\
+	hisimhv		\
 	jfet		\
 	mes		\
 	mesa		\

@@ -43,23 +43,23 @@ NON-STANDARD FEATURES
 
 
 /* #include "prefix.h"  */
-#include "ngspice.h"
+#include <ngspice/ngspice.h>
 
 #include <stdio.h>
 #include <math.h>
 
-#include "cktdefs.h"
-#include "devdefs.h"
-#include "sperror.h"
+#include <ngspice/cktdefs.h>
+#include <ngspice/devdefs.h>
+#include <ngspice/sperror.h>
 
-#include "mifproto.h"
-#include "mifparse.h"
-#include "mifdefs.h"
-#include "mifcmdat.h"
-#include "mif.h"
+#include <ngspice/mifproto.h>
+#include <ngspice/mifparse.h>
+#include <ngspice/mifdefs.h>
+#include <ngspice/mifcmdat.h>
+#include <ngspice/mif.h>
 
-#include "enh.h"
-#include "cm.h"
+#include <ngspice/enh.h>
+#include <ngspice/cm.h>
 
 /*  #include "suffix.h"  */
 
@@ -442,7 +442,7 @@ MIFload(
             /* ******************* */
             /* Call the code model */
             /* ******************* */
-            (*(DEVices[mod_type]->DEVpublic.cm_func)) (&cm_data);
+            DEVices[mod_type]->DEVpublic.cm_func (&cm_data);
 
             /* Automatically compute partials if requested by .options auto_partial */
             /* or by model through call to cm_analog_auto_partial() in DC or TRAN analysis */
@@ -829,7 +829,7 @@ static void MIFauto_partial(
 
 
             /* call model to compute new outputs */
-            (*cm_func)(cm_data);
+            cm_func (cm_data);
 
 
             /* ******************************************************* */
@@ -888,7 +888,7 @@ static void MIFauto_partial(
     /* the model may compute other state values that cannot be restored */
     /* to the nominal condition from here */
 
-    (*cm_func)(cm_data);
+    cm_func (cm_data);
 
 }
 

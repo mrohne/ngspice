@@ -1,15 +1,15 @@
 /*************
 * com_shell.c
-* $Id: com_shell.c,v 1.4 2010/10/09 12:49:34 rlar Exp $
+* $Id: com_shell.c,v 1.6 2011/08/20 17:27:11 rlar Exp $
 ************/
 
 #include <config.h>
-#include <ngspice.h>
-#include <wordlist.h>
+#include <ngspice/ngspice.h>
+#include <ngspice/wordlist.h>
 
 #include "com_shell.h"
 #include "streams.h"
-#include "cpextern.h"
+#include <ngspice/cpextern.h>
 
 /* Fork a shell. */
 
@@ -44,7 +44,7 @@ com_shell(wordlist *wl)
 	    svtstp = signal(SIGTSTP, SIG_DFL);
 	    /* XXX Sig on proc group */
             do {
-                r = wait((union wait *) NULL);
+                r = wait(NULL);
             } while ((r != pid) && pid != -1);
 	    signal(SIGINT, (SIGNAL_FUNCTION) svint);
 	    signal(SIGQUIT, (SIGNAL_FUNCTION) svquit);

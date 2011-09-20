@@ -4,12 +4,12 @@ reserved.
 Author: 1990 Jaijeet S. Roychowdhury
 **********/
 
-#include "ngspice.h"
-#include "cktdefs.h"
+#include <ngspice/ngspice.h>
+#include <ngspice/cktdefs.h>
 #include "ltradefs.h"
-#include "trandefs.h"
-#include "sperror.h"
-#include "suffix.h"
+#include <ngspice/trandefs.h>
+#include <ngspice/sperror.h>
+#include <ngspice/suffix.h>
 
 int
 LTRAacLoad(GENmodel *inModel, CKTcircuit *ckt)
@@ -23,7 +23,8 @@ LTRAacLoad(GENmodel *inModel, CKTcircuit *ckt)
   double y0_r, y0_i, lambda_r, lambda_i, mag, theta;
   double exparg_r, exparg_i, explambda_r, explambda_i;
   double y0exp_r, y0exp_i;
-  int savemode, error;
+  long savemode;
+  int error;
 
   /*
    * LTRAacLoad - loads for LTRA lines for the s.s. ac case the equations are

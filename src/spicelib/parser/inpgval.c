@@ -3,11 +3,11 @@ Copyright 1990 Regents of the University of California.  All rights reserved.
 Author: 1985 Thomas L. Quarles
 **********/
 
-#include "ngspice.h"
+#include <ngspice/ngspice.h>
 #include <stdio.h>
-#include "ifsim.h"
-#include "inpdefs.h"
-#include "inpptree.h"
+#include <ngspice/ifsim.h>
+#include <ngspice/inpdefs.h>
+#include <ngspice/inpptree.h>
 #include "inp.h"
 
 IFvalue *INPgetValue(CKTcircuit *ckt, char **line, int type, INPtables * tab)
@@ -70,11 +70,11 @@ IFvalue *INPgetValue(CKTcircuit *ckt, char **line, int type, INPtables * tab)
     } else if (type == IF_PARSETREE) {
 	INPgetTree(line, &pt, ckt, tab);
 	if (!pt)
-	    return ((IFvalue *) NULL);
+	    return (NULL);
 	temp.tValue = (IFparseTree *) pt;
 	/*INPptPrint("Parse tree is: ", temp.tValue); */
     } else {			/* don't know what type of parameter caller is talking about! */
-	return ((IFvalue *) NULL);
+	return (NULL);
     }
     return (&temp);
 }

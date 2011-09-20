@@ -15,10 +15,10 @@ Author: 1985 Wayne A. Christopher, U. C. Berkeley CAD Group
  *  and return a char * that is cast to complex or double.
  */
 
-#include <ngspice.h>
-#include <plot.h>
-#include <complex.h>
-#include <cpdefs.h>
+#include <ngspice/ngspice.h>
+#include <ngspice/plot.h>
+#include <ngspice/complex.h>
+#include <ngspice/cpdefs.h>
 
 #include <interpolate.h>
 #include <polyfit.h>
@@ -28,7 +28,7 @@ Author: 1985 Wayne A. Christopher, U. C. Berkeley CAD Group
 #include "cmath.h"
 #include "cmath4.h"
 
-#include "sim.h" /* To get SV_TIME */
+#include <ngspice/sim.h> /* To get SV_TIME */
 
 extern bool cx_degrees;
 
@@ -207,7 +207,7 @@ cx_interpolate(void *data, short int type, int length, int *newlength, short int
     *newlength = ns->v_length;
     d = alloc_d(ns->v_length);
 
-    if (!cp_getvar("polydegree", CP_NUM, (void *) &degree))
+    if (!cp_getvar("polydegree", CP_NUM, &degree))
         degree = 1;
 
     for (base = 0; base < length; base += grouping) {
@@ -241,7 +241,7 @@ cx_deriv(void *data, short int type, int length, int *newlength, short int *newt
         return (NULL);
     }
 
-    if (!cp_getvar("dpolydegree", CP_NUM, (void *) &degree))
+    if (!cp_getvar("dpolydegree", CP_NUM, &degree))
 	degree = 2; /* default quadratic */
 
     n = degree +  1;

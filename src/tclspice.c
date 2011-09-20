@@ -6,7 +6,7 @@
  *
  * Under LGPLv2 licence since 2008, December 1st
  *
- * $Id: tclspice.c,v 1.35 2010/11/16 20:38:24 rlar Exp $	
+ * $Id: tclspice.c,v 1.39 2011/08/20 17:27:10 rlar Exp $	
  */
 
 /*******************/
@@ -27,7 +27,7 @@
 /*              Header files for C functions                          */
 /**********************************************************************/
 
-#include "ngspice.h"
+#include <ngspice/ngspice.h>
 #include "misc/misc_time.h"
 #include <tcl.h>
 
@@ -81,9 +81,9 @@ typedef pthread_t threadId_t;
     #include <unistd.h> /* usleep */
 #endif /* __MINGW32__ */
 
-#include <iferrmsg.h>
-#include <ftedefs.h>
-#include <devdefs.h>
+#include <ngspice/iferrmsg.h>
+#include <ngspice/ftedefs.h>
+#include <ngspice/devdefs.h>
 #include <spicelib/devices/dev.h>
 #include <spicelib/analysis/analysis.h>
 #include <misc/ivars.h>
@@ -94,7 +94,7 @@ typedef pthread_t threadId_t;
 #define snprintf _snprintf
 #endif
 #include <frontend/outitf.h>
-#include <memory.h>
+#include <ngspice/memory.h>
 #include <frontend/com_measure2.h>
 
 #ifndef HAVE_GETRUSAGE
@@ -111,14 +111,14 @@ typedef void (*sighandler)(int);
 #include "frontend/signal_handler.h"
 
 /*Included for the module to access data*/
-#include <dvec.h>
-#include <plot.h>
+#include <ngspice/dvec.h>
+#include <ngspice/plot.h>
 
 #ifdef __CYGWIN__
 #undef WIN32
 #endif
 #include <blt.h>
-#include  <sim.h>
+#include  <ngspice/sim.h>
 
 /* defines for Tcl support
  * Tcl 8.3 and Tcl 8.4 support, 
@@ -229,7 +229,7 @@ int  blt_plot(struct dvec *y,struct dvec *x,int new);
   for(;0 < plot;plot--){
     pl = pl->pl_next;
     if(!pl) 
-      return (struct plot *)NULL;
+      return NULL;
   }
   return pl;
 }
@@ -1235,10 +1235,10 @@ static int get_param TCL_CMDPROCARGS(clientData,interp,argc,argv) {
   device = (char *)argv[1];
   param  = (char *)argv[2];
   /* copied from old_show(wordlist *) */ 
-  v = (*if_getparam)(ft_curckt->ci_ckt,
+  v = if_getparam (ft_curckt->ci_ckt,
 		     &device, param, 0, 0);
   if (!v)
-    v = (*if_getparam)(ft_curckt->ci_ckt,
+    v = if_getparam (ft_curckt->ci_ckt,
 		       &device, param, 0, 1);
   if (v) {
     wl = cp_varwl(v);
@@ -1296,11 +1296,11 @@ int get_mod_param TCL_CMDPROCARGS(clientData,interp,argc,argv) {
   
   /* get the unique IFuid for name (device/model) */
   INPretrieve(&name, ft_curckt->ci_symtab);
-  err = (*(ft_sim->findInstance))(ft_curckt->ci_ckt,&typecode,&devptr,name,NULL,NULL);
+  err = ft_sim->findInstance (ft_curckt->ci_ckt, &typecode, &devptr, name, NULL, NULL);
   if (err != OK) {
     typecode = -1;
     devptr   = NULL;
-    err = (*(ft_sim->findModel))(ft_curckt->ci_ckt,&typecode,&modptr,name);
+    err = ft_sim->findModel (ft_curckt->ci_ckt, &typecode, &modptr, name);
   }
   if (err != OK) {
     sprintf(buf,"No such device or model name %s",name);
@@ -1317,11 +1317,11 @@ int get_mod_param TCL_CMDPROCARGS(clientData,interp,argc,argv) {
       found=TRUE;
     } else if (strcmp(paramname,opt->keyword)==0) {
       if (devptr)
-        err = (*(ft_sim->askInstanceQuest))(ft_curckt->ci_ckt, devptr,
-                opt->id, &pv, (IFvalue *)NULL);
+        err = ft_sim->askInstanceQuest (ft_curckt->ci_ckt, devptr,
+                opt->id, &pv, NULL);
       else
-        err = (*(ft_sim->askModelQuest))(ft_curckt->ci_ckt, modptr,
-                opt->id, &pv, (IFvalue *)NULL);
+        err = ft_sim->askModelQuest (ft_curckt->ci_ckt, modptr,
+                opt->id, &pv, NULL);
       if (err==OK) {
       	sprintf(buf,"%g",pv.rValue); /* dataType is here always real */
         Tcl_SetResult(interp,buf,TCL_VOLATILE);
@@ -1359,7 +1359,7 @@ static int delta TCL_CMDPROCARGS(clientData,interp,argc,argv) {
   return TCL_OK;
 }
 
-#include <trandefs.h>
+#include <ngspice/trandefs.h>
 /* Direct control over the maximum stepsize
  * Spice will still adjust it to keep accuracy wuithin reltol and abstol
  */
@@ -1391,7 +1391,7 @@ static int maxstep TCL_CMDPROCARGS(clientData,interp,argc,argv) {
 /****************************************/
 
 /* Use Tcl_GetStringResult to get canvas size etc. from Tcl */
-#include <ftedev.h>
+#include <ngspice/ftedev.h>
 int  sp_Tk_Init(void) {
   /* This is hard coded in C at the mo, use X11 values */
   dispdev->numlinestyles = 8;
@@ -1402,7 +1402,7 @@ int  sp_Tk_Init(void) {
   return 0;
 }
 
-#include <graph.h>
+#include <ngspice/graph.h>
 int  sp_Tk_NewViewport(GRAPH *graph) {
   const char *result;
   int width, height, fontwidth, fontheight;
@@ -2260,7 +2260,7 @@ int Spice_Init(Tcl_Interp *interp) {
     sighandler old_sigint;
     
     ft_rawfile = NULL;
-    ivars( );
+    ivars(NULL);
     
     cp_in = stdin;
     cp_out = stdout;
@@ -2347,51 +2347,51 @@ bot:
       if(Tcl_GetCommandInfo(interp,buf, &infoPtr)!= 0){
 	printf("Command '%s' can not be registered!\n", buf);
       }else{ 
-	Tcl_CreateCommand(interp,buf, _tcl_dispatch, (ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
+	Tcl_CreateCommand(interp, buf, _tcl_dispatch, NULL, NULL);
       }
     }
     
-    Tcl_CreateCommand(interp, TCLSPICE_prefix "spice_header", spice_header, (ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
-    Tcl_CreateCommand(interp, TCLSPICE_prefix "spice_data", spice_data, (ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
-    Tcl_CreateCommand(interp, TCLSPICE_prefix "spicetoblt", spicetoblt, (ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
-    Tcl_CreateCommand(interp, TCLSPICE_prefix "vectoblt", vectoblt, (ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
-    Tcl_CreateCommand(interp, TCLSPICE_prefix "lastVector", lastVector, (ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
-    Tcl_CreateCommand(interp, TCLSPICE_prefix "get_value", get_value, (ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
-    Tcl_CreateCommand(interp, TCLSPICE_prefix "spice", _spice_dispatch, (ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
-    Tcl_CreateCommand(interp, TCLSPICE_prefix "get_output", get_output, (ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
-    Tcl_CreateCommand(interp, TCLSPICE_prefix "get_param", get_param, (ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
-    Tcl_CreateCommand(interp, TCLSPICE_prefix "get_mod_param", get_mod_param, (ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
-    Tcl_CreateCommand(interp, TCLSPICE_prefix "delta", delta, (ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
-    Tcl_CreateCommand(interp, TCLSPICE_prefix "maxstep", maxstep, (ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
-    Tcl_CreateCommand(interp, TCLSPICE_prefix "plot_variables", plot_variables, (ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
-    Tcl_CreateCommand(interp, TCLSPICE_prefix "plot_variablesInfo", plot_variablesInfo, (ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
-    Tcl_CreateCommand(interp, TCLSPICE_prefix "plot_get_value", plot_get_value, (ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
-    Tcl_CreateCommand(interp, TCLSPICE_prefix "plot_datapoints", plot_datapoints, (ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
-    Tcl_CreateCommand(interp, TCLSPICE_prefix "plot_title", plot_title, (ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
-    Tcl_CreateCommand(interp, TCLSPICE_prefix "plot_date", plot_date, (ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
-    Tcl_CreateCommand(interp, TCLSPICE_prefix "plot_name", plot_name, (ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
-    Tcl_CreateCommand(interp, TCLSPICE_prefix "plot_typename", plot_typename, (ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
-    Tcl_CreateCommand(interp, TCLSPICE_prefix "plot_nvars", plot_nvars, (ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
-    Tcl_CreateCommand(interp, TCLSPICE_prefix "plot_defaultscale", plot_defaultscale, (ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
-    Tcl_CreateCommand(interp, TCLSPICE_prefix "plot_getvector", plot_getvector, (ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
-    Tcl_CreateCommand(interp, TCLSPICE_prefix "getplot", plot_getplot, (ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
+    Tcl_CreateCommand(interp, TCLSPICE_prefix "spice_header", spice_header, NULL, NULL);
+    Tcl_CreateCommand(interp, TCLSPICE_prefix "spice_data", spice_data, NULL, NULL);
+    Tcl_CreateCommand(interp, TCLSPICE_prefix "spicetoblt", spicetoblt, NULL, NULL);
+    Tcl_CreateCommand(interp, TCLSPICE_prefix "vectoblt", vectoblt, NULL, NULL);
+    Tcl_CreateCommand(interp, TCLSPICE_prefix "lastVector", lastVector, NULL, NULL);
+    Tcl_CreateCommand(interp, TCLSPICE_prefix "get_value", get_value, NULL, NULL);
+    Tcl_CreateCommand(interp, TCLSPICE_prefix "spice", _spice_dispatch, NULL, NULL);
+    Tcl_CreateCommand(interp, TCLSPICE_prefix "get_output", get_output, NULL, NULL);
+    Tcl_CreateCommand(interp, TCLSPICE_prefix "get_param", get_param, NULL, NULL);
+    Tcl_CreateCommand(interp, TCLSPICE_prefix "get_mod_param", get_mod_param, NULL, NULL);
+    Tcl_CreateCommand(interp, TCLSPICE_prefix "delta", delta, NULL, NULL);
+    Tcl_CreateCommand(interp, TCLSPICE_prefix "maxstep", maxstep, NULL, NULL);
+    Tcl_CreateCommand(interp, TCLSPICE_prefix "plot_variables", plot_variables, NULL, NULL);
+    Tcl_CreateCommand(interp, TCLSPICE_prefix "plot_variablesInfo", plot_variablesInfo, NULL, NULL);
+    Tcl_CreateCommand(interp, TCLSPICE_prefix "plot_get_value", plot_get_value, NULL, NULL);
+    Tcl_CreateCommand(interp, TCLSPICE_prefix "plot_datapoints", plot_datapoints, NULL, NULL);
+    Tcl_CreateCommand(interp, TCLSPICE_prefix "plot_title", plot_title, NULL, NULL);
+    Tcl_CreateCommand(interp, TCLSPICE_prefix "plot_date", plot_date, NULL, NULL);
+    Tcl_CreateCommand(interp, TCLSPICE_prefix "plot_name", plot_name, NULL, NULL);
+    Tcl_CreateCommand(interp, TCLSPICE_prefix "plot_typename", plot_typename, NULL, NULL);
+    Tcl_CreateCommand(interp, TCLSPICE_prefix "plot_nvars", plot_nvars, NULL, NULL);
+    Tcl_CreateCommand(interp, TCLSPICE_prefix "plot_defaultscale", plot_defaultscale, NULL, NULL);
+    Tcl_CreateCommand(interp, TCLSPICE_prefix "plot_getvector", plot_getvector, NULL, NULL);
+    Tcl_CreateCommand(interp, TCLSPICE_prefix "getplot", plot_getplot, NULL, NULL);
 
-	Tcl_CreateCommand(interp, TCLSPICE_prefix "registerTrigger", registerTrigger, (ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
-  	Tcl_CreateCommand(interp, TCLSPICE_prefix "registerTriggerCallback", registerTriggerCallback, (ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
-  Tcl_CreateCommand(interp, TCLSPICE_prefix "popTriggerEvent", popTriggerEvent, (ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
-    Tcl_CreateCommand(interp, TCLSPICE_prefix "unregisterTrigger", unregisterTrigger, (ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
-    Tcl_CreateCommand(interp, TCLSPICE_prefix "listTriggers", listTriggers, (ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
+	Tcl_CreateCommand(interp, TCLSPICE_prefix "registerTrigger", registerTrigger, NULL, NULL);
+  	Tcl_CreateCommand(interp, TCLSPICE_prefix "registerTriggerCallback", registerTriggerCallback, NULL, NULL);
+  Tcl_CreateCommand(interp, TCLSPICE_prefix "popTriggerEvent", popTriggerEvent, NULL, NULL);
+    Tcl_CreateCommand(interp, TCLSPICE_prefix "unregisterTrigger", unregisterTrigger, NULL, NULL);
+    Tcl_CreateCommand(interp, TCLSPICE_prefix "listTriggers", listTriggers, NULL, NULL);
 
-  	Tcl_CreateCommand(interp, TCLSPICE_prefix "registerStepCallback", registerTriggerCallback, (ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
+  	Tcl_CreateCommand(interp, TCLSPICE_prefix "registerStepCallback", registerTriggerCallback, NULL, NULL);
 #ifdef THREADS
-	Tcl_CreateCommand(interp, TCLSPICE_prefix "bg", _tcl_dispatch, (ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
-    Tcl_CreateCommand(interp, TCLSPICE_prefix "halt", _tcl_dispatch, (ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
-    Tcl_CreateCommand(interp, TCLSPICE_prefix "running", running, (ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
+	Tcl_CreateCommand(interp, TCLSPICE_prefix "bg", _tcl_dispatch, NULL, NULL);
+    Tcl_CreateCommand(interp, TCLSPICE_prefix "halt", _tcl_dispatch, NULL, NULL);
+    Tcl_CreateCommand(interp, TCLSPICE_prefix "running", running, NULL, NULL);
 #endif
 
-    Tcl_CreateCommand(interp, TCLSPICE_prefix "tmeasure", tmeasure, (ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
+    Tcl_CreateCommand(interp, TCLSPICE_prefix "tmeasure", tmeasure, NULL, NULL);
 
-	Tcl_CreateCommand(interp, TCLSPICE_prefix "registerStepCallback", registerStepCallback, (ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
+	Tcl_CreateCommand(interp, TCLSPICE_prefix "registerStepCallback", registerStepCallback, NULL, NULL);
 	
     Tcl_LinkVar(interp, TCLSPICE_prefix "steps_completed", (char *)&steps_completed, TCL_LINK_READ_ONLY|TCL_LINK_INT);
     Tcl_LinkVar(interp, TCLSPICE_prefix "blt_vnum", (char *)&blt_vnum, TCL_LINK_READ_ONLY|TCL_LINK_INT);

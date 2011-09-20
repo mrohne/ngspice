@@ -3,11 +3,11 @@ Copyright 1990 Regents of the University of California.  All rights reserved.
 Author: 1985 Thomas L. Quarles
 **********/
 
-#include "ngspice.h"
-#include "cktdefs.h"
-#include "smpdefs.h"
-#include "sperror.h"
-#include "devdefs.h"
+#include <ngspice/ngspice.h>
+#include <ngspice/cktdefs.h>
+#include <ngspice/smpdefs.h>
+#include <ngspice/sperror.h>
+#include <ngspice/devdefs.h>
 
 
 int
@@ -26,7 +26,7 @@ CKTic(CKTcircuit *ckt)
     for(node = ckt->CKTnodes;node != NULL; node = node->next) {
         if(node->nsGiven) {
             node->ptr = SMPmakeElt(ckt->CKTmatrix,node->number,node->number);
-            if(node->ptr == (double *)NULL) return(E_NOMEM);
+            if(node->ptr == NULL) return(E_NOMEM);
             ckt->CKThadNodeset = 1;
             *(ckt->CKTrhs+node->number) = node->nodeset;
         }
@@ -34,7 +34,7 @@ CKTic(CKTcircuit *ckt)
             if(! ( node->ptr)) {
                 node->ptr = SMPmakeElt(ckt->CKTmatrix,node->number,
                         node->number);
-                if(node->ptr == (double *)NULL) return(E_NOMEM);
+                if(node->ptr == NULL) return(E_NOMEM);
             }
             *(ckt->CKTrhs+node->number) = node->ic;
         }
@@ -42,8 +42,8 @@ CKTic(CKTcircuit *ckt)
 
     if(ckt->CKTmode & MODEUIC) {
         for (i=0;i<DEVmaxnum;i++) {
-            if( DEVices[i] && ((*DEVices[i]).DEVsetic != NULL) && (ckt->CKThead[i] != NULL) ){
-                error = (*((*DEVices[i]).DEVsetic))(ckt->CKThead[i],ckt);
+            if( DEVices[i] && DEVices[i]->DEVsetic && ckt->CKThead[i] ) {
+                error = DEVices[i]->DEVsetic (ckt->CKThead[i], ckt);
                 if(error) return(error);
             }
         }

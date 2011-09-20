@@ -4,14 +4,14 @@ Author:	2007 Gong Ding, gdiso@ustc.edu
 University of Science and Technology of China 
 **********/
 
-#include "ngspice.h"
-#include "cktdefs.h"
-#include "smpdefs.h"
+#include <ngspice/ngspice.h>
+#include <ngspice/cktdefs.h>
+#include <ngspice/smpdefs.h>
 #include "ndevdefs.h"
-#include "numconst.h"
-#include "numenum.h"
-#include "sperror.h"
-#include "suffix.h"
+#include <ngspice/numconst.h>
+#include <ngspice/numenum.h>
+#include <ngspice/sperror.h>
+#include <ngspice/suffix.h>
 
 #define NIL(type)   ((type *)0)
 #define TSCALLOC(var, size, type)\
@@ -51,7 +51,7 @@ int NDEVsetup(SMPmatrix *matrix, GENmodel *inModel, CKTcircuit *ckt, int *states
 	    send(model->sock,&(here->Ndevinfo),sizeof(here->Ndevinfo),0);
 /* macro to make elements with built in test for out of memory */
 #define TSTALLOC(ptr,first,second) \
-if((here->ptr = SMPmakeElt(matrix,here->first,here->second))==(double *)NULL){\
+if((here->ptr = SMPmakeElt(matrix, here->first, here->second)) == NULL){\
     return(E_NOMEM);\
 }
 

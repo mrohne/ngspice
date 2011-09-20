@@ -11,18 +11,17 @@ Author: 1985 Thomas L. Quarles
      *
      */
 
-#include "ngspice.h"
-#include "ifsim.h"
-#include "iferrmsg.h"
-#include "smpdefs.h"
-#include "cktdefs.h"
+#include <ngspice/ngspice.h>
+#include <ngspice/ifsim.h>
+#include <ngspice/iferrmsg.h>
+#include <ngspice/smpdefs.h>
+#include <ngspice/cktdefs.h>
 
 
 int
-CKTnewEq(CKTcircuit *inCkt, CKTnode **node, IFuid name)
+CKTnewEq(CKTcircuit *ckt, CKTnode **node, IFuid name)
 {
     CKTnode *mynode;
-    CKTcircuit *ckt = /* fixme, drop that */ inCkt;
     int error;
 
     error = CKTmkNode(ckt,&mynode);

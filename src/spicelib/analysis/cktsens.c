@@ -3,16 +3,16 @@ Copyright 1991 Regents of the University of California.  All rights reserved.
 Modified: 2000 AlanFixes
 **********/
 
-#include "ngspice.h"
-#include "ifsim.h"
-#include "sperror.h"
-#include "spmatrix.h"
-#include "gendefs.h"
-#include "devdefs.h"
-#include "cktdefs.h"
-#include "smpdefs.h"
-#include "sensdefs.h"
-#include "sensgen.h"
+#include <ngspice/ngspice.h>
+#include <ngspice/ifsim.h>
+#include <ngspice/sperror.h>
+#include <ngspice/spmatrix.h>
+#include <ngspice/gendefs.h>
+#include <ngspice/devdefs.h>
+#include <ngspice/cktdefs.h>
+#include <ngspice/smpdefs.h>
+#include <ngspice/sensdefs.h>
+#include <ngspice/sensgen.h>
 
 /* #define ASDEBUG */
 #ifdef ASDEBUG
@@ -32,6 +32,16 @@ static int sens_load(sgen *sg, CKTcircuit *ckt, int is_dc);
 static int sens_temp(sgen *sg, CKTcircuit *ckt);
 static int count_steps(int type, double low, double high, int steps, double *stepsize);
 static double inc_freq(double freq, int type, double step_size);
+
+#define save_context(thing, place) {	    \
+    place = thing;			    \
+}
+
+#define release_context(thing, place)	    \
+    if(place) {				    \
+	thing = place;			    \
+	place = NULL;			    \
+    }
 
 
 /*
@@ -75,6 +85,9 @@ int sens_sens(CKTcircuit *ckt, int restart)
 	IFuid		*output_names, freq_name;
 	int		bypass;
 	int		type;
+	double		*saved_rhs = 0,
+			*saved_irhs = 0;
+	SMPmatrix	*saved_matrix = 0;
 
 #ifndef notdef
 #ifdef notdef
@@ -166,7 +179,7 @@ int sens_sens(CKTcircuit *ckt, int restart)
 					sg->ptable[sg->param].keyword);
 			}
 
-			(*SPfrontEnd->IFnewUid)(ckt,
+			SPfrontEnd->IFnewUid (ckt,
 				output_names + k, NULL,
 				namebuf, UID_OTHER, NULL);
 			k += 1;
@@ -177,12 +190,12 @@ int sens_sens(CKTcircuit *ckt, int restart)
 			freq_name = NULL;
 		} else {
 			type = IF_COMPLEX;
-			(*SPfrontEnd->IFnewUid)(ckt,
+			SPfrontEnd->IFnewUid (ckt,
 				&freq_name, NULL,
 				"frequency", UID_OTHER, NULL);
 		}
 
-		error = (*SPfrontEnd->OUTpBeginPlot)(ckt,
+		error = SPfrontEnd->OUTpBeginPlot (ckt,
 			ckt->CKTcurJob,
 			ckt->CKTcurJob->JOBname, freq_name, IF_REAL, num_vars,
 			output_names, type, (void **) &sen_data);
@@ -197,13 +210,17 @@ int sens_sens(CKTcircuit *ckt, int restart)
 			output_values = NULL;
 			output_cvalues = NEWN(IFcomplex, num_vars);
 			if (sen_info->step_type != SENS_LINEAR)
-			    (*(SPfrontEnd->OUTattributes))((void *)sen_data,
+			    SPfrontEnd->OUTattributes (sen_data,
 				    NULL, OUT_SCALE_LOG, NULL);
 
 		}
 
 	} else {
 		/*XXX Restore saved state */
+		output_values = NULL;
+		output_cvalues = NULL;
+		fprintf(stderr, "ERROR: restore is not implemented for cktsens\n");
+		exit(1);
 	}
 
 #ifdef ASDEBUG
@@ -216,22 +233,13 @@ int sens_sens(CKTcircuit *ckt, int restart)
 	bypass = ckt->CKTbypass;
 	ckt->CKTbypass = 0;
 
-	/* The unknown vector of node voltages overwrites rhs */
+	/* CKTop solves into CKTrhs and CKTmatrix,
+	 *	 CKTirhs is hopefully zero (fresh allocated ?) */
+
 	E = ckt->CKTrhs;
 	iE = ckt->CKTirhs;
- 	
-	/* The following two lines assigned a pointer to another shadowing
-	 * the previous definition and creating trouble when xfree() in 
-	 * NIdestroy tried to deallocate a non malloc'ed pointer 	 
-	 *
- 	 * Original code:
-	 * ckt->CKTrhsOld = E;
-	 * ckt->CKTirhsOld = iE;
-         */
-
-        *ckt->CKTrhsOld = *E;
-	*ckt->CKTirhsOld = *iE;
 	Y = ckt->CKTmatrix;
+
 #ifdef ASDEBUG
 	DEBUG(1) {
 		printf("Operating point:\n");
@@ -252,7 +260,7 @@ int sens_sens(CKTcircuit *ckt, int restart)
 
 		n = 0;
 
-		if ((*SPfrontEnd->IFpauseTest)( )) {
+		if (SPfrontEnd->IFpauseTest()) {
 			/* XXX Save State */
 			return E_PAUSE;
 		}
@@ -263,9 +271,6 @@ int sens_sens(CKTcircuit *ckt, int restart)
 		}
 
 		if (freq != 0.0) {
-			ckt->CKTrhs = E;
-			ckt->CKTirhs = iE;
-			ckt->CKTmatrix = Y;
 
 			/* This generates Y in LU form */
 			ckt->CKTomega = 2.0 * M_PI * freq;
@@ -282,9 +287,6 @@ int sens_sens(CKTcircuit *ckt, int restart)
 			if (error)
 				return error;
 
-			E = ckt->CKTrhs;
-			iE = ckt->CKTirhs;
-			Y = ckt->CKTmatrix;
 #ifdef notdef
 			for (j = 0; j <= ckt->CKTmaxOrder + 1; j++) {
 				/* XXX Free new states */
@@ -308,9 +310,18 @@ int sens_sens(CKTcircuit *ckt, int restart)
 			}
 #endif
 
+			/* NIacIter solves into CKTrhsOld, CKTirhsOld and CKTmatrix */
+			E = ckt->CKTrhsOld;
+			iE = ckt->CKTirhsOld;
+			Y = ckt->CKTmatrix;
 		}
 
 		/* Use a different vector & matrix */
+
+		save_context(ckt->CKTrhs, saved_rhs);
+		save_context(ckt->CKTirhs, saved_irhs);
+		save_context(ckt->CKTmatrix, saved_matrix);
+
 		ckt->CKTrhs = delta_I;
 		ckt->CKTirhs = delta_iI;
 		ckt->CKTmatrix = delta_Y;
@@ -356,7 +367,7 @@ int sens_sens(CKTcircuit *ckt, int restart)
 
 			fn = DEVices[sg->dev]->DEVsetup;
 			if (fn)
-				(*fn)(delta_Y, sg->model, ckt,
+				fn (delta_Y, sg->model, ckt,
 					/* XXXX insert old state base here ?? */
 					&ckt->CKTnumStates);
 
@@ -496,6 +507,14 @@ int sens_sens(CKTcircuit *ckt, int restart)
 			/* Solve; Y already factored */
 			spSolve(Y, delta_I, delta_I, delta_iI, delta_iI);
 
+                        /* the special `0' node
+                        *    the matrix indizes are [1..n]
+                        *    yet the vector indizes are [0..n]
+                        *    with [0] being implicit === 0
+                        */
+                        delta_I[0]  = 0.0;
+                        delta_iI[0] = 0.0;
+
 #ifdef ASDEBUG
 			DEBUG(2) {
 				for (j = 1; j < size; j++) {
@@ -553,20 +572,24 @@ int sens_sens(CKTcircuit *ckt, int restart)
 
 		}
 
+		release_context(ckt->CKTrhs, saved_rhs);
+		release_context(ckt->CKTirhs, saved_irhs);
+		release_context(ckt->CKTmatrix, saved_matrix);
+
 		if (is_dc)
 			nvalue.v.vec.rVec = output_values;
 		else
 			nvalue.v.vec.cVec = output_cvalues;
 
 		value.rValue = freq;
-		
-		(*(SPfrontEnd->OUTpData))(sen_data, &value, &nvalue);
+
+		SPfrontEnd->OUTpData (sen_data, &value, &nvalue);
 
 		freq = inc_freq(freq, sen_info->step_type, step_size);
 
 	}
 
-	(*SPfrontEnd->OUTendPlot)((void *) sen_data);
+	SPfrontEnd->OUTendPlot (sen_data);
 
 	if (is_dc) {
 		FREE(output_values);	/* XXX free various vectors */
@@ -574,13 +597,17 @@ int sens_sens(CKTcircuit *ckt, int restart)
 		FREE(output_cvalues);	/* XXX free various vectors */
 	}
 
+	release_context(ckt->CKTrhs, saved_rhs);
+	release_context(ckt->CKTirhs, saved_irhs);
+	release_context(ckt->CKTmatrix, saved_matrix);
+
 	spDestroy(delta_Y);
 	FREE(delta_I);
 	FREE(delta_iI);
 
-	ckt->CKTrhs = E;
-	ckt->CKTirhs = iE;
-	ckt->CKTmatrix = Y;
+	FREE(delta_I_delta_Y);
+	FREE(delta_iI_delta_Y);
+
 	ckt->CKTbypass = bypass;
 
 #ifdef notdef
@@ -654,7 +681,7 @@ count_steps(int type, double low, double high, int steps, double *stepsize)
 			low = 1e-3;
 		if (high <= low)
 			high = 10.0 * low;
-		n = steps * log10(high/low) + 1.01;
+		n = (int)(steps * log10(high/low) + 1.01);
 		s = pow(10.0, 1.0 / steps);
 		break;
 
@@ -663,7 +690,7 @@ count_steps(int type, double low, double high, int steps, double *stepsize)
 			low = 1e-3;
 		if (high <= low)
 			high = 2.0 * low;
-		n = steps * log(high/low) / M_LOG2E + 1.01;
+		n = (int)(steps * log(high/low) / M_LOG2E + 1.01);
 		s = pow(2.0, 1.0 / steps);
 		break;
 	}
@@ -688,7 +715,7 @@ sens_load(sgen *sg, CKTcircuit *ckt, int is_dc)
 		fn = DEVices[sg->dev]->DEVload;
 
 	if (fn)
-		error = (*fn)(sg->model, ckt);
+		error = fn (sg->model, ckt);
 	else
 		return 1;
 
@@ -706,7 +733,7 @@ sens_temp(sgen *sg, CKTcircuit *ckt)
 	fn = DEVices[sg->dev]->DEVtemperature;
 
 	if (fn)
-		error = (*fn)(sg->model, ckt);
+		error = fn (sg->model, ckt);
 	else
 		return 1;
 
@@ -728,7 +755,7 @@ sens_getp(sgen *sg, CKTcircuit *ckt, IFvalue *val)
 		fn = DEVices[sg->dev]->DEVask;
 		pid = DEVices[sg->dev]->DEVpublic.instanceParms[sg->param].id;
 		if (fn)
-			error = (*fn)(ckt, sg->instance, pid, val, NULL);
+			error = fn (ckt, sg->instance, pid, val, NULL);
 		else
 			return 1;
 	} else {
@@ -736,7 +763,7 @@ sens_getp(sgen *sg, CKTcircuit *ckt, IFvalue *val)
 		fn = DEVices[sg->dev]->DEVmodAsk;
 		pid = DEVices[sg->dev]->DEVpublic.modelParms[sg->param].id;
 		if (fn)
-			error = (*fn)(ckt, sg->model, pid, val);
+			error = fn (ckt, sg->model, pid, val);
 		else
 			return 1;
 	}
@@ -774,7 +801,7 @@ sens_setp(sgen *sg, CKTcircuit *ckt, IFvalue *val)
 		fn = DEVices[sg->dev]->DEVparam;
 		pid = DEVices[sg->dev]->DEVpublic.instanceParms[sg->param].id;
 		if (fn)
-			error = (*fn)(pid, val, sg->instance, NULL);
+			error = fn (pid, val, sg->instance, NULL);
 		else
 			return 1;
 	} else {
@@ -782,7 +809,7 @@ sens_setp(sgen *sg, CKTcircuit *ckt, IFvalue *val)
 		fn = DEVices[sg->dev]->DEVmodParam;
 		pid = DEVices[sg->dev]->DEVpublic.modelParms[sg->param].id;
 		if (fn)
-			error = (*fn)(pid, val, sg->model);
+			error = fn (pid, val, sg->model);
 		else
 			return 1;
 	}

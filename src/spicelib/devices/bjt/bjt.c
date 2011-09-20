@@ -14,10 +14,10 @@ Author: 1985 Thomas L. Quarles
  * archaic spice2 bjt model
  */ 
  
-#include "ngspice.h"
-#include "devdefs.h"
+#include <ngspice/ngspice.h>
+#include <ngspice/devdefs.h>
 #include "bjtdefs.h"
-#include "suffix.h"
+#include <ngspice/suffix.h>
 
 IFparm BJTpTable[] = { /* parameters */
  IOPU("off",     BJT_OFF,            IF_FLAG,    "Device initially off"),
@@ -133,6 +133,7 @@ IFparm BJTmPTable[] = { /* model parameters */
  IOPA("tr",  BJT_MOD_TR,   IF_REAL, "Ideal reverse transit time"),
  IOPA("cjs", BJT_MOD_CJS,  IF_REAL, "Zero bias Substrate capacitance"),
  IOPR("csub", BJT_MOD_CJS,  IF_REAL, "Zero bias Substrate capacitance"),
+ IOPR("ccs", BJT_MOD_CJS,  IF_REAL, "Zero bias Substrate capacitance"),
  IOPA("vjs", BJT_MOD_VJS,  IF_REAL, "Substrate junction built in potential"),
  IOPR("ps",  BJT_MOD_VJS,  IF_REAL, "Substrate junction built in potential"),
  IOPA("mjs", BJT_MOD_MJS,  IF_REAL, "Substrate junction grading coefficient"),
@@ -204,7 +205,8 @@ IFparm BJTmPTable[] = { /* model parameters */
  IOP("tmjs1",BJT_MOD_TMJS1, IF_REAL, "MJS 1. temperature coefficient"),
  IOP("tmjs2",BJT_MOD_TMJS2, IF_REAL, "MJS 2. temperature coefficient"),
  IOP("tns1", BJT_MOD_TNS1, IF_REAL, "NS 1. temperature coefficient"),
- IOP("tns2", BJT_MOD_TNS2, IF_REAL, "NS 2. temperature coefficient")
+ IOP("tns2", BJT_MOD_TNS2, IF_REAL, "NS 2. temperature coefficient"),
+ IOP("nkf", BJT_MOD_NKF, IF_REAL, "NKF High current beta rolloff exponent")
 };
 
 char *BJTnames[] = {

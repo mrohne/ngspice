@@ -3,9 +3,9 @@ Copyright 1993: T. Ytterdal, K. Lee, M. Shur and T. A. Fjeldly. All rights reser
 Author: Trond Ytterdal
 **********/
 
-#include "ngspice.h"
+#include <ngspice/ngspice.h>
 #include "mesadefs.h"
-#include "suffix.h"
+#include <ngspice/suffix.h>
 
 
 void
@@ -20,7 +20,7 @@ MESAdestroy(GENmodel **inModel)
     for( ; mod ; mod = mod->MESAnextModel) {
         if(oldmod) FREE(oldmod);
         oldmod = mod;
-        prev = (MESAinstance *)NULL;
+        prev = NULL;
         for(here = mod->MESAinstances ; here ; here = here->MESAnextInstance) {
             if(prev) FREE(prev);
             prev = here;

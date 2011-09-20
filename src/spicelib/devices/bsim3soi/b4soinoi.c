@@ -13,13 +13,13 @@
  * Modified by Tanvir Morshed 12/31/2009
  **********/
 
-#include "ngspice.h"
+#include <ngspice/ngspice.h>
 #include "b4soidef.h"
-#include "cktdefs.h"
-#include "iferrmsg.h"
-#include "noisedef.h"
-#include "suffix.h"
-#include "const.h"  /* jwan */
+#include <ngspice/cktdefs.h>
+#include <ngspice/iferrmsg.h>
+#include <ngspice/noisedef.h>
+#include <ngspice/suffix.h>
+#include <ngspice/const.h>  /* jwan */
 
 /*
  * B4SOInoise (mode, operation, firstModel, ckt, data, OnDens)
@@ -166,9 +166,9 @@ int i;
                                        data->namelist = TREALLOC(IFuid, data->namelist, data->numPlots + 1);
                                        if (!data->namelist)
 					   return(E_NOMEM);
-		                       (*(SPfrontEnd->IFnewUid)) (ckt,
+		                       SPfrontEnd->IFnewUid (ckt,
 			                  &(data->namelist[data->numPlots++]),
-			                  (IFuid) NULL, name, UID_OTHER,
+			                  NULL, name, UID_OTHER,
 					  NULL);
 				       /* we've added one more plot */
 			          }
@@ -181,9 +181,9 @@ int i;
                                        data->namelist = TREALLOC(IFuid, data->namelist, data->numPlots + 1);
                                        if (!data->namelist)
 					   return(E_NOMEM);
-		                       (*(SPfrontEnd->IFnewUid)) (ckt,
+		                       SPfrontEnd->IFnewUid (ckt,
 			                  &(data->namelist[data->numPlots++]),
-			                  (IFuid) NULL, name, UID_OTHER,
+			                  NULL, name, UID_OTHER,
 					  NULL);
 				       /* we've added one more plot */
 
@@ -193,9 +193,9 @@ int i;
                                        data->namelist = TREALLOC(IFuid, data->namelist, data->numPlots + 1);
                                        if (!data->namelist)
 					   return(E_NOMEM);
-		                       (*(SPfrontEnd->IFnewUid)) (ckt,
+		                       SPfrontEnd->IFnewUid (ckt,
 			                  &(data->namelist[data->numPlots++]),
-			                  (IFuid) NULL, name, UID_OTHER,
+			                  NULL, name, UID_OTHER,
 					  NULL);
 				       /* we've added one more plot */
 			          }
@@ -412,7 +412,7 @@ int i;
                                       break;
 			      }
 
-		              NevalSrc(&noizDens[B4SOIFLNOIZ], (double*) NULL,
+		              NevalSrc(&noizDens[B4SOIFLNOIZ], NULL,
 				       ckt, N_GAIN, here->B4SOIdNodePrime,
 				       here->B4SOIsNodePrime, (double) 0.0);
 

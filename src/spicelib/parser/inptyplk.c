@@ -7,11 +7,11 @@ Author: 1985 Thomas L. Quarles
  *  appropriate strchr for the device found, or -1 for not found 
  */
 
-#include "ngspice.h"
-#include "inpdefs.h"
-#include "cpdefs.h"
-#include "fteext.h"
-#include "ifsim.h"
+#include <ngspice/ngspice.h>
+#include <ngspice/inpdefs.h>
+#include <ngspice/cpdefs.h>
+#include <ngspice/fteext.h>
+#include <ngspice/ifsim.h>
 #include "inp.h"
 
 int INPtypelook(char *type)
@@ -31,10 +31,10 @@ int INPtypelook(char *type)
        if ((ft_sim->devices[i]) == NULL)
              printf("In INPtypelook, checking model type = %s against existing model = %s, . . .\n", type, "NULL");		
        else
-             printf("In INPtypelook, checking model type = %s against existing model = %s, . . .\n", type, (*(ft_sim->devices)[i]).name );	
+             printf("In INPtypelook, checking model type = %s against existing model = %s, . . .\n", type, ft_sim->devices[i]->name);
 #endif
 
-	if ((ft_sim->devices)[i] && strcmp(type, (*(ft_sim->devices)[i]).name) == 0) {
+	if (ft_sim->devices[i] && strcmp(type, ft_sim->devices[i]->name) == 0) {
 	    /* found the device - return it */
 
 #ifdef TRACE

@@ -8,11 +8,11 @@ Author: 1985 Thomas L. Quarles
      * into the rawfile.
      */
 
-#include "ngspice.h"
-#include "smpdefs.h"
-#include "cktdefs.h"
-#include "iferrmsg.h"
-#include "ifsim.h"
+#include <ngspice/ngspice.h>
+#include <ngspice/smpdefs.h>
+#include <ngspice/cktdefs.h>
+#include <ngspice/iferrmsg.h>
+#include <ngspice/ifsim.h>
 
 
 
@@ -36,7 +36,7 @@ CKTacDump(CKTcircuit *ckt, double freq, void *plot)
         data[i].real = rhsold[i+1];
         data[i].imag = irhsold[i+1];
     }
-    (*(SPfrontEnd->OUTpData))(plot,&freqData,&valueData);
+    SPfrontEnd->OUTpData (plot, &freqData, &valueData);
     FREE(data);
     return(OK);
 }

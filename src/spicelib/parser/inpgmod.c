@@ -2,23 +2,23 @@
 Copyright 1990 Regents of the University of California.  All rights reserved.
 Author: 1985 Thomas L. Quarles, 1991 David A. Gates
 Modified: 2001 Paolo Nenzi (Cider Integration)
-$Id: inpgmod.c,v 1.21 2010/11/06 20:17:20 rlar Exp $
+$Id: inpgmod.c,v 1.27 2011/08/20 17:27:16 rlar Exp $
 **********/
 
-#include "ngspice.h"
-#include "inpdefs.h"
-#include "ifsim.h"
-#include "cpstd.h"
-#include "fteext.h"
+#include <ngspice/ngspice.h>
+#include <ngspice/inpdefs.h>
+#include <ngspice/ifsim.h>
+#include <ngspice/cpstd.h>
+#include <ngspice/fteext.h>
 #include "inp.h"
 #include <errno.h>
 
 #ifdef CIDER
 /* begin Cider Integration */
-#include "numcards.h"
-#include "carddefs.h"
-#include "numgen.h"
-#include "suffix.h"
+#include <ngspice/numcards.h>
+#include <ngspice/carddefs.h>
+#include <ngspice/numgen.h>
+#include <ngspice/suffix.h>
 
 extern IFcardInfo *INPcardTab[];
 extern int INPnumCards;
@@ -50,7 +50,7 @@ create_model( CKTcircuit* ckt, INPmodel* modtmp, INPtables* tab )
   char *endptr; double dval;
 
   /* not already defined, so create & give parameters */
-  error = (*(ft_sim->newModel))(ckt, (modtmp)->INPmodType, &((modtmp)->INPmodfast), (modtmp)->INPmodName);
+  error = ft_sim->newModel (ckt, modtmp->INPmodType, &(modtmp->INPmodfast), modtmp->INPmodName);
 
   if (error) return error;
 
@@ -59,18 +59,18 @@ create_model( CKTcircuit* ckt, INPmodel* modtmp, INPtables* tab )
 #ifdef CIDER
   /* begin cider integration */
   /* Handle Numerical Models Differently */
-  if ( ((modtmp)->INPmodType == INPtypelook("NUMD")) ||
-       ((modtmp)->INPmodType == INPtypelook("NBJT")) ||
-       ((modtmp)->INPmodType == INPtypelook("NUMD2")) ||
-       ((modtmp)->INPmodType == INPtypelook("NBJT2")) ||
-       ((modtmp)->INPmodType == INPtypelook("NUMOS")) ) {
+  if ( modtmp->INPmodType == INPtypelook("NUMD") ||
+       modtmp->INPmodType == INPtypelook("NBJT") ||
+       modtmp->INPmodType == INPtypelook("NUMD2") ||
+       modtmp->INPmodType == INPtypelook("NBJT2") ||
+       modtmp->INPmodType == INPtypelook("NUMOS") ) {
     error = INPparseNumMod( ckt, modtmp, tab, &err );
     if (error) return error;
   } else {     
     /* It's an analytical model */
 #endif /* CIDER */
 
-    line = ((modtmp)->INPmodLine)->line;
+    line = modtmp->INPmodLine->line;
 
 #ifdef TRACE
     /* SDB debug statement */
@@ -86,21 +86,21 @@ create_model( CKTcircuit* ckt, INPmodel* modtmp, INPtables* tab )
       if (!*parm)
 	continue;
       
-      for (j = 0; j < (* (*(ft_sim->devices)[(modtmp)->INPmodType]).numModelParms); j++) {
+      for (j = 0; j < *(ft_sim->devices[modtmp->INPmodType]->numModelParms); j++) {
 	
 	if (strcmp(parm, "txl") == 0) {
-	  if (strcmp("cpl", ((*(ft_sim->devices) [ (modtmp)->INPmodType ]).modelParms[j].keyword)) == 0) {
+	  if (strcmp("cpl", ft_sim->devices[modtmp->INPmodType]->modelParms[j].keyword) == 0) {
 	    strcpy(parm, "cpl");
 	  }
 	}
 	
-	if (strcmp(parm,((*(ft_sim->devices)[(modtmp)->INPmodType]).modelParms[j].keyword)) == 0) {
+	if (strcmp(parm, ft_sim->devices[modtmp->INPmodType]->modelParms[j].keyword) == 0) {
 	  
-	  val = INPgetValue(ckt, &line, ((* (ft_sim->devices)[(modtmp)->INPmodType]).modelParms[j].dataType), tab);
+	  val = INPgetValue(ckt, &line, ft_sim->devices[modtmp->INPmodType]->modelParms[j].dataType, tab);
 	  
-	  error = (*(ft_sim->setModelParm)) (ckt, ((modtmp)->INPmodfast),
-					     (* (ft_sim->devices)[(modtmp)->INPmodType]).modelParms[j].id,
-					     val, (IFvalue *) NULL);
+	  error = ft_sim->setModelParm (ckt, modtmp->INPmodfast,
+					     ft_sim->devices[modtmp->INPmodType]->modelParms[j].id,
+					     val, NULL);
 	  if (error)
 	    return error;
 	  break;
@@ -111,10 +111,7 @@ create_model( CKTcircuit* ckt, INPmodel* modtmp, INPtables* tab )
 	/* just grab the level number and throw away */
 	/* since we already have that info from pass1 */
 	val = INPgetValue(ckt, &line, IF_REAL, tab);
-      } else if (j >=
-		 (*
-		  (*(ft_sim->devices)
-		   [(modtmp)->INPmodType]).numModelParms)) {
+      } else if (j >= *(ft_sim->devices[modtmp->INPmodType]->numModelParms)) {
 
 	/* want only the parameter names in output - not the values */
         errno = 0;    /* To distinguish success/failure after call */
@@ -136,8 +133,8 @@ create_model( CKTcircuit* ckt, INPmodel* modtmp, INPtables* tab )
 #ifdef CIDER
   } /* analytical vs. numerical model parsing */
 #endif
-  (modtmp)->INPmodUsed = 1;
-  (modtmp)->INPmodLine->error = err;
+  modtmp->INPmodUsed = 1;
+  modtmp->INPmodLine->error = err;
 
   return 0;
 }
@@ -204,7 +201,8 @@ INPgetModBin( CKTcircuit* ckt, char* name, INPmodel** model, INPtables* tab, cha
   int          error;
   double       scale;
 
-  if ( !cp_getvar( "scale", CP_REAL, (double*) &scale ) ) scale = 1;
+  if (!cp_getvar("scale", CP_REAL, &scale))
+      scale = 1;
 
   *model = NULL;
 
@@ -214,7 +212,7 @@ INPgetModBin( CKTcircuit* ckt, char* name, INPmodel** model, INPtables* tab, cha
   l = parse_values[0]*scale;
   w = parse_values[1]*scale;
 
-  for ( modtmp = modtab; modtmp != (INPmodel*)NULL; modtmp = modtmp->INPnextModel ) {
+  for ( modtmp = modtab; modtmp != NULL; modtmp = modtmp->INPnextModel ) {
     if ( modtmp->INPmodType != INPtypelook( "BSIM3" ) && modtmp->INPmodType != INPtypelook( "BSIM3v32" ) &&
 	 modtmp->INPmodType != INPtypelook( "BSIM4" ) && modtmp->INPmodType != INPtypelook( "BSIM4v2" ) &&
 	 modtmp->INPmodType != INPtypelook( "BSIM4v3" ) && modtmp->INPmodType != INPtypelook( "BSIM4v4" ) && 
@@ -251,20 +249,20 @@ char *INPgetMod(CKTcircuit *ckt, char *name, INPmodel ** model, INPtables * tab)
   printf("In INPgetMod, examining model %s . . . \n", name);
 #endif
 
-  for (modtmp = modtab; modtmp != (INPmodel *) NULL; modtmp = ((modtmp)->INPnextModel)) {
+  for (modtmp = modtab; modtmp != NULL; modtmp = modtmp->INPnextModel) {
 
 #ifdef TRACE
     /* SDB debug statement */
-    printf("In INPgetMod, comparing %s against stored model %s . . . \n", name, (modtmp)->INPmodName);
+    printf("In INPgetMod, comparing %s against stored model %s . . . \n", name, modtmp->INPmodName);
 #endif
 
-    if (strcmp((modtmp)->INPmodName, name) == 0) {
+    if (strcmp(modtmp->INPmodName, name) == 0) {
       /* found the model in question - now instantiate if necessary */
       /* and return an appropriate pointer to it */
 
       if (modtmp->INPmodType < 0) {    /* First check for illegal model type */
         /* illegal device type, so can't handle */
-        *model = (INPmodel *) NULL;
+        *model = NULL;
         err = TMALLOC(char, 35 + strlen(name));
         (void) sprintf(err,"Unknown device type for model %s \n", name);
 
@@ -276,16 +274,16 @@ char *INPgetMod(CKTcircuit *ckt, char *name, INPmodel ** model, INPtables * tab)
         return (err);
       }  /* end of checking for illegal model */
 
-      if (!((modtmp)->INPmodUsed)) {   /* Check if model is already defined */
+      if (! modtmp->INPmodUsed) {   /* Check if model is already defined */
         error = create_model( ckt, modtmp, tab );
         if ( error ) return INPerror(error);
       }
       *model = modtmp;
-      return ((char *) NULL);
+      return (NULL);
     }
   }
   /* didn't find model - ERROR  - return model */
-  *model = (INPmodel *) NULL;
+  *model = NULL;
   err = TMALLOC(char, 60 + strlen(name));
   (void) sprintf(err, "Unable to find definition of model %s - default assumed \n", name);
 
@@ -377,7 +375,7 @@ INPparseNumMod( CKTcircuit* ckt, INPmodel *model, INPtables *tab, char **errMess
 		    if (cardType >= 0) {
 		        /* Add card structure to model */
 			info = INPcardTab[cardType];
-			error = (*(info->newCard))( (void **)&tmpCard,
+			error = info->newCard ((void **) &tmpCard,
 			        model->INPmodfast );
 			if (error) return(error);
 		    /* Handle parameter-less cards */
@@ -441,7 +439,7 @@ INPparseNumMod( CKTcircuit* ckt, INPmodel *model, INPtables *tab, char **errMess
                             err = INPerrCat(err, tmp);
 			  }
 			}
-                        error = (*(info->setCardParm))(
+                        error = info->setCardParm (
 			    ((info->cardParms)[idx]).id, value, tmpCard );
 			if (error) return(error);
 		    }

@@ -4,12 +4,12 @@ Author: 1985 Thomas L. Quarles
 Modified: Alan Gillespie
 **********/
 
-#include "ngspice.h"
-#include "cktdefs.h"
+#include <ngspice/ngspice.h>
+#include <ngspice/cktdefs.h>
 #include "mos9defs.h"
-#include "const.h"
-#include "sperror.h"
-#include "suffix.h"
+#include <ngspice/const.h>
+#include <ngspice/sperror.h>
+#include <ngspice/suffix.h>
 
 /* assuming silicon - make definition for epsilon of silicon */
 #define EPSSIL (11.7 * 8.854214871e-12)
@@ -103,7 +103,7 @@ MOS9temp(GENmodel *inModel, CKTcircuit *ckt)
                 model->MOS9coeffDepLayWidth = sqrt(model->MOS9alpha);
             } else {
                 model->MOS9substrateDoping = 0;
-                (*(SPfrontEnd->IFerror))(ERR_FATAL,
+                SPfrontEnd->IFerror (ERR_FATAL,
                         "%s: Nsub < Ni ",&(model->MOS9modName));
                 return(E_BADPARM);
             }
@@ -198,7 +198,7 @@ MOS9temp(GENmodel *inModel, CKTcircuit *ckt)
 
             if(here->MOS9l - 2 * model->MOS9latDiff +
                                  model->MOS9lengthAdjust <1e-6) {
-                (*(SPfrontEnd->IFerror))(ERR_FATAL,
+                SPfrontEnd->IFerror (ERR_FATAL,
                         "%s: effective channel length less than zero",
                         &(here->MOS9name));
                 return(E_PARMVAL);
@@ -206,7 +206,7 @@ MOS9temp(GENmodel *inModel, CKTcircuit *ckt)
 
             if(here->MOS9w - 2 * model->MOS9widthNarrow +
                                  model->MOS9widthAdjust <1e-6) {
-                (*(SPfrontEnd->IFerror))(ERR_FATAL,
+                SPfrontEnd->IFerror (ERR_FATAL,
                         "%s: effective channel width less than zero",
                         &(here->MOS9name));
                 return(E_PARMVAL);

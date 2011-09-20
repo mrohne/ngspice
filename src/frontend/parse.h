@@ -1,14 +1,14 @@
 /*************
  * Header file for parse.c
  * 1999 E. Rouat
- * $Id: parse.h,v 1.6 2010/10/16 15:58:14 rlar Exp $
+ * $Id: parse.h,v 1.7 2011/08/20 17:27:11 rlar Exp $
  ************/
 
 #ifndef _PARSE_H
 #define _PARSE_H
 
-#include <pnode.h>
-#include <wordlist.h>
+#include <ngspice/pnode.h>
+#include <ngspice/wordlist.h>
 
 #ifndef free_pnode
 #define free_pnode(ptr)  free_pnode_x(ptr); ptr=NULL;

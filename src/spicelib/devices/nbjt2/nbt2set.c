@@ -1,22 +1,22 @@
 /**********
 Copyright 1991 Regents of the University of California.  All rights reserved.
 Author:	1987 Kartikeya Mayaram, U. C. Berkeley CAD Group
-$Id: nbt2set.c,v 1.7 2010/11/19 18:54:41 rlar Exp $
+$Id: nbt2set.c,v 1.9 2011/08/20 17:27:15 rlar Exp $
 **********/
 
-#include "ngspice.h"
-#include "cktdefs.h"
-#include "smpdefs.h"
+#include <ngspice/ngspice.h>
+#include <ngspice/cktdefs.h>
+#include <ngspice/smpdefs.h>
 #include "nbjt2def.h"
-#include "numconst.h"
-#include "numenum.h"
-#include "meshext.h"
-#include "sperror.h"
+#include <ngspice/numconst.h>
+#include <ngspice/numenum.h>
+#include <ngspice/meshext.h>
+#include <ngspice/sperror.h>
 #include "../../../ciderlib/twod/twoddefs.h"
 #include "../../../ciderlib/twod/twodext.h"
-#include "ciderinp.h"
-#include "cidersupt.h"
-#include "suffix.h"
+#include <ngspice/ciderinp.h>
+#include <ngspice/cidersupt.h>
+#include <ngspice/suffix.h>
 
 #define NIL(type)   ((type *)0)
 #define TSCALLOC(var, size, type)\
@@ -246,7 +246,7 @@ NBJT2setup(SMPmatrix *matrix, GENmodel *inModel, CKTcircuit *ckt, int *states)
 
       /* macro to make elements with built in test for out of memory */
 #define TSTALLOC(ptr,first,second) \
-if ((inst->ptr = SMPmakeElt(matrix,inst->first,inst->second))==(double *)NULL){\
+if ((inst->ptr = SMPmakeElt(matrix, inst->first, inst->second)) == NULL){\
   return(E_NOMEM);\
 }
 

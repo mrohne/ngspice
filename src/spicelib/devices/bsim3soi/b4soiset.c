@@ -14,16 +14,16 @@
  * Modified by Tanvir Morshed 04/27/2010
  **********/
 
-#include "ngspice.h"
-#include "smpdefs.h"
-#include "cktdefs.h"
+#include <ngspice/ngspice.h>
+#include <ngspice/smpdefs.h>
+#include <ngspice/cktdefs.h>
 #include "b4soidef.h"
-#include "const.h"
-#include "sperror.h"
-#include "suffix.h"
+#include <ngspice/const.h>
+#include <ngspice/sperror.h>
+#include <ngspice/suffix.h>
 
 #ifdef USE_OMP4SOI
-#include "cpextern.h"
+#include <ngspice/cpextern.h>
 int nthreads;
 #endif
 
@@ -2493,7 +2493,7 @@ int nthreads;
 
 /* macro to make elements with built in test for out of memory */
 #define TSTALLOC(ptr,first,second) \
-if((here->ptr = SMPmakeElt(matrix,here->first,here->second))==(double *)NULL){\
+if((here->ptr = SMPmakeElt(matrix, here->first, here->second)) == NULL){\
     return(E_NOMEM);\
 }
 
@@ -2671,7 +2671,7 @@ if((here->ptr = SMPmakeElt(matrix,here->first,here->second))==(double *)NULL){\
     }
 
 #ifdef USE_OMP4SOI
-    if (!cp_getvar("num_threads", CP_NUM, (char *) &nthreads))   
+    if (!cp_getvar("num_threads", CP_NUM, &nthreads))
         nthreads = 2;
 
     omp_set_num_threads(nthreads);

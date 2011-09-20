@@ -1,15 +1,15 @@
 /**********
 Copyright 1990 Regents of the University of California.  All rights reserved.
-$Id: plot5.c,v 1.11 2010/11/19 18:54:41 rlar Exp $
+$Id: plot5.c,v 1.13 2011/08/20 17:27:11 rlar Exp $
 **********/
 
-#include <ngspice.h>
-#include <graph.h>
-#include <ftedev.h>
+#include <ngspice/ngspice.h>
+#include <ngspice/graph.h>
+#include <ngspice/ftedev.h>
 
 #include "plot5.h"
 #include "graf.h"
-#include "fteext.h"
+#include <ngspice/fteext.h>
 
 static FILE *plotfile;
 
@@ -141,10 +141,10 @@ Plt5_Arc(int xc, int yc, int radius, double theta, double delta_theta)
         if(delta_phi > delta_theta)
             delta_phi = delta_theta;
 
-        x0 = xc + (radius * cos(theta));
-        y0 = yc + (radius * sin(theta));
-        x1 = xc + (radius * cos(theta + delta_phi));
-        y1 = yc + (radius * sin(theta + delta_phi));
+        x0 = xc + (int)(radius * cos(theta));
+        y0 = yc + (int)(radius * sin(theta));
+        x1 = xc + (int)(radius * cos(theta + delta_phi));
+        y1 = yc + (int)(radius * sin(theta + delta_phi));
 
         putc('a', plotfile);
         putsi(xc);

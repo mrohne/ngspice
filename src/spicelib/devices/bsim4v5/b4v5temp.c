@@ -14,13 +14,13 @@
  * Modified by Xuemei Xi, Mohan Dunga, 07/29/2005.
  **********/
 
-#include "ngspice.h"
-#include "smpdefs.h"
-#include "cktdefs.h"
+#include <ngspice/ngspice.h>
+#include <ngspice/smpdefs.h>
+#include <ngspice/cktdefs.h>
 #include "bsim4v5def.h"
-#include "const.h"
-#include "sperror.h"
-#include "suffix.h"
+#include <ngspice/const.h>
+#include <ngspice/sperror.h>
+#include <ngspice/suffix.h>
 
 #define Kb 1.3806226e-23
 #define KboQ 8.617087e-5 
@@ -399,7 +399,7 @@ int Size_Not_Found, i;
 	          {   IFuid namarray[2];
                       namarray[0] = model->BSIM4v5modName;
                       namarray[1] = here->BSIM4v5name;
-                      (*(SPfrontEnd->IFerror))(ERR_FATAL,
+                      SPfrontEnd->IFerror (ERR_FATAL,
                       "BSIM4v5: mosfet %s, model %s: Effective channel length <= 0",
                        namarray);
                       return(E_BADPARM);
@@ -410,7 +410,7 @@ int Size_Not_Found, i;
 	          {   IFuid namarray[2];
                       namarray[0] = model->BSIM4v5modName;
                       namarray[1] = here->BSIM4v5name;
-                      (*(SPfrontEnd->IFerror))(ERR_FATAL,
+                      SPfrontEnd->IFerror (ERR_FATAL,
                       "BSIM4v5: mosfet %s, model %s: Effective channel width <= 0",
                        namarray);
                       return(E_BADPARM);
@@ -421,7 +421,7 @@ int Size_Not_Found, i;
 	          {   IFuid namarray[2];
                       namarray[0] = model->BSIM4v5modName;
                       namarray[1] = here->BSIM4v5name;
-                      (*(SPfrontEnd->IFerror))(ERR_FATAL,
+                      SPfrontEnd->IFerror (ERR_FATAL,
                       "BSIM4v5: mosfet %s, model %s: Effective channel length for C-V <= 0",
                        namarray);
                       return(E_BADPARM);
@@ -432,7 +432,7 @@ int Size_Not_Found, i;
 	          {   IFuid namarray[2];
                       namarray[0] = model->BSIM4v5modName;
                       namarray[1] = here->BSIM4v5name;
-                      (*(SPfrontEnd->IFerror))(ERR_FATAL,
+                      SPfrontEnd->IFerror (ERR_FATAL,
                       "BSIM4v5: mosfet %s, model %s: Effective channel width for C-V <= 0",
                        namarray);
                       return(E_BADPARM);
@@ -443,7 +443,7 @@ int Size_Not_Found, i;
                   {   IFuid namarray[2];
                       namarray[0] = model->BSIM4v5modName;
                       namarray[1] = here->BSIM4v5name;
-                      (*(SPfrontEnd->IFerror))(ERR_FATAL,
+                      SPfrontEnd->IFerror (ERR_FATAL,
                       "BSIM4v5: mosfet %s, model %s: Effective channel width for S/D junctions <= 0",
                        namarray);
                       return(E_BADPARM);
@@ -1158,24 +1158,30 @@ int Size_Not_Found, i;
 
 
                   if (model->BSIM4v5k1Given || model->BSIM4v5k2Given)
-	          {   if (!model->BSIM4v5k1Given)
-	              {   fprintf(stdout, "Warning: k1 should be specified with k2.\n");
+                  {   if (!model->BSIM4v5k1Given)
+                      {
+                          if ((!ckt->CKTcurJob) || (ckt->CKTcurJob->JOBtype < 9)) /* don't print in sensitivity */
+                              fprintf(stdout, "Warning: k1 should be specified with k2.\n");
                           pParam->BSIM4v5k1 = 0.53;
                       }
                       if (!model->BSIM4v5k2Given)
-	              {   fprintf(stdout, "Warning: k2 should be specified with k1.\n");
+                      {
+                          if ((!ckt->CKTcurJob) || (ckt->CKTcurJob->JOBtype < 9)) /* don't print in sensitivity */
+                              fprintf(stdout, "Warning: k2 should be specified with k1.\n");
                           pParam->BSIM4v5k2 = -0.0186;
                       }
-                      if (model->BSIM4v5nsubGiven)
-                          fprintf(stdout, "Warning: nsub is ignored because k1 or k2 is given.\n");
-                      if (model->BSIM4v5xtGiven)
-                          fprintf(stdout, "Warning: xt is ignored because k1 or k2 is given.\n");
-                      if (model->BSIM4v5vbxGiven)
-                          fprintf(stdout, "Warning: vbx is ignored because k1 or k2 is given.\n");
-                      if (model->BSIM4v5gamma1Given)
-                          fprintf(stdout, "Warning: gamma1 is ignored because k1 or k2 is given.\n");
-                      if (model->BSIM4v5gamma2Given)
-                          fprintf(stdout, "Warning: gamma2 is ignored because k1 or k2 is given.\n");
+                      if ((!ckt->CKTcurJob) || (ckt->CKTcurJob->JOBtype < 9)) { /* don't print in sensitivity */
+                          if (model->BSIM4v5nsubGiven)
+                              fprintf(stdout, "Warning: nsub is ignored because k1 or k2 is given.\n");
+                          if (model->BSIM4v5xtGiven)
+                              fprintf(stdout, "Warning: xt is ignored because k1 or k2 is given.\n");
+                          if (model->BSIM4v5vbxGiven)
+                              fprintf(stdout, "Warning: vbx is ignored because k1 or k2 is given.\n");
+                          if (model->BSIM4v5gamma1Given)
+                              fprintf(stdout, "Warning: gamma1 is ignored because k1 or k2 is given.\n");
+                          if (model->BSIM4v5gamma2Given)
+                              fprintf(stdout, "Warning: gamma2 is ignored because k1 or k2 is given.\n");
+                      }
                   }
                   else
 	          {   if (!model->BSIM4v5vbxGiven)
@@ -1820,7 +1826,7 @@ int Size_Not_Found, i;
               {   IFuid namarray[2];
                   namarray[0] = model->BSIM4v5modName;
                   namarray[1] = here->BSIM4v5name;
-                  (*(SPfrontEnd->IFerror)) (ERR_FATAL, "Fatal error(s) detected during BSIM4v5.5.0 parameter checking for %s in model %s", namarray);
+                  SPfrontEnd->IFerror (ERR_FATAL, "Fatal error(s) detected during BSIM4v5.5.0 parameter checking for %s in model %s", namarray);
                   return(E_BADPARM);
               }
          } /* End instance */

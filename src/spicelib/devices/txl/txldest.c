@@ -5,9 +5,9 @@ Author: 1992 Charles Hough
 **********/
 
 
-#include "ngspice.h"
+#include <ngspice/ngspice.h>
 #include "txldefs.h"
-#include "suffix.h"
+#include <ngspice/suffix.h>
 
 
 void
@@ -22,7 +22,7 @@ TXLdestroy(GENmodel **inModel)
     for( ; mod ; mod = mod->TXLnextModel) {
         if(oldmod) FREE(oldmod);
         oldmod = mod;
-        prev = (TXLinstance *)NULL;
+        prev = NULL;
         for(here = mod->TXLinstances ; here ; here = here->TXLnextInstance) {
             if(prev) FREE(prev);
             prev = here;

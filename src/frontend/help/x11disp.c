@@ -2,16 +2,16 @@
 Copyright 1990 Regents of the University of California.  All rights reserved.
 Author: Jeffrey M. Hsu
 Modified 1999 Emmanuel Rouat
-$Id: x11disp.c,v 1.10 2010/11/16 20:38:24 rlar Exp $
+$Id: x11disp.c,v 1.13 2011/08/20 17:27:11 rlar Exp $
 **********/
 
 #include <config.h>
-#include "ngspice.h"
+#include <ngspice/ngspice.h>
 
 #ifndef X_DISPLAY_MISSING
 
-#include "cpstd.h"
-#include "hlpdefs.h"
+#include <ngspice/cpstd.h>
+#include <ngspice/hlpdefs.h>
 #include <X11/Xaw/AsciiText.h>
 #include <X11/StringDefs.h>
 #include <X11/Xaw/Paned.h>
@@ -23,7 +23,9 @@ $Id: x11disp.c,v 1.10 2010/11/16 20:38:24 rlar Exp $
 
 static bool started = FALSE;
 static topic *topics = NULL;
-void newtopic(Widget w, caddr_t client_data, caddr_t call_data), delete(Widget w, caddr_t client_data, caddr_t call_data), quit(Widget w, caddr_t client_data, caddr_t call_data); 
+static void newtopic(Widget w, XtPointer client_data, XtPointer call_data);
+static void delete_w(Widget w, XtPointer client_data, XtPointer call_data);
+static void quit(Widget w, XtPointer client_data, XtPointer call_data);
 static void sputline(char *buf, char *s);
 /* atoms for catching window delet by WM x-button */
 static Atom atom_wm_delete_window;
@@ -120,11 +122,11 @@ hlp_xdisplay(topic *top)
     XtSetArg(buttonargs[0], XtNlabel, "quit help");
     buttonwidget = XtCreateManagedWidget("quit", commandWidgetClass,
             top->titlewidget, buttonargs, 1);
-    XtAddCallback(buttonwidget, XtNcallback, (XtCallbackProc) quit, top);
+    XtAddCallback(buttonwidget, XtNcallback, quit, top);
     XtSetArg(buttonargs[0], XtNlabel, "delete window");
     buttonwidget = XtCreateManagedWidget("delete", commandWidgetClass,
             top->titlewidget, buttonargs, XtNumber(buttonargs));
-    XtAddCallback(buttonwidget, XtNcallback, (XtCallbackProc) delete, top);
+    XtAddCallback(buttonwidget, XtNcallback, delete_w, top);
 
     buf = TMALLOC(char, 80 * top->numlines + 100);
     buf[0] = '\0';
@@ -170,7 +172,7 @@ hlp_xdisplay(topic *top)
         hand = TMALLOC(handle, 1);
         hand->result = tl;
         hand->parent = top;
-        XtAddCallback(buttonwidget, XtNcallback, (XtCallbackProc) newtopic, hand);
+        XtAddCallback(buttonwidget, XtNcallback, newtopic, hand);
       }
     }
 
@@ -203,7 +205,7 @@ hlp_xdisplay(topic *top)
                                 /* core leak XXX */
         hand->result = tl;
         hand->parent = top;
-        XtAddCallback(buttonwidget, XtNcallback, (XtCallbackProc) newtopic, hand);
+        XtAddCallback(buttonwidget, XtNcallback, newtopic, hand);
       }
     }
 
@@ -224,8 +226,8 @@ hlp_xdisplay(topic *top)
 
 }
 
-void
-newtopic(Widget w, caddr_t client_data, caddr_t call_data)
+static void
+newtopic(Widget w, XtPointer client_data, XtPointer call_data)
 {
     topic *parent = ((handle *) client_data)->parent;
     toplink *result = ((handle *) client_data)->result;
@@ -249,8 +251,8 @@ newtopic(Widget w, caddr_t client_data, caddr_t call_data)
     }
 }
 
-void
-delete(Widget w, caddr_t client_data, caddr_t call_data)
+static void
+delete_w(Widget w, XtPointer client_data, XtPointer call_data)
 {
 
     topic *top = (topic *) client_data;
@@ -262,8 +264,8 @@ delete(Widget w, caddr_t client_data, caddr_t call_data)
     hlp_fixchildren(top);
 }
 
-void
-quit(Widget w, caddr_t client_data, caddr_t call_data)
+static void
+quit(Widget w, XtPointer client_data, XtPointer call_data)
 {
 
     topic *top = (topic *) client_data, *parent = top->parent;

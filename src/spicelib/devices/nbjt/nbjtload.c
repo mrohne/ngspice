@@ -1,7 +1,7 @@
 /**********
 Copyright 1992 Regents of the University of California.  All rights reserved.
 Author:	1987 Kartikeya Mayaram, U. C. Berkeley CAD Group
-$Id: nbjtload.c,v 1.3 2010/07/03 20:37:00 rlar Exp $
+$Id: nbjtload.c,v 1.5 2011/08/20 17:27:15 rlar Exp $
 **********/
 
 /*
@@ -9,15 +9,15 @@ $Id: nbjtload.c,v 1.3 2010/07/03 20:37:00 rlar Exp $
  * in the circuit and load them into the matrix as appropriate
  */
 
-#include "ngspice.h"
-#include "devdefs.h"
-#include "cktdefs.h"
+#include <ngspice/ngspice.h>
+#include <ngspice/devdefs.h>
+#include <ngspice/cktdefs.h>
 #include "nbjtdefs.h"
-#include "trandefs.h"
-#include "sperror.h"
+#include <ngspice/trandefs.h>
+#include <ngspice/sperror.h>
 #include "../../../ciderlib/oned/onedext.h"
-#include "cidersupt.h"
-#include "suffix.h"
+#include <ngspice/cidersupt.h>
+#include <ngspice/suffix.h>
 
 /* Forward declarations */
 int NBJTinitSmSig(NBJTinstance *);
@@ -317,9 +317,9 @@ NBJTload(GENmodel *inModel, CKTcircuit *ckt)
 	devConverged = pDevice->converged;
 	if (devConverged && finite(pDevice->rhsNorm)) {
 	  /* compute the currents */
-	  NBJTcurrent(pDevice, FALSE, (double *) NULL,
+	  NBJTcurrent(pDevice, FALSE, NULL,
 	      &ie, &ic);
-	  NBJTconductance(pDevice, FALSE, (double *) NULL,
+	  NBJTconductance(pDevice, FALSE, NULL,
 	      &dIeDVce, &dIcDVce, &dIeDVbe, &dIcDVbe);
 	  /*
 	   * Add Gmin terms to everything in case we are operating at

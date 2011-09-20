@@ -2,13 +2,13 @@
 Copyright 1990 Regents of the University of California.  All rights reserved.
 **********/
 
-#include "ngspice.h"
-#include "trandefs.h"
-#include "cktdefs.h"
-#include "devdefs.h"
+#include <ngspice/ngspice.h>
+#include <ngspice/trandefs.h>
+#include <ngspice/cktdefs.h>
+#include <ngspice/devdefs.h>
 #include "vsrc/vsrcdefs.h"
 #include "isrc/isrcdefs.h"
-#include "jobdefs.h"
+#include <ngspice/jobdefs.h>
 
 #include "analysis.h"
 
@@ -16,9 +16,8 @@ Copyright 1990 Regents of the University of California.  All rights reserved.
 extern SPICEanalysis *analInfo[];
 
 char *
-CKTtrouble(CKTcircuit *cktp, char *optmsg)
+CKTtrouble(CKTcircuit *ckt, char *optmsg)
 {
-    CKTcircuit	*ckt = /* fixme, drop that */ cktp;
     char	msg_buf[513];
     char	*emsg;
     TRCV	*cv;
@@ -33,9 +32,9 @@ CKTtrouble(CKTcircuit *cktp, char *optmsg)
     an = analInfo[ckt->CKTcurJob->JOBtype];
 
     if (optmsg && *optmsg) {
-       sprintf(msg_buf, "%s:  %s; ", an->public.name, optmsg);
+       sprintf(msg_buf, "%s:  %s; ", an->if_analysis.name, optmsg);
     } else {
-       sprintf(msg_buf, "%s:  ", an->public.name);
+       sprintf(msg_buf, "%s:  ", an->if_analysis.name);
     }
 
     msg_p = msg_buf + strlen(msg_buf);

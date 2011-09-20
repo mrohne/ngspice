@@ -2,15 +2,15 @@
 Copyright 1990 Regents of the University of California.  All rights reserved.
 Author: 1985 Wayne A. Christopher, U. C. Berkeley CAD Group
 ***********
-$Id: cpitf.c,v 1.29 2010/11/19 18:54:41 rlar Exp $
+$Id: cpitf.c,v 1.31 2011/08/20 17:27:11 rlar Exp $
 */
 
 
-#include "ngspice.h"
-#include "cpdefs.h"
-#include "ftedefs.h"
-#include "dvec.h"
-#include "fteparse.h"
+#include <ngspice/ngspice.h>
+#include <ngspice/cpdefs.h>
+#include <ngspice/ftedefs.h>
+#include <ngspice/dvec.h>
+#include <ngspice/fteparse.h>
 #include "cpitf.h"
 #include "com_let.h"
 #include "com_set.h"
@@ -222,7 +222,10 @@ ft_cpinit(void)
        Lib_Path has been set to Spice_Lib_Dir adding /scripts in ivars() */
     if (Lib_Path && *Lib_Path) {
        /* set variable 'sourcepath' */ 
-       (void) sprintf(buf, "sourcepath = ( %s %s )", DIR_CWD, Lib_Path);
+        if (Inp_Path && *Inp_Path) 
+            (void) sprintf(buf, "sourcepath = ( %s %s %s )", DIR_CWD, Lib_Path, Inp_Path);
+        else
+            (void) sprintf(buf, "sourcepath = ( %s %s )", DIR_CWD, Lib_Path);
         wl = cp_doglob(cp_lexer(buf));
         cp_striplist(wl);
         com_set(wl);

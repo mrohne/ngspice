@@ -1,16 +1,16 @@
 /*************
 * com_shift.c
-* $Id: com_shift.c,v 1.4 2010/10/09 12:49:34 rlar Exp $
+* $Id: com_shift.c,v 1.5 2011/08/20 17:27:11 rlar Exp $
 ************/
 
 #include <config.h>
-#include <ngspice.h>
-#include <bool.h>
-#include <wordlist.h>
+#include <ngspice/ngspice.h>
+#include <ngspice/bool.h>
+#include <ngspice/wordlist.h>
 
 #include "com_shift.h"
 #include "variable.h"
-#include "cpextern.h"
+#include <ngspice/cpextern.h>
 
 
 /* Shift a list variable, by default argv, one to the left (or more if

@@ -8,9 +8,9 @@ Author: 1986 Wayne A. Christopher, U. C. Berkeley CAD Group
  */
 
 #include <config.h>
-#include "ngspice.h"
-#include "cpdefs.h"
-#include "hlpdefs.h"
+#include <ngspice/ngspice.h>
+#include <ngspice/cpdefs.h>
+#include <ngspice/hlpdefs.h>
 
 #include "frontend/variable.h"
 
@@ -27,10 +27,9 @@ bool cp_interactive = FALSE;
 
 char *hlp_filelist[] = { "ngspice", 0 };
 
-extern void ivars();
+extern void ivars(char*);
 
 #ifdef HAS_WINDOWS
-bool oflag = FALSE;         /* Output over redefined I/O functions */
 FILE *flogp;  /* hvogt 15.12.2001 */
 #endif /* HAS_WINDOWS */
 
@@ -51,7 +50,7 @@ main(int ac, char **av)
     char buf[512];
 #endif /* X_DISPLAY_MISSING */
 
-    ivars( );
+    ivars(NULL);
 
     cp_in = stdin;
     cp_out = stdout;

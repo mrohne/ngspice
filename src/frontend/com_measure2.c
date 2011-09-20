@@ -3,14 +3,14 @@
    from measure.c.
    Patches by Bill Swartz from 2009-05-18 and 2009-08-21 are included.
 
-   $Id: com_measure2.c,v 1.32 2011/02/19 22:11:45 h_vogt Exp $
+   $Id: com_measure2.c,v 1.37 2011/09/18 09:08:40 h_vogt Exp $
 */
 #include <config.h>
-#include <ngspice.h>
-#include <memory.h>
+#include <ngspice/ngspice.h>
+#include <ngspice/memory.h>
 
-#include <fteext.h>
-#include <wordlist.h>
+#include <ngspice/fteext.h>
+#include <ngspice/wordlist.h>
 
 #include "vectors.h"
 #include <math.h>
@@ -383,10 +383,14 @@ static void com_measure_when(
    struct dvec *d, *d2, *dScale;
 
    d = vec_get(meas->m_vec);
+
    if (meas->m_vec2) {
       d2 = vec_get(meas->m_vec2);
       has_d2 = TRUE;
+   } else {
+      d2 = NULL;
    }
+
    dScale = plot_cur->pl_scale;
 
    if (d == NULL) {
@@ -394,7 +398,7 @@ static void com_measure_when(
       return;
    }
 
-   if ((has_d2) && (d == NULL)) {
+   if (has_d2 && (d2 == NULL)) {
       fprintf(cp_err, "Error: no such vector as %s.\n", meas->m_vec2);
       return;
    }
@@ -460,7 +464,10 @@ static void com_measure_when(
           else {
              value2 = d2->v_realdata[i];
           }
+      } else {
+          value2 = NAN;
       }
+
       /* 'dc' is special: it may start at an arbitrary scale value.
          Use m_td to store this value, a delay TD does not make sense */
       if ((dc_check) && (i==0))
@@ -476,7 +483,7 @@ static void com_measure_when(
       if ((first > 1) && (dc_check && (meas->m_td == scaleValue)))
         first = 1;
 
-      if (first == 1) 
+      if (first == 1) {
           if (has_d2) {
              // initialise
              crossCnt =0;
@@ -515,6 +522,7 @@ static void com_measure_when(
              }
              fflush( stdout ) ;
           }
+      }
 
       if (first > 1) {
          if (has_d2) {
@@ -755,7 +763,7 @@ static void measure_minMaxAvg(
             value = get_value(meas, d, i); //d->v_compdata[i].cx_real;
          else {
             value = d->v_realdata[i];    
-            fprintf(cp_err, "Warning: 'meas ac' input vector is real!\n");
+//            fprintf(cp_err, "Warning: 'meas ac' input vector is real!\n");
          }
          svalue = dScale->v_compdata[i].cx_real;
       }
@@ -914,7 +922,7 @@ static void measure_rms_integral(
             value = get_value(meas, d, i); //d->v_compdata[i].cx_real;
          else {
             value = d->v_realdata[i];    
-            fprintf(cp_err, "Warning: 'meas ac' input vector is real!\n");
+//            fprintf(cp_err, "Warning: 'meas ac' input vector is real!\n");
          }
          xvalue = xScale->v_compdata[i].cx_real;
       }
@@ -993,7 +1001,7 @@ static void measure_rms_integral(
             value = get_value(meas, d, i); //d->v_compdata[i].cx_real;
          else {
             value = d->v_realdata[i];    
-            fprintf(cp_err, "Warning: 'meas ac' input vector is real!\n");
+//            fprintf(cp_err, "Warning: 'meas ac' input vector is real!\n");
          }
          xvalue = xScale->v_compdata[i].cx_real;
          toVal = xScale->v_compdata[d->v_length-1].cx_real;
@@ -1021,6 +1029,7 @@ static void measure_rms_integral(
 /* -----------------------------------------------------------------
  * Function: Wrapper function to process a RMS measurement.
  * ----------------------------------------------------------------- */
+#if 0
 static void measure_rms(
     MEASUREPTR meas                 /* in : parsed measurement data request */
 ) {
@@ -1030,10 +1039,12 @@ static void measure_rms(
    measure_rms_integral(meas,AT_RMS) ;
    return;
 }
+#endif
 
 /* -----------------------------------------------------------------
  * Function: Wrapper function to process a integration measurement.
  * ----------------------------------------------------------------- */
+#if 0
 static void measure_integ(
    MEASUREPTR meas                 /* in : parsed measurement data request */
 )  {
@@ -1041,14 +1052,18 @@ static void measure_integ(
    measure_rms_integral(meas,AT_INTEG) ;
    return;
 }
+#endif
 
 /* still some more work to do.... */
+#if 0
 static void measure_deriv(void) {
     // DERIVATIVE DERIV
    return;
 }
+#endif
 
 // ERR Equations
+#if 0
 static void measure_ERR(void) {
    return;
 }
@@ -1064,6 +1079,7 @@ static void measure_ERR2(void) {
 static void measure_ERR3(void) {
    return;
 }
+#endif
 
 void com_dotmeasure(wordlist *wl) {
 

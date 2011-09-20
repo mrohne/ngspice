@@ -10,13 +10,13 @@
 
 /* Lmin, Lmax, Wmin, Wmax */
 
-#include "ngspice.h"
-#include "smpdefs.h"
-#include "cktdefs.h"
+#include <ngspice/ngspice.h>
+#include <ngspice/smpdefs.h>
+#include <ngspice/cktdefs.h>
 #include "bsim3def.h"
-#include "const.h"
-#include "sperror.h"
-#include "suffix.h"
+#include <ngspice/const.h>
+#include <ngspice/sperror.h>
+#include <ngspice/suffix.h>
 
 #define Kb 1.3806226e-23
 #define KboQ 8.617087e-5  /* Kb / q  where q = 1.60219e-19 */
@@ -27,7 +27,6 @@
 #define MIN_EXP 1.713908431e-15
 #define EXP_THRESHOLD 34.0
 #define Charge_q 1.60219e-19
-
 
 /* ARGSUSED */
 int
@@ -43,7 +42,7 @@ double delTemp, Temp, TRatio, Inv_L, Inv_W, Inv_LW, Vtm0, Tnom;
 double Nvtm, SourceSatCurrent, DrainSatCurrent;
 int Size_Not_Found;
 
-    /*  loop through all the BSIM3 device models */
+/*  loop through all the BSIM3 device models */
     for (; model != NULL; model = model->BSIM3nextModel)
     {    Temp = ckt->CKTtemp;
          if (model->BSIM3bulkJctPotential < 0.1)  
@@ -199,7 +198,7 @@ int Size_Not_Found;
 	          {   IFuid namarray[2];
                       namarray[0] = model->BSIM3modName;
                       namarray[1] = here->BSIM3name;
-                      (*(SPfrontEnd->IFerror))(ERR_FATAL,
+                      SPfrontEnd->IFerror (ERR_FATAL,
                       "BSIM3: mosfet %s, model %s: Effective channel length <= 0",
                        namarray);
                       return(E_BADPARM);
@@ -210,7 +209,7 @@ int Size_Not_Found;
 	          {   IFuid namarray[2];
                       namarray[0] = model->BSIM3modName;
                       namarray[1] = here->BSIM3name;
-                      (*(SPfrontEnd->IFerror))(ERR_FATAL,
+                      SPfrontEnd->IFerror (ERR_FATAL,
                       "BSIM3: mosfet %s, model %s: Effective channel width <= 0",
                        namarray);
                       return(E_BADPARM);
@@ -221,7 +220,7 @@ int Size_Not_Found;
 	          {   IFuid namarray[2];
                       namarray[0] = model->BSIM3modName;
                       namarray[1] = here->BSIM3name;
-                      (*(SPfrontEnd->IFerror))(ERR_FATAL,
+                      SPfrontEnd->IFerror (ERR_FATAL,
                       "BSIM3: mosfet %s, model %s: Effective channel length for C-V <= 0",
                        namarray);
                       return(E_BADPARM);
@@ -232,7 +231,7 @@ int Size_Not_Found;
 	          {   IFuid namarray[2];
                       namarray[0] = model->BSIM3modName;
                       namarray[1] = here->BSIM3name;
-                      (*(SPfrontEnd->IFerror))(ERR_FATAL,
+                      SPfrontEnd->IFerror (ERR_FATAL,
                       "BSIM3: mosfet %s, model %s: Effective channel width for C-V <= 0",
                        namarray);
                       return(E_BADPARM);
@@ -611,7 +610,7 @@ int Size_Not_Found;
 		  {   IFuid namarray[2];
                       namarray[0] = model->BSIM3modName;
                       namarray[1] = here->BSIM3name;
-                      (*(SPfrontEnd->IFerror)) (ERR_FATAL, "Fatal error(s) detected during BSIM3V3.2 parameter checking for %s in model %s", namarray);
+                      SPfrontEnd->IFerror (ERR_FATAL, "Fatal error(s) detected during BSIM3V3.2 parameter checking for %s in model %s", namarray);
                       return(E_BADPARM);   
 		  }
 
@@ -654,24 +653,30 @@ int Size_Not_Found;
 
 
                   if (model->BSIM3k1Given || model->BSIM3k2Given)
-	          {   if (!model->BSIM3k1Given)
-	              {   fprintf(stdout, "Warning: k1 should be specified with k2.\n");
+                  {   if (!model->BSIM3k1Given)
+                      {
+                          if ((!ckt->CKTcurJob) || (ckt->CKTcurJob->JOBtype < 9)) /* don't print in sensitivity */
+                              fprintf(stdout, "Warning: k1 should be specified with k2.\n");
                           pParam->BSIM3k1 = 0.53;
                       }
                       if (!model->BSIM3k2Given)
-	              {   fprintf(stdout, "Warning: k2 should be specified with k1.\n");
+                      {
+                          if ((!ckt->CKTcurJob) || (ckt->CKTcurJob->JOBtype < 9)) /* don't print in sensitivity */
+                              fprintf(stdout, "Warning: k2 should be specified with k1.\n");
                           pParam->BSIM3k2 = -0.0186;
                       }
-                      if (model->BSIM3nsubGiven)
-                          fprintf(stdout, "Warning: nsub is ignored because k1 or k2 is given.\n");
-                      if (model->BSIM3xtGiven)
-                          fprintf(stdout, "Warning: xt is ignored because k1 or k2 is given.\n");
-                      if (model->BSIM3vbxGiven)
-                          fprintf(stdout, "Warning: vbx is ignored because k1 or k2 is given.\n");
-                      if (model->BSIM3gamma1Given)
-                          fprintf(stdout, "Warning: gamma1 is ignored because k1 or k2 is given.\n");
-                      if (model->BSIM3gamma2Given)
-                          fprintf(stdout, "Warning: gamma2 is ignored because k1 or k2 is given.\n");
+                      if ((!ckt->CKTcurJob) || (ckt->CKTcurJob->JOBtype < 9)) { /* don't print in sensitivity */
+                          if (model->BSIM3nsubGiven)
+                              fprintf(stdout, "Warning: nsub is ignored because k1 or k2 is given.\n");
+                          if (model->BSIM3xtGiven)
+                              fprintf(stdout, "Warning: xt is ignored because k1 or k2 is given.\n");
+                          if (model->BSIM3vbxGiven)
+                              fprintf(stdout, "Warning: vbx is ignored because k1 or k2 is given.\n");
+                          if (model->BSIM3gamma1Given)
+                              fprintf(stdout, "Warning: gamma1 is ignored because k1 or k2 is given.\n");
+                          if (model->BSIM3gamma2Given)
+                              fprintf(stdout, "Warning: gamma2 is ignored because k1 or k2 is given.\n");
+                      }
                   }
                   else
 	          {   if (!model->BSIM3vbxGiven)

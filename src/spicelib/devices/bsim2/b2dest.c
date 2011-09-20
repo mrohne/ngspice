@@ -5,9 +5,9 @@ Author: 1985 Hong J. Park, Thomas L. Quarles
 /*
  */
 
-#include "ngspice.h"
+#include <ngspice/ngspice.h>
 #include "bsim2def.h"
-#include "suffix.h"
+#include <ngspice/suffix.h>
 
 
 void
@@ -23,7 +23,7 @@ B2destroy(GENmodel **inModel)
     for( ; mod ; mod = mod->B2nextModel) {
         if(oldmod) FREE(oldmod);
         oldmod = mod;
-        prev = (B2instance *)NULL;
+        prev = NULL;
         for(here = mod->B2instances ; here ; here = here->B2nextInstance) {
             if(prev) FREE(prev);
             prev = here;

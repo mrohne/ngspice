@@ -1,7 +1,7 @@
 /**********
 Copyright 1992 Regents of the University of California.  All rights reserved.
 Author:	1987 Kartikeya Mayaram, U. C. Berkeley CAD Group
-$Id: nud2load.c,v 1.5 2010/10/15 18:31:21 rlar Exp $
+$Id: nud2load.c,v 1.7 2011/08/20 17:27:15 rlar Exp $
 **********/
 
 /*
@@ -9,16 +9,16 @@ $Id: nud2load.c,v 1.5 2010/10/15 18:31:21 rlar Exp $
  * Diodes in the circuit and load them into the matrix as appropriate
  */
 
-#include "ngspice.h"
-#include "devdefs.h"
-#include "cktdefs.h"
+#include <ngspice/ngspice.h>
+#include <ngspice/devdefs.h>
+#include <ngspice/cktdefs.h>
 #include "numd2def.h"
-#include "trandefs.h"
-#include "sperror.h"
+#include <ngspice/trandefs.h>
+#include <ngspice/sperror.h>
 #include "../../../ciderlib/twod/twoddefs.h"
 #include "../../../ciderlib/twod/twodext.h"
-#include "cidersupt.h"
-#include "suffix.h"
+#include <ngspice/cidersupt.h>
+#include <ngspice/suffix.h>
 
 
 /* Forward declarations */
@@ -263,8 +263,8 @@ NUMD2load(GENmodel *inModel, CKTcircuit *ckt)
 
 	if (devConverged && finite(pDevice->rhsNorm)) {
 	  /* extract the current and conductance information */
-	  NUMD2current(pDevice, FALSE, (double *) NULL, &id);
-	  NUMD2conductance(pDevice, FALSE, (double *) NULL, &gd);
+	  NUMD2current(pDevice, FALSE, NULL, &id);
+	  NUMD2conductance(pDevice, FALSE, NULL, &gd);
 	} else {
 	  /* do voltage step backtracking */
 	  /* restore the boundary nodes to the previous value */

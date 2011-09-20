@@ -9,9 +9,9 @@ Author: 1985 Thomas L. Quarles
      *   delete the first time from the breakpoint table for the given circuit
      */
 
-#include "ngspice.h"
-#include "cktdefs.h"
-#include "sperror.h"
+#include <ngspice/ngspice.h>
+#include <ngspice/cktdefs.h>
+#include <ngspice/sperror.h>
 
 
 
@@ -23,7 +23,7 @@ CKTclrBreak(CKTcircuit *ckt)
 
     if(ckt->CKTbreakSize >2) {
         tmp = TMALLOC(double, ckt->CKTbreakSize - 1);
-        if(tmp == (double *)NULL) return(E_NOMEM);
+        if(tmp == NULL) return(E_NOMEM);
         for(j=1;j<ckt->CKTbreakSize;j++) {
             *(tmp+j-1) = *(ckt->CKTbreaks+j);
         }

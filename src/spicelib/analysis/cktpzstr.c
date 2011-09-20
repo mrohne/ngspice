@@ -6,12 +6,12 @@ Copyright 1990 Regents of the University of California.  All rights reserved.
  *	A variant on the "zeroin" method.  This is a bit convoluted.
  */
 
-#include "ngspice.h"
-#include "pzdefs.h"
-#include "complex.h"
-#include "cktdefs.h"
-#include "devdefs.h"
-#include "sperror.h"
+#include <ngspice/ngspice.h>
+#include <ngspice/pzdefs.h>
+#include <ngspice/complex.h>
+#include <ngspice/cktdefs.h>
+#include <ngspice/devdefs.h>
+#include <ngspice/sperror.h>
 
 
 #ifdef PZDEBUG
@@ -37,7 +37,7 @@ void CKTpzReset(PZtrial **set);
 
 
 #ifdef PZDEBUG
-static void show_trial( );
+static void show_trial(PZtrial *new_trial, char x);
 #endif
 
 #define NITER_LIM	200
@@ -183,11 +183,11 @@ CKTpzFindZeros(CKTcircuit *ckt, PZtrial **rootinfo, int *rootcount)
 	    CKTpzUpdateSet(neighborhood, new_trial);	/* Replace a value */
 	}
 
-	if ((*(SPfrontEnd->IFpauseTest))( )) {
+	if (SPfrontEnd->IFpauseTest()) {
 	    sprintf(ebuf,
 		"Pole-Zero analysis interrupted; %d trials, %d roots\n",
 		Seq_Num, NZeros); 
-	    (*(SPfrontEnd->IFerror))(ERR_WARNING, ebuf, 0);
+	    SPfrontEnd->IFerror (ERR_WARNING, ebuf, 0);
 	    error = E_PAUSE;
 	    break;
 	}
@@ -221,14 +221,14 @@ CKTpzFindZeros(CKTcircuit *ckt, PZtrial **rootinfo, int *rootcount)
 	sprintf(ebuf,
     "Pole-zero converging to numerical aberrations; giving up after %d trials",
 	    Seq_Num);
-	(*(SPfrontEnd->IFerror))(ERR_WARNING, ebuf, 0);
+	SPfrontEnd->IFerror (ERR_WARNING, ebuf, 0);
     }
 
     if (NIter >= NITER_LIM) {
 	sprintf(ebuf,
 	    "Pole-zero iteration limit reached; giving up after %d trials",
 	    Seq_Num);
-	(*(SPfrontEnd->IFerror))(ERR_WARNING, ebuf, 0);
+	SPfrontEnd->IFerror (ERR_WARNING, ebuf, 0);
     }
 
     return error;
@@ -396,7 +396,7 @@ PZeval(int strat, PZtrial **set, PZtrial **new_trial_p)
 	break;
 
     default:
-	MERROR(E_PANIC, "Step type unkown");
+	MERROR(E_PANIC, "Step type unknown");
 	break;
     }
 
@@ -1017,17 +1017,19 @@ zaddeq(double *a, int *amag, double x, int xmag, double y, int ymag)
 
 #ifdef PZDEBUG
 static void
-show_trial(new_trial, x)
-    PZtrial *new_trial;
-    char	x;
+show_trial(PZtrial *new_trial, char x)
 {
-    DEBUG(1) fprintf(stderr, "%c (%3d/%3d) %.15g %.15g :: %.30g %.30g %d\n", x,
-	NIter, new_trial->seq_num, new_trial->s.real, new_trial->s.imag,
-	new_trial->f_def.real, new_trial->f_def.imag, new_trial->mag_def);
-    DEBUG(1)
-	if (new_trial->flags & ISANABERRATION) {
-	    fprintf(stderr, "*** numerical aberration ***\n");
-	}
+    DEBUG(1) {
+        if(new_trial) {
+            fprintf(stderr, "%c (%3d/%3d) %.15g %.15g :: %.30g %.30g %d\n", x,
+                    NIter, new_trial->seq_num, new_trial->s.real, new_trial->s.imag,
+                    new_trial->f_def.real, new_trial->f_def.imag, new_trial->mag_def);
+            if (new_trial->flags & ISANABERRATION)
+                fprintf(stderr, "*** numerical aberration ***\n");
+        } else {
+            fprintf(stderr, "%c (%3d/---) new_trial = nil\n", x, NIter);
+        }
+    }
 }
 #endif
 

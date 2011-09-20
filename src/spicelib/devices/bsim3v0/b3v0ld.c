@@ -1,18 +1,18 @@
 /**********
 Copyright 1990 Regents of the University of California.  All rights reserved.
 Author: 1991 JianHui Huang and Min-Chie Jeng.
-File: b3v0ld.c          1/3/92
+File: b3ld.c          1/3/92
 Modified by Mansun Chan  (1995)
 **********/
 
-#include "ngspice.h"
-#include "cktdefs.h"
+#include <ngspice/ngspice.h>
+#include <ngspice/cktdefs.h>
 #include "bsim3v0def.h"
-#include "trandefs.h"
-#include "const.h"
-#include "sperror.h"
-#include "devdefs.h"
-#include "suffix.h"
+#include <ngspice/trandefs.h>
+#include <ngspice/const.h>
+#include <ngspice/sperror.h>
+#include <ngspice/devdefs.h>
+#include <ngspice/suffix.h>
 
 #define MAX_EXP 5.834617425e14
 #define MIN_EXP 1.713908431e-15
@@ -117,7 +117,7 @@ double dQac0_dVg, dQac0_dVd, dQac0_dVb, dQsub0_dVg, dQsub0_dVd, dQsub0_dVb;
    
 struct bsim3v0SizeDependParam *pParam;
 int ByPass, Check, ChargeComputationNeeded = 0, error;
-double m = 0.0;
+double m = 1.0;
 
 for (; model != NULL; model = model->BSIM3v0nextModel)
 {    for (here = model->BSIM3v0instances; here != NULL; 

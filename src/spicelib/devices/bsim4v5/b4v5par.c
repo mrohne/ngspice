@@ -12,12 +12,12 @@
  * Modified by Xuemei Xi, Mohan Dunga, 07/29/2005.
 **********/
 
-#include "ngspice.h"
-#include "ifsim.h"
+#include <ngspice/ngspice.h>
+#include <ngspice/ifsim.h>
 #include "bsim4v5def.h"
-#include "sperror.h"
-#include "suffix.h"
-#include "fteext.h"
+#include <ngspice/sperror.h>
+#include <ngspice/suffix.h>
+#include <ngspice/fteext.h>
 
 int
 BSIM4v5param(
@@ -32,7 +32,8 @@ IFvalue *select)
 
     NG_IGNORE(select);
 
-    if ( !cp_getvar( "scale", CP_REAL, (double*) &scale ) ) scale = 1;
+    if (!cp_getvar("scale", CP_REAL, &scale))
+        scale = 1;
 
     switch(param) 
     {   case BSIM4v5_W:

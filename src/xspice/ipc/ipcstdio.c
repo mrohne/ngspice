@@ -7,16 +7,16 @@
  *
  */
 
-#include "ngspice.h"
+#include <ngspice/ngspice.h>
 
 #ifdef IPC_DEBUG_VIA_STDIO
 
 #include <stdio.h>
 
 
-#include "ipc.h"
+#include <ngspice/ipc.h>
 
-#include "ipcproto.h"
+#include <ngspice/ipcproto.h>
 
 #include <assert.h>   /*   12/1/97 jg  */
  
@@ -27,6 +27,10 @@ Ipc_Status_t ipc_transport_initialize_server (
      Ipc_Protocol_t     p,
      char               *batch_filename )
 {
+   NG_IGNORE(server_name);
+   NG_IGNORE(p);  
+   NG_IGNORE(batch_filename);
+
    assert (m == IPC_MODE_INTERACTIVE);
    printf ("INITIALIZE_SERVER\n");
    return IPC_STATUS_OK;
@@ -38,9 +42,11 @@ Ipc_Status_t ipc_transport_get_line (
      int                *len,
      Ipc_Wait_t         wait )
 {
+   NG_IGNORE(wait);
+
    printf ("GET_LINE\n");
    gets (str);
-   *len = strlen (str);
+   *len = (int) strlen (str);
    return IPC_STATUS_OK;
 }
 

@@ -9,11 +9,11 @@ Author:	1992 David A. Gates, U. C. Berkeley CAD Group
  * code will run without having to compile the oned code
  */
 
-#include "ngspice.h"
-#include "numglobs.h"
-#include "numenum.h"
-#include "spmatrix.h"
-#include "cidersupt.h"
+#include <ngspice/ngspice.h>
+#include <ngspice/numglobs.h>
+#include <ngspice/numenum.h>
+#include <ngspice/spmatrix.h>
+#include <ngspice/cidersupt.h>
 
 
 /* Used in Solution Projection Calculations */
@@ -24,22 +24,23 @@ double guessNewConc(double conc, double delta)
     lambda = 1.0;
     fibn = 1.0;
     fibp = 1.0;
+    newConc = 0.0;
     for ( ; !acceptable ; ) {
-	fib = fibp;
-	fibp = fibn;
-	fibn += fib;
-	lambda *= fibp / fibn;
-	newConc = conc + delta * lambda;
-	if( newConc > 0.0 ) {
-	    acceptable = TRUE;
-	}
-	else {
-	    /* newConc is still negative but fibp and fibn are large */
-	    if ( (fibp > 1e6) || (fibn > 1e6) ) {
-		acceptable = TRUE;
-		newConc = conc;
-	    }
-	}
+        fib = fibp;
+        fibp = fibn;
+        fibn += fib;
+        lambda *= fibp / fibn;
+        newConc = conc + delta * lambda;
+        if( newConc > 0.0 ) {
+            acceptable = TRUE;
+        }
+        else {
+            /* newConc is still negative but fibp and fibn are large */
+            if ( (fibp > 1e6) || (fibn > 1e6) ) {
+                acceptable = TRUE;
+                newConc = conc;
+            }
+        }
     }
     return( newConc );
 }
@@ -64,7 +65,7 @@ double lookup(double **dataTable, double x)
     int index, numPoints;
     BOOLEAN done = FALSE;
 
-    numPoints = dataTable[ 0 ][ 0 ];
+    numPoints = (int)dataTable[ 0 ][ 0 ];
     for( index = 2; index <= numPoints && (!done); index++ ) {
 	x1 = dataTable[ 0 ][ index ];
 	/* check if x1 > x */

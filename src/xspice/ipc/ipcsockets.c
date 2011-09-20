@@ -6,7 +6,7 @@
   Georgia Tech Research Corporation, Atlanta, Georgia 30332
   All Rights Reserved
 
-  $Id: ipcsockets.c,v 1.12 2010/11/16 20:38:25 rlar Exp $
+  $Id: ipcsockets.c,v 1.15 2011/08/20 17:27:16 rlar Exp $
 
   PROJECT ATESSE A-8503
 
@@ -90,7 +90,7 @@
 
 =============================================================================*/
 
-#include "ngspice.h"
+#include <ngspice/ngspice.h>
 
 #ifdef IPC_UNIX_SOCKETS
 
@@ -99,8 +99,8 @@
 #include <assert.h>
 #include <errno.h>
 
-#include "ipc.h"
-#include "ipctiein.h"
+#include <ngspice/ipc.h>
+#include <ngspice/ipctiein.h>
 
 
 /*=== TYPE DEFINITIONS ===*/  
@@ -121,7 +121,7 @@ static Ipc_Sock_State_t        sock_state = IPC_SOCK_UNINITIALIZED;
 
 /*=== INCLUDE FILES ===*/
 
-#include "ipcproto.h"
+#include <ngspice/ipcproto.h>
 
 /*=============================================================================
 
@@ -169,7 +169,7 @@ ipc_transport_initialize_server (
 {
   struct        sockaddr_in server;     /* Server specifications for socket*/
   unsigned int  server_length;          /* Size of server structure        */
-  unsigned int  port_num;        /* Port number converted from server_name */
+  int  port_num;                        /* Port number converted from server_name */
 
   NG_IGNORE(mode);
   NG_IGNORE(protocol);
@@ -296,12 +296,12 @@ bytes_to_integer (
      it in the variable u.   */
 
   index = 0;
-  while (index < sizeof(u)) {
+  while (index < (int) sizeof(u)) {
     buff[index] = str[index+start];
     index++;
   }
 /*  u = ntohl (*((u_long *) buff)); */
-  u = strtoul(buff, (char **) NULL, 10);
+  u = strtoul(buff, NULL, 10);
 
   return u;
 }   /* end bytes_to_integer */
@@ -412,7 +412,7 @@ read_sock (
 /*    buffer[count] = 'x';                                                   */
 /*    count++;                                                               */
 /*  }                                                                        */
-  count = read (stream, buffer, length);
+  count = (int) read (stream, buffer, (size_t) length);
   if (wait == IPC_NO_WAIT) {
     fcntl (stream, F_SETFL, flags); /* Revert to blocking read           */
   }
@@ -425,7 +425,7 @@ read_sock (
     buf2 = &buffer[totalcount];
     length = length - count;
     while (length > 0) {
-      count = read (stream, buf2, length);
+      count = (int) read (stream, buf2, (size_t) length);
       if (count <= 0)		/* EOF or read error                 */
 	break;
       totalcount = totalcount + count;
@@ -558,7 +558,7 @@ ipc_transport_get_line (
 	     "ERROR: IPC: Did not find beginning of message header (%c)\n",
 	     str[0]);
     return IPC_STATUS_ERROR;
-  } else if ((message_length = bytes_to_integer (str, 1)) == -1) {
+  } else if ((message_length = (int) bytes_to_integer (str, 1)) == -1) {
     /* fprintf (stderr, "WARNING: IPC: Reached eof on socket\n");      */
     return handle_socket_eof ();
   } else if (message_length == 0) {
@@ -660,19 +660,19 @@ ipc_transport_send_line (
 
   /* Write message body header with length: */
   hdr_buff[0] = BOL_CHAR;
-  u = htonl (len);
+  u = htonl ((u_long) len);
   char_ptr = (char *) &u;
   for(i = 0; i < 4; i++)
     hdr_buff[i+1] = char_ptr[i];
 
-  count = write (msg_stream, hdr_buff, 5);
+  count = (int) write (msg_stream, hdr_buff, 5);
   if (count != 5) {
     fprintf (stderr, "ERROR: IPC: (%d) send line error 1\n", count);
     return IPC_STATUS_ERROR;
   }
 
   /* Write message body: */
-  count = write (msg_stream, str, len);
+  count = (int) write (msg_stream, str, (size_t) len);
   if (count != len) {
     fprintf (stderr, "ERROR: IPC: (%d) send line error 2\n", count);
     return IPC_STATUS_ERROR;

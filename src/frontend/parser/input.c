@@ -1,21 +1,28 @@
 /**********
 Copyright 1990 Regents of the University of California.  All rights reserved.
 Author: 1988 Jeffrey M. Hsu
-$Id: input.c,v 1.5 2010/11/06 17:29:28 rlar Exp $
+$Id: input.c,v 1.10 2011/08/20 17:27:11 rlar Exp $
 **********/
 
 /*
  * Stand-alone input routine.
  */
 #include <config.h>
-#include <ngspice.h>
+#include <ngspice/ngspice.h>
 
 #include <errno.h>
 
-#include "fteinput.h"
+#include <ngspice/fteinput.h>
 #include "input.h"
-#include "cpextern.h"
+#include <ngspice/cpextern.h>
 #include "../display.h"
+#ifdef _MSC_VER
+#include "BaseTsd.h" /* for SSIZE_T */
+#define ssize_t SSIZE_T
+#ifndef HAS_WINDOWS  
+#define read _read /* only for console */
+#endif
+#endif
 
 /* A special 'getc' so that we can deal with ^D properly. There is no way for
  * stdio to know if we have typed a ^D after some other characters, so

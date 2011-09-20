@@ -2,7 +2,7 @@
 Copyright 1990 Regents of the University of California.  All rights reserved.
 Author: 1985 Wayne A. Christopher, U. C. Berkeley CAD Group 
 Modified: 2000 AlansFixes
-$Id: subckt.c,v 1.62 2010/11/19 18:54:41 rlar Exp $
+$Id: subckt.c,v 1.65 2011/08/20 17:27:11 rlar Exp $
 **********/
 
 /*------------------------------------------------------------------------------
@@ -56,16 +56,16 @@ $Id: subckt.c,v 1.62 2010/11/19 18:54:41 rlar Exp $
  * so we have to keep track of model names.
  *======================================================================*/
 /*#define TRACE*/
-#include "ngspice.h"
-#include "cpdefs.h"
-#include "ftedefs.h"
-#include "fteinp.h"
+#include <ngspice/ngspice.h>
+#include <ngspice/cpdefs.h>
+#include <ngspice/ftedefs.h>
+#include <ngspice/fteinp.h>
 
 #include <stdarg.h>
 
 #ifdef XSPICE
 /* gtri - add - wbk - 11/9/90 - include MIF function prototypes */
-#include "mifproto.h"
+#include <ngspice/mifproto.h>
 /* gtri - end - wbk - 11/9/90 */
 #endif
 
@@ -403,7 +403,7 @@ doit(struct line *deck)
 {
     struct line *c, *last, *lc, *lcc;
     struct line *savenext;
-    struct subs *sssfree = (struct subs *) NULL, *sss = (struct subs *) NULL, *ks;   /*  *sss and *ks temporarily hold decks to substitute  */
+    struct subs *sssfree = NULL, *sss = NULL, *ks;   /*  *sss and *ks temporarily hold decks to substitute  */
     char *s, *t, *scname, *subname;
     int nest, numpasses = MAXNEST, i;
     bool gotone;
@@ -779,8 +779,8 @@ bxx_rewind(struct bxx_buffer *t)
 static void
 bxx_extend(struct bxx_buffer *t, int howmuch)
 {
-    int pos = t->dst   - t->buffer;
-    int len = t->limit - t->buffer;
+    int pos = (int)(t->dst   - t->buffer);
+    int len = (int)(t->limit - t->buffer);
 
     /* round up */
     howmuch +=  (bxx_chunksize - 1);
@@ -801,11 +801,11 @@ bxx_printf(struct bxx_buffer *t, const char *fmt, ...)
 
     for (;;) {
         int ret;
-        int size = t->limit - t->dst;
-		va_start(ap, fmt);
+        int size = (int)(t->limit - t->dst);
+        va_start(ap, fmt);
         ret  = vsnprintf(t->dst, (size_t) size, fmt, ap);
         va_end(ap);
-		if(ret == -1) {
+        if(ret == -1) {
             bxx_extend(t, bxx_chunksize);
         } else if(ret >= size) {
             bxx_extend(t, ret - size + 1);

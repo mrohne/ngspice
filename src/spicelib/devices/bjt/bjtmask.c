@@ -5,14 +5,14 @@ Author: 1987 Mathew Lew and Thomas L. Quarles
 /*
  */
 
-#include "ngspice.h"
-#include "const.h"
-#include "ifsim.h"
-#include "cktdefs.h"
-#include "devdefs.h"
+#include <ngspice/ngspice.h>
+#include <ngspice/const.h>
+#include <ngspice/ifsim.h>
+#include <ngspice/cktdefs.h>
+#include <ngspice/devdefs.h>
 #include "bjtdefs.h"
-#include "sperror.h"
-#include "suffix.h"
+#include <ngspice/sperror.h>
+#include <ngspice/suffix.h>
 
 
 /*ARGSUSED*/
@@ -356,6 +356,9 @@ BJTmAsk(CKTcircuit *ckt, GENmodel *instPtr, int which, IFvalue *value)
             return(OK);
         case BJT_MOD_TNS2:
             value->rValue = here->BJTtns2;
+            return(OK);
+        case BJT_MOD_NKF:
+            value->rValue = here->BJTnkf;
             return(OK);
         default:
             return(E_BADPARM);

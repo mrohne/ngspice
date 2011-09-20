@@ -4,11 +4,11 @@ Author: 1988 Thomas L. Quarles
 Modified: 2001 Paolo Nenzi (Cider Integration)
 **********/
 
-#include "ngspice.h"
-#include "ifsim.h"
-#include "inpdefs.h"
-#include "inpmacs.h"
-#include "fteext.h"
+#include <ngspice/ngspice.h>
+#include <ngspice/ifsim.h>
+#include <ngspice/inpdefs.h>
+#include <ngspice/inpmacs.h>
+#include <ngspice/fteext.h>
 #include "inp.h"
 
 #ifdef ADMS
@@ -65,7 +65,7 @@ void INP2Q(CKTcircuit *ckt, INPtables * tab, card * current, CKTnode *gnode)
     INPtermInsert(ckt, &nname3, tab, &node3);
     INPgetTok(&line, &model, 1);
 
-    thismodel = (INPmodel *) NULL;
+    thismodel = NULL;
     /*  See if 4th token after device specification is a model name  */
     if (INPlookMod(model)) {
         /* 3-terminal device - substrate to ground */
@@ -94,7 +94,7 @@ void INP2Q(CKTcircuit *ckt, INPtables * tab, card * current, CKTnode *gnode)
            }
            else if ((thismodel->INPmodType == INPtypelook("hicum0"))
             || (thismodel->INPmodType == INPtypelook("hicum2"))
-            || (thismodel->INPmodType == INPtypelook("mextram")))
+            || (thismodel->INPmodType == INPtypelook("bjt504t")))
            {
                node5 = gnode; /* 4-terminal adms device - thermal node to ground */
                nname5 = copy("0");
@@ -122,7 +122,6 @@ void INP2Q(CKTcircuit *ckt, INPtables * tab, card * current, CKTnode *gnode)
 
     if (thismodel != NULL) {
         if ((thismodel->INPmodType != INPtypelook("BJT"))
-         && (thismodel->INPmodType != INPtypelook("BJT2"))
 #ifdef CIDER
          && (thismodel->INPmodType != INPtypelook("NBJT"))
          && (thismodel->INPmodType != INPtypelook("NBJT2"))
@@ -130,7 +129,7 @@ void INP2Q(CKTcircuit *ckt, INPtables * tab, card * current, CKTnode *gnode)
 #ifdef ADMS
          && (thismodel->INPmodType != INPtypelook("hicum0"))
          && (thismodel->INPmodType != INPtypelook("hicum2"))
-         && (thismodel->INPmodType != INPtypelook("mextram"))
+         && (thismodel->INPmodType != INPtypelook("bjt504t"))
 #endif
          && (thismodel->INPmodType != INPtypelook("VBIC")))
         {
@@ -140,7 +139,7 @@ void INP2Q(CKTcircuit *ckt, INPtables * tab, card * current, CKTnode *gnode)
 #ifdef ADMS
         if ((nodeflag && (thismodel->INPmodType != INPtypelook("hicum0")))
          && (nodeflag && (thismodel->INPmodType != INPtypelook("hicum2")))
-         && (nodeflag && (thismodel->INPmodType != INPtypelook("mextram"))))
+         && (nodeflag && (thismodel->INPmodType != INPtypelook("bjt504t"))))
         {
             LITERR("Too much nodes for this model type")
             return;
@@ -158,7 +157,7 @@ void INP2Q(CKTcircuit *ckt, INPtables * tab, card * current, CKTnode *gnode)
         if (!tab->defQmod) {
             /* create default Q model */
             char *err;
-            IFnewUid(ckt, &uid, (IFuid) NULL, "Q", UID_MODEL, NULL);
+            IFnewUid(ckt, &uid, NULL, "Q", UID_MODEL, NULL);
             IFC(newModel, (ckt, type, &(tab->defQmod), uid));
             err = TMALLOC(char, 70 + strlen(model));
             (void) sprintf(err, "Unable to find definition of model %s - default BJT assumed \n", model);

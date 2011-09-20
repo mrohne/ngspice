@@ -40,16 +40,16 @@ NON-STANDARD FEATURES
 
 #include <stdio.h>
 
-#include "ngspice.h"
+#include <ngspice/ngspice.h>
 
-#include "cktdefs.h"
+#include <ngspice/cktdefs.h>
 //#include "util.h"
 
-#include "mif.h"
-#include "evt.h"
-#include "evtudn.h"
+#include <ngspice/mif.h>
+#include <ngspice/evt.h>
+#include <ngspice/evtudn.h>
 
-#include "evtproto.h"
+#include <ngspice/evtproto.h>
 
 
 static void EVTdequeue_output(CKTcircuit *ckt, double time);
@@ -330,26 +330,26 @@ static void EVTprocess_output(
     /* we have setup the structures (rhs and rhsold must match)... */
     if(num_outputs > 1) {
         output_subindex = output_table[output_index]->output_subindex;
-        (*(g_evt_udn_info[udn_index]->compare))
+        g_evt_udn_info[udn_index]->compare
                 (value,
                 rhsold[node_index].output_value[output_subindex],
                 &equal);
         if(! equal) {
-            (*(g_evt_udn_info[udn_index]->copy))
+            g_evt_udn_info[udn_index]->copy
                     (value, rhs[node_index].output_value[output_subindex]);
-            (*(g_evt_udn_info[udn_index]->copy))
+            g_evt_udn_info[udn_index]->copy
                     (value, rhsold[node_index].output_value[output_subindex]);
         }
     }
     else {
-        (*(g_evt_udn_info[udn_index]->compare))
+        g_evt_udn_info[udn_index]->compare
                 (value,
                 rhsold[node_index].node_value,
                 &equal);
         if(! equal) {
-            (*(g_evt_udn_info[udn_index]->copy))
+            g_evt_udn_info[udn_index]->copy
                     (value, rhs[node_index].node_value);
-            (*(g_evt_udn_info[udn_index]->copy))
+            g_evt_udn_info[udn_index]->copy
                     (value, rhsold[node_index].node_value);
         }
     }

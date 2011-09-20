@@ -38,20 +38,20 @@ NON-STANDARD FEATURES
 ============================================================================*/
 
 /* #include "prefix.h"  */
-#include "ngspice.h"
+#include <ngspice/ngspice.h>
 #include <stdio.h>
-#include "ifsim.h"
+#include <ngspice/ifsim.h>
 //#include "util.h"
-#include "inpdefs.h"
-#include "inpptree.h"
+#include <ngspice/inpdefs.h>
+#include <ngspice/inpptree.h>
 
 /* #include <stdlib.h> */
 #include <errno.h>
 
-#include "mifproto.h"
-#include "mifparse.h"
-#include "mifdefs.h"
-#include "mifcmdat.h"
+#include <ngspice/mifproto.h>
+#include <ngspice/mifparse.h>
+#include <ngspice/mifdefs.h>
+#include <ngspice/mifcmdat.h>
 
 /*  #include "suffix.h"  */
 
@@ -253,27 +253,27 @@ static int MIFget_integer(char *token, char **err)
     long    l;
     double  dtemp;
     char    *endp;
-/*  long    strtol(char *, char **, int);  */
 
     *err = NULL;
 
+    errno = 0;
+
     l = strtol(token, &endp, 0);  /* handles base 8, 10, 16 automatically */
+
+    if(!errno && (*endp == '\0'))
+        return((int) l);
 
     /* if error, probably caused by engineering suffixes, */
     /* so try parsing with INPevaluate */
-    if(errno || (*endp != '\0')) {
-        dtemp = INPevaluate(&token, &error, 1);
-        if(error) {
-            *err = "Bad integer, octal, or hex value";
-            l = 0;
-        }
-        else if(dtemp > 0.0)
-            l = dtemp + 0.5;
-        else
-            l = dtemp - 0.5;
+
+    dtemp = INPevaluate(&token, &error, 1);
+
+    if(error) {
+        *err = "Bad integer, octal, or hex value";
+        return(0);
     }
 
-    return((int) l);
+    return((int)floor(dtemp + 0.5));
 }
 
 

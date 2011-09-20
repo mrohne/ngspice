@@ -10,10 +10,10 @@ Author: 1985 Thomas L. Quarles
      * specified circuit
      */
 
-#include "ngspice.h"
-#include "ifsim.h"
-#include "sperror.h"
-#include "cktdefs.h"
+#include <ngspice/ngspice.h>
+#include <ngspice/ifsim.h>
+#include <ngspice/sperror.h>
+#include <ngspice/cktdefs.h>
 
 
 
@@ -35,9 +35,9 @@ CKTmapNode(CKTcircuit *ckt, CKTnode **node, IFuid name)
     /* not found, so must be a new one */
     error = CKTmkNode(ckt,&mynode); /*allocate the node*/
     if(error) return(error);
-    error = (*(SPfrontEnd->IFnewUid))(ckt,
+    error = SPfrontEnd->IFnewUid (ckt,
 				      &uid,
-				      (IFuid) NULL,
+				      NULL,
 				      name,
 				      UID_SIGNAL,
 				      &mynode);  /* get a uid for it */

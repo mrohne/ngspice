@@ -5,9 +5,9 @@ University of Science and Technology of China
 **********/
 
 
-#include "ngspice.h"
+#include <ngspice/ngspice.h>
 #include "ndevdefs.h"
-#include "suffix.h"
+#include <ngspice/suffix.h>
 
 void
 NDEVdestroy(GENmodel **inModel)
@@ -22,7 +22,7 @@ NDEVdestroy(GENmodel **inModel)
     for( ; mod ; mod = mod->NDEVnextModel) {
         if(oldmod) FREE(oldmod);
         oldmod = mod;
-        prev = (NDEVinstance *)NULL;
+        prev = NULL;
         for(here = mod->NDEVinstances ; here ; here = here->NDEVnextInstance) {
             if(prev) FREE(prev);
             prev = here;

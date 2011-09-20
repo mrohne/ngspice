@@ -46,10 +46,10 @@ NON-STANDARD FEATURES
     None.
 
 =========================================================================== */
-#include "ngspice.h"
-#include "cm.h"
-#include "mif.h"
-#include "cktdefs.h"
+#include <ngspice/ngspice.h>
+#include <ngspice/cm.h>
+#include <ngspice/mif.h>
+#include <ngspice/cktdefs.h>
 //#include "util.h"
 
 
@@ -102,7 +102,7 @@ void cm_analog_alloc(
     }
 
     /* Compute number of doubles needed and allocate space in ckt->CKTstates[i] */
-    doubles_needed = bytes / sizeof(double) + 1;
+    doubles_needed = bytes / (int) sizeof(double) + 1;
 
     /* Allocate space in instance struct for this state descriptor */
     if(here->num_state == 0) {
@@ -245,11 +245,11 @@ int  cm_analog_integrate(
     /* Compute byte offset from start of state0 vector */
     char_state0 = (char *) ckt->CKTstate0;
     char_state  = (char *) integral;
-    byte_index  = char_state - char_state0;
+    byte_index  = (int) (char_state - char_state0);
 
     /* Check to be sure argument address is in range of state0 vector */
     if((byte_index < 0) ||
-        (byte_index > ((ckt->CKTnumStates - 1) * sizeof(double)) ) ) {
+       (byte_index > (ckt->CKTnumStates - 1) * (int) sizeof(double))) {
         g_mif_info.errmsg =
         "ERROR - cm_analog_integrate() - Argument must be in state vector 0\n";
         *partial  = 0.0;
@@ -338,11 +338,11 @@ int  cm_analog_converge(
     /* Compute byte offset from start of state0 vector */
     char_state0 = (char *) ckt->CKTstate0;
     char_state  = (char *) state;
-    byte_index  = char_state - char_state0;
+    byte_index  = (int) (char_state - char_state0);
 
     /* Check to be sure argument address is in range of state0 vector */
     if((byte_index < 0) ||
-        (byte_index > ((ckt->CKTnumStates - 1) * sizeof(double)) ) ) {
+       (byte_index > (ckt->CKTnumStates - 1) * (int) sizeof(double))) {
         g_mif_info.errmsg =
         "ERROR - cm_analog_converge() - Argument must be in state vector 0\n";
         return(MIF_ERROR);

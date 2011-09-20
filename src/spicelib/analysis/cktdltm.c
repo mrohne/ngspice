@@ -7,19 +7,18 @@ Author: 1985 Thomas L. Quarles
  *  delete the specified model - not yet supported in spice 
  */
 
-#include "ngspice.h"
-#include "cktdefs.h"
-#include "ifsim.h"
-#include "sperror.h"
+#include <ngspice/ngspice.h>
+#include <ngspice/cktdefs.h>
+#include <ngspice/ifsim.h>
+#include <ngspice/sperror.h>
 
 
 
 /* ARGSUSED */
 int
-CKTdltMod(CKTcircuit *cktp, GENmodel *modPtr)
+CKTdltMod(CKTcircuit *ckt, GENmodel *m)
 {
-    CKTcircuit *ckt = /* fixme, drop that */ cktp;
-    GENmodel *m = /* fixme, drop that */ modPtr, *mod, **prevp;
+    GENmodel *mod, **prevp;
     GENinstance *h, *next_i;
     int	error;
 
@@ -34,11 +33,11 @@ CKTdltMod(CKTcircuit *cktp, GENmodel *modPtr)
 
     for (h = m->GENinstances; h; h = next_i) {
 	    next_i = h->GENnextInstance;
-	    error = (*(SPfrontEnd->IFdelUid))(ckt,h->GENname,
+	    error = SPfrontEnd->IFdelUid (ckt, h->GENname,
 		    UID_INSTANCE);
 	    tfree(h);
     }
-    error = (*(SPfrontEnd->IFdelUid))(ckt,m->GENmodName, UID_MODEL);
+    error = SPfrontEnd->IFdelUid (ckt, m->GENmodName, UID_MODEL);
     tfree(m);
     return(OK);
 }

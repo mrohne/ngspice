@@ -8,11 +8,11 @@ Author: 1985 Thomas L. Quarles
      *  Tentatively allocate a new circuit equation structure
      */
 
-#include "ngspice.h"
-#include "ifsim.h"
-#include "iferrmsg.h"
-#include "smpdefs.h"
-#include "cktdefs.h"
+#include <ngspice/ngspice.h>
+#include <ngspice/ifsim.h>
+#include <ngspice/iferrmsg.h>
+#include <ngspice/smpdefs.h>
+#include <ngspice/cktdefs.h>
 
 
 /* ARGSUSED */
@@ -24,8 +24,8 @@ CKTmkNode(CKTcircuit *ckt, CKTnode **node)
     NG_IGNORE(ckt);
 
     mynode = TMALLOC(CKTnode, 1);
-    if(mynode == (CKTnode *)NULL) return(E_NOMEM);
-    mynode->next = (CKTnode *)NULL;
+    if(mynode == NULL) return(E_NOMEM);
+    mynode->next = NULL;
     mynode->name = (IFuid) 0;
 
     if(node) *node = mynode;

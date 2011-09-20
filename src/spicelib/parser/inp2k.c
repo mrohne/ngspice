@@ -3,12 +3,12 @@ Copyright 1990 Regents of the University of California.  All rights reserved.
 Author: 1988 Thomas L. Quarles
 **********/
 
-#include "ngspice.h"
+#include <ngspice/ngspice.h>
 #include <stdio.h>
-#include "ifsim.h"
-#include "inpdefs.h"
-#include "inpmacs.h"
-#include "fteext.h"
+#include <ngspice/ifsim.h>
+#include <ngspice/inpdefs.h>
+#include <ngspice/inpmacs.h>
+#include <ngspice/fteext.h>
 #include "inp.h"
 
 void INP2K(CKTcircuit *ckt, INPtables * tab, card * current)
@@ -37,7 +37,7 @@ void INP2K(CKTcircuit *ckt, INPtables * tab, card * current)
     INPinsert(&name, tab);
     if (!tab->defKmod) {
 	/* create deafult K model */
-	IFnewUid(ckt, &uid, (IFuid) NULL, "K", UID_MODEL, NULL);
+	IFnewUid(ckt, &uid, NULL, "K", UID_MODEL, NULL);
 	IFC(newModel, (ckt, type, &(tab->defKmod), uid));
     }
     IFC(newInstance, (ckt, tab->defKmod, &fast, name));

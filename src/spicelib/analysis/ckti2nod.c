@@ -10,12 +10,12 @@ Author: 1985 Thomas L. Quarles
      * bound to and the terminal of the device.
      */
 
-#include "ngspice.h"
-#include "ifsim.h"
-#include "sperror.h"
-#include "cktdefs.h"
-#include "gendefs.h"
-#include "devdefs.h"
+#include <ngspice/ngspice.h>
+#include <ngspice/ifsim.h>
+#include <ngspice/sperror.h>
+#include <ngspice/cktdefs.h>
+#include <ngspice/gendefs.h>
+#include <ngspice/devdefs.h>
 
 
 
@@ -28,7 +28,7 @@ CKTinst2Node(CKTcircuit *ckt, void *instPtr, int terminal, CKTnode **node, IFuid
 
     type = ((GENinstance *)instPtr)->GENmodPtr->GENmodType;
 
-    if(*((*DEVices[type]).DEVpublic.terms) >= terminal && terminal >0 ) {
+    if(*(DEVices[type]->DEVpublic.terms) >= terminal && terminal > 0) {
         switch(terminal) {
             default: return(E_NOTERM);
             case 1:

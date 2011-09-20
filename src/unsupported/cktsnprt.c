@@ -7,12 +7,12 @@ Author: 1985 Thomas L. Quarles
 
 #include "spice.h"
 #include <stdio.h>
-#include "smpdefs.h"
-#include "cktdefs.h"
-#include "devdefs.h"
-#include "sperror.h"
-#include "trandefs.h"
-#include "suffix.h"
+#include <ngspice/smpdefs.h>
+#include <ngspice/cktdefs.h>
+#include <ngspice/devdefs.h>
+#include <ngspice/sperror.h>
+#include <ngspice/trandefs.h>
+#include <ngspice/suffix.h>
 
 
     /* CKTsenPrint(ckt)
@@ -28,8 +28,8 @@ register CKTcircuit *ckt;
     register int i;
 
     for (i=0;i<DEVmaxnum;i++) {
-        if ( ((*DEVices[i]).DEVsenPrint != NULL) && (ckt->CKThead[i] != NULL) ){
-            (*((*DEVices[i]).DEVsenPrint))(ckt->CKThead[i],ckt);
+        if ( DEVices[i]->DEVsenPrint && ckt->CKThead[i] ) {
+            DEVices[i]->DEVsenPrint (ckt->CKThead[i], ckt);
         }
     }
 }

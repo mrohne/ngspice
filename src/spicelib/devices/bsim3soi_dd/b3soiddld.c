@@ -12,14 +12,14 @@ File: b3soiddld.c          98/5/01
  * BSIMDD2.1 release
  */
 
-#include "ngspice.h"
-#include "cktdefs.h"
+#include <ngspice/ngspice.h>
+#include <ngspice/cktdefs.h>
 #include "b3soidddef.h"
-#include "trandefs.h"
-#include "const.h"
-#include "sperror.h"
-#include "devdefs.h"
-#include "suffix.h"
+#include <ngspice/trandefs.h>
+#include <ngspice/const.h>
+#include <ngspice/sperror.h>
+#include <ngspice/devdefs.h>
+#include <ngspice/suffix.h>
 
 #include "../../../frontend/error.h" /* controlled_exit() */
 
@@ -4241,7 +4241,7 @@ if (here->B3SOIDDdebugMod > 2)
                    else if ((nandetect = isnan (*(here->B3SOIDDBspPtr))) != 0)
                       { strcpy (nanmessage, "BspPtr"); }
                    
-                   if ((nandetect = isnan (*(here->B3SOIDDGgPtr))) != 0)
+                   else if ((nandetect = isnan (*(here->B3SOIDDGgPtr))) != 0)
                    { strcpy (nanmessage, "GgPtr"); }
                    else if ((nandetect = isnan (*(here->B3SOIDDGdpPtr))) != 0)
                    { strcpy (nanmessage, "GdpPtr"); }

@@ -11,9 +11,9 @@ Author: 1985 Thomas L. Quarles
      * given circuit 
      */
 
-#include "ngspice.h"
-#include "cktdefs.h"
-#include "devdefs.h"
+#include <ngspice/ngspice.h>
+#include <ngspice/cktdefs.h>
+#include <ngspice/devdefs.h>
 
 
 
@@ -24,8 +24,8 @@ CKTfndBranch(CKTcircuit *ckt, IFuid name)
     int j;
 
     for (i=0;i<DEVmaxnum;i++) {
-        if ( DEVices[i] && (*DEVices[i]).DEVfindBranch != NULL && ckt->CKThead[i] != NULL ) {
-            j = (*((*DEVices[i]).DEVfindBranch))(ckt,ckt->CKThead[i],name);
+        if ( DEVices[i] && DEVices[i]->DEVfindBranch && ckt->CKThead[i] ) {
+            j = DEVices[i]->DEVfindBranch (ckt, ckt->CKThead[i], name);
             if(j != 0) return(j);
         }
     }

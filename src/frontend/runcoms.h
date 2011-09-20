@@ -1,7 +1,7 @@
 /*************
  * Header file for runcoms.c
  * 1999 E. Rouat
- * $Id: runcoms.h,v 1.3 2010/10/16 15:58:14 rlar Exp $
+ * $Id: runcoms.h,v 1.4 2011/08/04 16:16:47 rlar Exp $
  ************/
 
 #ifndef RUNCOMS_H_INCLUDED
@@ -14,6 +14,9 @@ void com_dc(wordlist *wl);
 void com_ac(wordlist *wl);
 void com_tf(wordlist *wl);
 void com_tran(wordlist *wl);
+/* SP: Stady State Analysis */
+void com_pss(wordlist *wl);
+/* SP */
 void com_sens(wordlist *wl);
 void com_disto(wordlist *wl);
 void com_noise(wordlist *wl);

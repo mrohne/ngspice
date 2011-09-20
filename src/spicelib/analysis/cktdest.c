@@ -11,17 +11,16 @@ Author: 1985 Thomas L. Quarles
      * given circuit 
      */
 
-#include "ngspice.h"
-#include "cktdefs.h"
-#include "devdefs.h"
-#include "ifsim.h"
-#include "sperror.h"
+#include <ngspice/ngspice.h>
+#include <ngspice/cktdefs.h>
+#include <ngspice/devdefs.h>
+#include <ngspice/ifsim.h>
+#include <ngspice/sperror.h>
 
 
 int
-CKTdestroy(CKTcircuit *inCkt)
+CKTdestroy(CKTcircuit *ckt)
 {
-    CKTcircuit *ckt = /* fixme, drop that */ inCkt;
     int i;
     CKTnode *node;
     CKTnode *nnode;
@@ -37,8 +36,8 @@ CKTdestroy(CKTcircuit *inCkt)
 #endif
 
     for (i=0;i<DEVmaxnum;i++) {
-        if ( DEVices[i] && ((*DEVices[i]).DEVdestroy != NULL) && (ckt->CKThead[i] != NULL) ){
-            (*((*DEVices[i]).DEVdestroy))(&(ckt->CKThead[i]));
+        if ( DEVices[i] && DEVices[i]->DEVdestroy && ckt->CKThead[i] ) {
+            DEVices[i]->DEVdestroy (&(ckt->CKThead[i]));
         }
     }
     for(i=0;i<=ckt->CKTmaxOrder+1;i++){
@@ -51,8 +50,8 @@ CKTdestroy(CKTcircuit *inCkt)
         FREE(node);
         node = nnode;
     }
-    ckt->CKTnodes = (CKTnode *)NULL;
-    ckt->CKTlastNode = (CKTnode *)NULL;
+    ckt->CKTnodes = NULL;
+    ckt->CKTlastNode = NULL;
     FREE(ckt);
     return(OK);
 }

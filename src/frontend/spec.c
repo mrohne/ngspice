@@ -1,22 +1,22 @@
 /**********
 Copyright 1994 Macquarie University, Sydney Australia.  All rights reserved.
 Author:   1994 Anthony E. Parker, Department of Electronics, Macquarie Uni.
-$Id: spec.c,v 1.18 2010/11/19 18:54:41 rlar Exp $
+$Id: spec.c,v 1.20 2011/08/20 17:27:11 rlar Exp $
 **********/
 
 /*
  * Code to do fourier transforms on data.
  */
 
-#include "ngspice.h"
-#include "ftedefs.h"
-#include "dvec.h"
-#include "sim.h"
+#include <ngspice/ngspice.h>
+#include <ngspice/ftedefs.h>
+#include <ngspice/dvec.h>
+#include <ngspice/sim.h>
 
 #include "spec.h"
 #include "parse.h"
 #include "variable.h"
-#include "missing_math.h"
+#include <ngspice/missing_math.h>
 #include "../misc/misc_time.h"
 
 void
@@ -74,7 +74,7 @@ com_spec(wordlist *wl)
     span = ((int)(span*stepf*1.000000000001))/stepf;
     if (span > 0) {
         startf = (int)(startf/stepf*1.000000000001) * stepf;
-        fpts = (stopf - startf)/stepf + 1;
+        fpts = (int)((stopf - startf)/stepf + 1.);
         if (stopf > startf + (fpts-1)*stepf) fpts++;
     } else {
         fprintf(cp_err,"Error: time span limits step freq to %1.1e Hz\n",

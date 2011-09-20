@@ -9,12 +9,12 @@ Author: 1987 Gary W. Ng
 Modified: 2001 AlansFixes
 **********/
 
-#include "ngspice.h"
-#include "acdefs.h"
-#include "cktdefs.h"
-#include "iferrmsg.h"
-#include "noisedef.h"
-#include "sperror.h"
+#include <ngspice/ngspice.h>
+#include <ngspice/acdefs.h>
+#include <ngspice/cktdefs.h>
+#include <ngspice/iferrmsg.h>
+#include <ngspice/noisedef.h>
+#include <ngspice/sperror.h>
 #include "vsrc/vsrcdefs.h"
 #include "isrc/isrcdefs.h"
 #include "../maths/ni/niniter.h" /* va, NInzIter */
@@ -49,7 +49,7 @@ NOISEan (CKTcircuit *ckt, int restart)
     code = CKTtypelook("Vsource");
     if (code != -1) {
         error = CKTfndDev(ckt, &code, &inst,
-                job->input, (GENmodel *)NULL, (IFuid)NULL);
+                job->input, NULL, NULL);
 	if (!error && !((VSRCinstance *)inst)->VSRCacGiven) {
 	    errMsg = TMALLOC(char, strlen(noacinput) + 1);
 	    strcpy(errMsg,noacinput);
@@ -60,10 +60,10 @@ NOISEan (CKTcircuit *ckt, int restart)
     code = CKTtypelook("Isource");
     if (code != -1 && inst==NULL) {
         error = CKTfndDev(ckt, &code, &inst,
-                job->input, (GENmodel *)NULL, (IFuid)NULL);
+                job->input, NULL, NULL);
         if (error) {
 	    /* XXX ??? */
-            (*(SPfrontEnd->IFerror))(ERR_WARNING,
+            SPfrontEnd->IFerror (ERR_WARNING,
                     "Noise input source %s not in circuit",
                     &job->input);
 		return (E_NOTFOUND);
@@ -92,7 +92,7 @@ NOISEan (CKTcircuit *ckt, int restart)
         case LINEAR:
             job->NfreqDelta = (job->NstopFreq - 
                             job->NstartFreq)/
-			    (job->NnumSteps+1);
+			    (job->NnumSteps - 1);
             break;
 
         default:
@@ -120,7 +120,7 @@ NOISEan (CKTcircuit *ckt, int restart)
 	/* the current front-end needs the namelist to be fully
 		declared before an OUTpBeginplot */
 
-	(*(SPfrontEnd->IFnewUid))(ckt,&freqUid,(IFuid)NULL,
+	SPfrontEnd->IFnewUid (ckt, &freqUid, NULL,
 		"frequency", UID_OTHER, NULL);
 
 	data->numPlots = 0;                /* we don't have any plots  yet */
@@ -132,19 +132,19 @@ NOISEan (CKTcircuit *ckt, int restart)
 	 * plot
 	 */
 
-	error = (*(SPfrontEnd->OUTpBeginPlot))(ckt, ckt->CKTcurJob,
+	error = SPfrontEnd->OUTpBeginPlot (ckt, ckt->CKTcurJob,
 	   "Noise Spectral Density Curves - (V^2 or A^2)/Hz",
 	   freqUid,IF_REAL,data->numPlots,data->namelist,IF_REAL,
 	   &(data->NplotPtr));
 	if (error) return(error);
 
         if (job->NstpType != LINEAR) {
-	    (*(SPfrontEnd->OUTattributes))((void *)data->NplotPtr,NULL,
+	    SPfrontEnd->OUTattributes (data->NplotPtr, NULL,
 		    OUT_SCALE_LOG, NULL);
 	}
 
     } else {   /* we must have paused before.  pick up where we left off */
-	step = job->NsavFstp;
+	step = (int)(job->NsavFstp);
 	switch (job->NstpType) {
 
 	case DECADE:
@@ -166,10 +166,8 @@ NOISEan (CKTcircuit *ckt, int restart)
 	data->outNoiz = job->NsavOnoise;
 	data->inNoise = job->NsavInoise;
 	/* saj resume rawfile fix*/
-	error = (*(SPfrontEnd->OUTpBeginPlot))(ckt, ckt->CKTcurJob,
-	   "Noise Spectral Density Curves - (V^2 or A^2)/Hz",
-	   freqUid,IF_REAL,666,data->namelist,666,
-	   &(data->NplotPtr));
+	error = SPfrontEnd->OUTpBeginPlot
+	    (NULL, NULL, NULL, NULL, 0, 666, NULL, 666, &(data->NplotPtr));
 	/*saj*/
     }
 
@@ -190,7 +188,7 @@ NOISEan (CKTcircuit *ckt, int restart)
     /* do the noise analysis over all frequencies */
 
     while (data->freq <= job->NstopFreq + freqTol) {
-        if( (*(SPfrontEnd->IFpauseTest))() ) { 
+        if(SPfrontEnd->IFpauseTest()) {
 	    job->NsavFstp = step;   /* save our results */
 	    job->NsavOnoise = data->outNoiz; /* up until now     */
 	    job->NsavInoise = data->inNoise;
@@ -277,9 +275,9 @@ NOISEan (CKTcircuit *ckt, int restart)
 
 	if (error) return(error);
 
-	(*(SPfrontEnd->OUTpBeginPlot))(ckt, ckt->CKTcurJob,
+	SPfrontEnd->OUTpBeginPlot (ckt, ckt->CKTcurJob,
 	       "Integrated Noise - V^2 or A^2",
-	       (IFuid)NULL,(int)0,data->numPlots,data->namelist,IF_REAL,
+	       NULL, 0, data->numPlots, data->namelist, IF_REAL,
 	       &(data->NplotPtr));
 
 	error = CKTnoise(ckt,INT_NOIZ,N_CALC,data);

@@ -13,11 +13,11 @@ Modified: 2001 AlansFixes
  *  convergence test function, and the convergence parameters
  */
 
-#include "ngspice.h"
-#include "trandefs.h"
-#include "cktdefs.h"
-#include "smpdefs.h"
-#include "sperror.h"
+#include <ngspice/ngspice.h>
+#include <ngspice/trandefs.h>
+#include <ngspice/cktdefs.h>
+#include <ngspice/smpdefs.h>
+#include <ngspice/sperror.h>
 #include "niiter.h"
 
 
@@ -119,11 +119,11 @@ NIiter(CKTcircuit *ckt, int maxIter)
             }
 
             if(ckt->CKTniState & NISHOULDREORDER) {
-                startTime = (*(SPfrontEnd->IFseconds))();
+                startTime = SPfrontEnd->IFseconds();
                 error = SMPreorder(ckt->CKTmatrix,ckt->CKTpivotAbsTol,
                         ckt->CKTpivotRelTol,ckt->CKTdiagGmin);
-                ckt->CKTstat->STATreorderTime += 
-                        (*(SPfrontEnd->IFseconds))()-startTime;
+                ckt->CKTstat->STATreorderTime +=
+                        SPfrontEnd->IFseconds() - startTime;
                 if(error) {
                     /* new feature - we can now find out something about what is
                      * wrong - so we ask for the troublesome entry 
@@ -133,7 +133,7 @@ NIiter(CKTcircuit *ckt, int maxIter)
                     (void)sprintf(message,
                             "singular matrix:  check nodes %s and %s",
                             NODENAME(ckt,i),NODENAME(ckt,j));
-                    (*(SPfrontEnd->IFerror))(ERR_WARNING,message,(IFuid *)NULL);
+                    SPfrontEnd->IFerror (ERR_WARNING, message, NULL);
                     FREE(message);
                     ckt->CKTstat->STATnumIter += iterno;
 #ifdef STEPDEBUG
@@ -144,11 +144,11 @@ NIiter(CKTcircuit *ckt, int maxIter)
                 }
                 ckt->CKTniState &= ~NISHOULDREORDER;
             } else {
-                startTime = (*(SPfrontEnd->IFseconds))();
+                startTime = SPfrontEnd->IFseconds();
                 error=SMPluFac(ckt->CKTmatrix,ckt->CKTpivotAbsTol,
                         ckt->CKTdiagGmin);
-                ckt->CKTstat->STATdecompTime += 
-                        (*(SPfrontEnd->IFseconds))()-startTime;
+                ckt->CKTstat->STATdecompTime +=
+                        SPfrontEnd->IFseconds() - startTime;
                 if(error) {
                     if( error == E_SINGULAR ) {
                         ckt->CKTniState |= NISHOULDREORDER;
@@ -181,9 +181,9 @@ NIiter(CKTcircuit *ckt, int maxIter)
                 *(OldCKTstate0+i) = *(ckt->CKTstate0+i);
             }
             
-            startTime = (*(SPfrontEnd->IFseconds))();
+            startTime = SPfrontEnd->IFseconds();
             SMPsolve(ckt->CKTmatrix,ckt->CKTrhs,ckt->CKTrhsSpare);
-            ckt->CKTstat->STATsolveTime += (*(SPfrontEnd->IFseconds))()-
+            ckt->CKTstat->STATsolveTime += SPfrontEnd->IFseconds() -
                     startTime;
 	    
 	    error = OK;

@@ -1,12 +1,12 @@
 #include "config.h"
 
-#include "devdefs.h"
+#include <ngspice/devdefs.h>
 
 #include "bsim3v1itf.h"
 #include "bsim3v1ext.h"
 #include "bsim3v1init.h"
 
-SPICEdev B3v1info = {
+SPICEdev BSIM3v1info = {
     {   "BSIM3v1",
         "Berkeley Short Channel IGFET Model Version-3 (3.1)",
 
@@ -78,5 +78,5 @@ SPICEdev B3v1info = {
 SPICEdev *
 get_bsim3v1_info(void)
 {
-     return &B3v1info; 
+     return &BSIM3v1info; 
 }

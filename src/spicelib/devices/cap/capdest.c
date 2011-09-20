@@ -6,9 +6,9 @@ Modified: September 2003 Paolo Nenzi
 /*
  */
 
-#include "ngspice.h"
+#include <ngspice/ngspice.h>
 #include "capdefs.h"
-#include "suffix.h"
+#include <ngspice/suffix.h>
 
 
 void
@@ -25,7 +25,7 @@ CAPdestroy(GENmodel **inModel)
     for( ; mod ; mod = mod->CAPnextModel) {
         if(oldmod) FREE(oldmod);
         oldmod = mod;
-        prev = (CAPinstance *)NULL;
+        prev = NULL;
         for(here = mod->CAPinstances ; here ; here = here->CAPnextInstance) {
             if(prev) FREE(prev);
             prev = here;

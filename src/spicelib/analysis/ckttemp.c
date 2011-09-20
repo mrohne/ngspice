@@ -9,12 +9,12 @@ Author: 1985 Thomas L. Quarles
      * elements in the given circuit 
      */
 
-#include "ngspice.h"
-#include "smpdefs.h"
-#include "cktdefs.h"
-#include "const.h"
-#include "devdefs.h"
-#include "sperror.h"
+#include <ngspice/ngspice.h>
+#include <ngspice/smpdefs.h>
+#include <ngspice/cktdefs.h>
+#include <ngspice/const.h>
+#include <ngspice/devdefs.h>
+#include <ngspice/sperror.h>
 
 
 int
@@ -26,9 +26,8 @@ CKTtemp(CKTcircuit *ckt)
     ckt->CKTvt = CONSTKoverQ * ckt->CKTtemp;
 
     for (i=0;i<DEVmaxnum;i++) {
-        if ( DEVices[i] && ((*DEVices[i]).DEVtemperature != NULL) &&
-                (ckt->CKThead[i] != NULL) ){
-            error = (*((*DEVices[i]).DEVtemperature))(ckt->CKThead[i],ckt);
+        if ( DEVices[i] && DEVices[i]->DEVtemperature && ckt->CKThead[i] ) {
+            error = DEVices[i]->DEVtemperature (ckt->CKThead[i], ckt);
             if(error) return(error);
         }
     }

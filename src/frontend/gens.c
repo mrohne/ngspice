@@ -1,12 +1,12 @@
-#include "ngspice.h"
-#include "ifsim.h"
-#include "gendefs.h"
-#include "cktdefs.h"
-#include "cpstd.h"
-#include "ftedefs.h"
-#include "fteext.h"
-#include "devdefs.h"
-#include "dgen.h"
+#include <ngspice/ngspice.h>
+#include <ngspice/ifsim.h>
+#include <ngspice/gendefs.h>
+#include <ngspice/cktdefs.h>
+#include <ngspice/cpstd.h>
+#include <ngspice/ftedefs.h>
+#include <ngspice/fteext.h>
+#include <ngspice/devdefs.h>
+#include <ngspice/dgen.h>
 #include "gens.h"
 
 
@@ -19,7 +19,7 @@ void
 wl_forall(wordlist *wl, void (*fn)(wordlist*, dgen*), dgen *data)
 {
 	while (wl) {
-		(*fn)(wl, data);
+		fn (wl, data);
 		wl = wl->wl_next;
 	}
 }
@@ -74,7 +74,7 @@ dgen_for_n(dgen *dg, int n, int (*fn) (dgen*, IFparm*, int), IFparm *data, int s
 	k = 0;
 	for (i = 0; dgxp && dgxp->dev_type_no == dnum && i < n; i++) {
 		/*printf("Loop at %d\n", i);*/
-		j = (*fn)(dgxp, data, subindex);
+		j = fn (dgxp, data, subindex);
 		if (j > k)
 			k = j;
 		dgen_next(&dgxp);
@@ -215,10 +215,10 @@ dgen_next(dgen **dgx)
 
 				if (p[-1] == ':') {
 					head_match = 1;
-					subckt_len = p - word - 1;
+					subckt_len = (int)(p - word) - 1;
 				} else {
 					head_match = 0;
-					subckt_len = p - word;
+					subckt_len = (int)(p - word);
 				}
 
 				if (subckt_len == 0) {

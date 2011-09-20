@@ -4,10 +4,10 @@
  * 
  */
 
-#include "ngspice.h"
+#include <ngspice/ngspice.h>
 #include <stdio.h>
 #include <string.h>
-#include "inpdefs.h"
+#include <ngspice/inpdefs.h>
 #include "inp.h"
 
 char *INPfindVer(char *line, char *version)
@@ -28,11 +28,11 @@ char *INPfindVer(char *line, char *version)
 	/* now the magic string */
 	sscanf(where, "%s", version);	/* We get the version number */
 
-	return ((char *) NULL);
+	return (NULL);
     }
     else {			/* no level on the line => default */
         sprintf( version, "default" );
 	printf("Warning -- Version not specified on line \"%s\"\nSetting version to 'default'.\n", line);
-	return ((char *) NULL);
+	return (NULL);
     }
 }

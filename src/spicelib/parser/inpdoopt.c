@@ -9,12 +9,12 @@ Modified: 2000 AlansFixes
      *  the given circuit 
      */
 
-#include "ngspice.h"
+#include <ngspice/ngspice.h>
 #include <stdio.h>
-#include "inpdefs.h"
-#include "ifsim.h"
-#include "cpdefs.h"
-#include "fteext.h"
+#include <ngspice/inpdefs.h>
+#include <ngspice/ifsim.h>
+#include <ngspice/cpdefs.h>
+#include <ngspice/fteext.h>
 
 
 void
@@ -66,8 +66,8 @@ INPdoOpts(
                 if(prm->analysisParms[i].dataType & IF_SET) {
                     val = INPgetValue(ckt,&line,
                             prm->analysisParms[i].dataType&IF_VARTYPES, tab);
-                    error = (*(ft_sim->setAnalysisParm))(ckt,anal,
-                            prm->analysisParms[i].id,val,(IFvalue*)NULL);
+                    error = ft_sim->setAnalysisParm (ckt, anal,
+                            prm->analysisParms[i].id, val, NULL);
                     if(error) {
                         errmsg = TMALLOC(char, 35 + strlen(token));
                         (void) sprintf(errmsg,

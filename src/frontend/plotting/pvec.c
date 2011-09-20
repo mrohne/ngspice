@@ -1,9 +1,10 @@
-#include <ngspice.h>
-#include <dvec.h>
-#include <plot.h>
-#include <fteext.h>
+#include <ngspice/ngspice.h>
+#include <ngspice/dvec.h>
+#include <ngspice/plot.h>
+#include <ngspice/fteext.h>
 
 #include "pvec.h"
+#include "dimens.h"
 
 void
 pvec(struct dvec *d)

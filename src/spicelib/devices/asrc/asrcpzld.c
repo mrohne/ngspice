@@ -3,12 +3,12 @@ Copyright 1990 Regents of the University of California.  All rights reserved.
 Author: 1987 Kanwar Jit Singh
 **********/
 
-#include "ngspice.h"
-#include "cktdefs.h"
+#include <ngspice/ngspice.h>
+#include <ngspice/cktdefs.h>
 #include "asrcdefs.h"
-#include "sperror.h"
-#include "suffix.h"
-#include "complex.h"
+#include <ngspice/sperror.h>
+#include <ngspice/suffix.h>
+#include <ngspice/complex.h>
 
 /*ARGSUSED*/
 int
@@ -60,7 +60,7 @@ ASRCpzLoad(GENmodel *inModel, CKTcircuit *ckt, SPcomplex *s)
                 }
             }
 
-            if((*(here->ASRCtree->IFeval))(here->ASRCtree, ckt->CKTgmin, &value, asrc_vals, asrc_derivs) != OK)
+            if(here->ASRCtree->IFeval (here->ASRCtree, ckt->CKTgmin, &value, asrc_vals, asrc_derivs) != OK)
                 return(E_BADPARM);
 
             if( here->ASRCtype == ASRC_VOLTAGE) {

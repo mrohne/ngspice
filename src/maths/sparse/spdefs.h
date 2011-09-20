@@ -27,8 +27,8 @@
  *  software for any purpose.  It is provided `as is', without express
  *  or implied warranty.
  *
- *  $Date: 2010/12/30 14:49:35 $
- *  $Revision: 1.19 $
+ *  $Date: 2011/08/20 17:27:12 $
+ *  $Revision: 1.20 $
  */
 
 
@@ -387,7 +387,7 @@ extern void * trealloc(void *, size_t);
 }
 #endif
 
-#include "defines.h"
+#include <ngspice/defines.h>
 
 
 /*

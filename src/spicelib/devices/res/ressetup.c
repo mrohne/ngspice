@@ -4,10 +4,10 @@ Author: 1985 Thomas L. Quarles
 Modified: Apr 2000 Paolo Nenzi
 **********/
 
-#include "ngspice.h"
-#include "smpdefs.h"
+#include <ngspice/ngspice.h>
+#include <ngspice/smpdefs.h>
 #include "resdefs.h"
-#include "sperror.h"
+#include <ngspice/sperror.h>
 
 
 int 
@@ -44,7 +44,7 @@ RESsetup(SMPmatrix *matrix, GENmodel *inModel, CKTcircuit*ckt, int *state)
 	    
 /* macro to make elements with built in test for out of memory */
 #define TSTALLOC(ptr,first,second) \
-if((here->ptr = SMPmakeElt(matrix,here->first,here->second))==(double *)NULL){\
+if((here->ptr = SMPmakeElt(matrix, here->first, here->second)) == NULL){\
     return(E_NOMEM);\
 }
 

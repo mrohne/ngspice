@@ -5,9 +5,9 @@ Author: 1985 Thomas L. Quarles
 /*
  */
 
-#include "ngspice.h"
+#include <ngspice/ngspice.h>
 #include "isrcdefs.h"
-#include "suffix.h"
+#include <ngspice/suffix.h>
 
 
 void
@@ -22,7 +22,7 @@ ISRCdestroy(GENmodel **inModel)
     for( ; mod ; mod = mod->ISRCnextModel) {
         if(oldmod) FREE(oldmod);
         oldmod = mod;
-        prev = (ISRCinstance *)NULL;
+        prev = NULL;
         for(here = mod->ISRCinstances ; here ; here = here->ISRCnextInstance) {
             if(prev) FREE(prev);
             prev = here;

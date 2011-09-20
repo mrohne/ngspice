@@ -1,9 +1,9 @@
-/* Hauptprogramm fuer Spice 3F5 unter Windows95
+/* Main program for ngspice under Windows OS
     Autor: Wolfgang Muees
     Stand: 28.10.97
     Autor: Holger Vogt
     Stand: 17.10.2009
- $Id: winmain.c,v 1.23 2010/09/07 20:07:57 rlar Exp $
+ $Id: winmain.c,v 1.32 2011/08/20 17:27:10 rlar Exp $
 */
 #include "config.h"
 #ifdef HAS_WINDOWS
@@ -25,11 +25,11 @@
 #include <ctype.h>
 #include <sys/types.h>
 #include <sys/timeb.h>
-#include "bool.h"           /* bool defined as unsigned char */
+#include <ngspice/bool.h>           /* bool defined as unsigned char */
 #include "misc/misc_time.h" /* timediff */
 
 /* Constants */
-#define TBufSize 8192       // size of text buffer
+#define TBufSize 65536       // size of text buffer
 #define CR VK_RETURN        // Carriage Return
 #define LF 10               // Line Feed
 #define SE 0                // String termination
@@ -43,6 +43,11 @@
 #define SourceLength 500        // Platz fuer Source File Name
 #define AnalyseLength 100       // Platz fuer Analyse
 #define QuitButtonLength 80
+
+/* macro to ignore unused variables and parameters */
+#define NG_IGNORE(x)  (void)x
+
+#define QUIT_BUTTON_ID 2
 
 /* Types */
 typedef char SBufLine[SBufSize+1];  // Eingabezeile
@@ -86,19 +91,19 @@ static SBufLine HistBuffer[HistSize];  /* History buffer for string window */
 static int HistIndex = 0;              /* History management */
 static int HistPtr   = 0;              /* History management */
 
-extern bool oflag;      /* if TRUE, Output to stdout redirected into file */
 extern bool ft_ngdebug; /* some additional debug info printed */
 extern bool ft_batchmode;
-extern FILE *flogp;     /* definition see xmain.c */
+extern FILE *flogp;     /* definition see xmain.c, stdout redirected to file */
 
+#include "winmain.h"
 /* Forward definition of main() */
-int xmain( int argc, char * argv[]);
+//int xmain( int argc, char * argv[]);
 /* forward of Update function */
-void DisplayText( void);
+/*void DisplayText( void);
 char* rlead(char*);
 void winmessage(char*);
 int p_r_i_n_t_f(const char * __format, ...);
-int f_f_l_u_s_h( FILE * __stream);
+int f_f_l_u_s_h( FILE * __stream); */
 
 /* private heap for storing plot data */
 HANDLE outheap;
@@ -106,7 +111,7 @@ HANDLE outheap;
 /* --------------------------<history management>------------------------------ */
 
 /* Clear history buffer, set pointer to the beginning */
-void HistoryInit(void)
+static void HistoryInit(void)
 {
     int i;
     HistIndex = 0;
@@ -116,7 +121,7 @@ void HistoryInit(void)
 }
 
 /* Delete first line of buffer, all other lines move one down */
-void HistoryScroll(void)
+static void HistoryScroll(void)
 {
     memmove( &(HistBuffer[0]), &(HistBuffer[1]), sizeof(SBufLine) * (HistSize-1));
     HistBuffer[HistSize-1][0] = SE;
@@ -125,7 +130,7 @@ void HistoryScroll(void)
 }
 
 /* Enter new input line into history buffer */
-void HistoryEnter( char * newLine)
+static void HistoryEnter( char * newLine)
 {
     if (!newLine || !*newLine) return;
     if (HistPtr == HistSize) HistoryScroll();
@@ -135,14 +140,14 @@ void HistoryEnter( char * newLine)
 }
 
 // Mit dem Index eine Zeile zurueckgehen und den dort stehenden Eintrag zurueckgeben
-char * HistoryGetPrev(void)
+static char * HistoryGetPrev(void)
 {
     if (HistIndex) HistIndex--;
     return &(HistBuffer[HistIndex][0]);
 }
 
 // Mit dem Index eine Zeile vorgehen und den dort stehenden Eintrag zurueckgeben
-char * HistoryGetNext(void)
+static char * HistoryGetNext(void)
 {
     if (HistIndex < HistPtr) HistIndex++;
     if (HistIndex == HistPtr) return ""; //HistIndex--;
@@ -166,7 +171,7 @@ void WaitForIdle(void)
 
 // Warte, bis keine Messages mehr zu bearbeiten sind,
 // dann warte auf neue Message (Input handling ohne Dauerloop)
-void WaitForMessage(void)
+static void WaitForMessage(void)
 {
     MSG m;
     // arbeite alle Nachrichten ab
@@ -180,7 +185,7 @@ void WaitForMessage(void)
 // -----------------------------<Stringfenster>--------------------------------
 
 // Loeschen des Stringfensters
-void ClearInput(void)
+static void ClearInput(void)
 {
     // Darstellen
     Edit_SetText( swString, "");
@@ -238,7 +243,11 @@ void SetAnalyse(
       else if (DecaPercent == 0) {
          sprintf( s, "%s", Analyse);
          sprintf( t, "%s   %s", PACKAGE_STRING, Analyse);
-      }   
+      }  
+      else if (!strcmp(Analyse, "shooting")) {
+         sprintf( s, "%s: %d", Analyse, DecaPercent);
+         sprintf( t, "%s   %d", PACKAGE_STRING, DecaPercent);
+      }
       else {
          sprintf( s, "%s: %3.1f%%", Analyse, (double)DecaPercent/10.);
          sprintf( t, "%s   %3.1f%%", PACKAGE_STRING, (double)DecaPercent/10.);
@@ -267,7 +276,7 @@ void SetAnalyse(
 
 // Anpassen des Scrollers im Textfenster
 // Stellt gleichzeitig den Text neu dar
-void AdjustScroller(void)
+static void AdjustScroller(void)
 {
     int LineCount;
     int FirstLine;
@@ -282,7 +291,7 @@ void AdjustScroller(void)
 }
 
 // Loeschen einer Zeile im Textbuffer
-void _DeleteFirstLine(void)
+static void _DeleteFirstLine(void)
 {
     char * cp = strchr( TBuffer, LF);
     if (!cp) {
@@ -292,13 +301,13 @@ void _DeleteFirstLine(void)
         return;
     }
     cp++;
-    TBufEnd -= cp - TBuffer;
+    TBufEnd -= (size_t)(cp - TBuffer);
     memmove( TBuffer, cp, TBufEnd);
     TBuffer[TBufEnd] = SE;
 }
 
 // Anfuegen eines chars an den TextBuffer
-void AppendChar( char c)
+static void AppendChar( char c)
 {
     // Textbuffer nicht zu grosz werden lassen
     while ((TBufEnd+4) >= TBufSize)
@@ -313,7 +322,7 @@ void AppendChar( char c)
 }
 
 // Anfuegen eines Strings an den TextBuffer
-void AppendString( const char * Line)
+static void AppendString( const char * Line)
 {
     size_t i;
     if (!Line) return;
@@ -330,7 +339,7 @@ void AppendString( const char * Line)
 }
 
 // Text neu darstellen
-void DisplayText( void)
+static void DisplayText( void)
 {
     // Darstellen
     Edit_SetText( twText, TBuffer);
@@ -353,7 +362,7 @@ void AppendLine( const char * Line)
 // -----------------------------------<User-IO>--------------------------------
 
 // Lese ein Zeichen ein
-int w_getch(void)
+static int w_getch(void)
 {
     int c;
 
@@ -385,7 +394,7 @@ int w_getch(void)
 }
 
 // Gebe ein Zeichen aus
-int w_putch( int c)
+static int w_putch( int c)
 {
     if (c)
         AppendChar( (char)c );
@@ -395,9 +404,12 @@ int w_putch( int c)
 /* -------------------------------<Window procedures>-------------------------- */
 
 /* Main window changes size */
-void Main_OnSize(HWND hwnd, UINT state, int cx, int cy)
+static void Main_OnSize(HWND hwnd, UINT state, int cx, int cy)
 {
     int h = cy - LineHeight - StatusHeight;
+
+    NG_IGNORE(hwnd);
+    NG_IGNORE(state);
 
     /* Expand text window */
     MoveWindow( twText, 0, 0, cx, h , TRUE);
@@ -417,14 +429,14 @@ void Main_OnSize(HWND hwnd, UINT state, int cx, int cy)
 }
 
 /* Write a command into the command buffer */
-void PostSpiceCommand( const char * const cmd)
+static void PostSpiceCommand( const char * const cmd)
 {
     strcpy( SBuffer, cmd);
     strcat( SBuffer, CRLF);
 }
 
 /* Main Window procedure */
-LRESULT CALLBACK MainWindowProc( HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+static LRESULT CALLBACK MainWindowProc( HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
     switch (uMsg) {
 
@@ -433,7 +445,7 @@ LRESULT CALLBACK MainWindowProc( HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPa
         if (HIWORD(wParam) == BN_CLICKED)
            if (ft_batchmode && (MessageBox(NULL, "Do you want to quit ngspice?", "Quit", MB_OKCANCEL|MB_ICONERROR)
               == IDCANCEL)) goto DEFAULT_AFTER;
-           if (LOWORD(wParam) == 2) {
+           if (LOWORD(wParam) == QUIT_BUTTON_ID) {
               SendMessage(GetParent((HWND)lParam), WM_CLOSE, 0, 0);
            }
            /* write all achieved so far to log file */
@@ -482,7 +494,7 @@ DEFAULT_AFTER:
 }
 
 /* Procedure for string window */
-LRESULT CALLBACK StringWindowProc( HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+static LRESULT CALLBACK StringWindowProc( HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
     char c;
     UINT i;
@@ -524,7 +536,7 @@ DEFAULT:
 }
 
 /* Procedure for text window */
-LRESULT CALLBACK TextWindowProc( HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+static LRESULT CALLBACK TextWindowProc( HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
     unsigned char c;
     UINT i;
@@ -554,7 +566,7 @@ DEFAULT_TEXT:
 }
 
 
-void Element_OnPaint(HWND hwnd)
+static void Element_OnPaint(HWND hwnd)
 {
     PAINTSTRUCT ps;
     RECT r;
@@ -598,7 +610,7 @@ void Element_OnPaint(HWND hwnd)
     o = GetStockObject( LTGRAY_BRUSH);
     FillRect( hdc, &s, o);
     SetBkMode( hdc, TRANSPARENT);
-    ExtTextOut( hdc, s.left+1, s.top+1, ETO_CLIPPED, &s, buffer, i, NULL);
+    ExtTextOut( hdc, s.left+1, s.top+1, ETO_CLIPPED, &s, buffer, (unsigned)i, NULL);
 
     /* End */
     EndPaint( hwnd, &ps);
@@ -606,7 +618,7 @@ void Element_OnPaint(HWND hwnd)
 
 
 /* Procedure for element window */
-LRESULT CALLBACK ElementWindowProc( HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+static LRESULT CALLBACK ElementWindowProc( HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
     switch (uMsg) {
 
@@ -638,7 +650,7 @@ LRESULT CALLBACK ElementWindowProc( HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM 
         0  on success
         -1 on failure
 */
-int MakeArgcArgv(char *cmdline,int *argc,char ***argv)
+static int MakeArgcArgv(char *cmdline,int *argc,char ***argv)
 {
     char  *pC1;         /*  a temporary character pointer */
     char  *pWorkString=NULL;        /*  a working copy of cmdline */
@@ -725,7 +737,7 @@ int MakeArgcArgv(char *cmdline,int *argc,char ***argv)
         }
     }
     /* malloc an argv */
-    tmpargv = (char**)malloc(numargs * sizeof(char *));
+    tmpargv = (char**)malloc((unsigned)numargs * sizeof(char *));
     if (NULL == tmpargv)
     {
         status = -1;
@@ -775,6 +787,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdLi
     char **argv;
 
 	RECT wsize; /* size of usable window */
+
+    NG_IGNORE(hPrevInstance);
 
     /* fill global variables */
     hInst = hInstance;
@@ -896,7 +910,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdLi
     /* Create "Quit" button */
     hwQuitButton = CreateWindow("BUTTON", "Quit", WS_CHILD | 
        BS_PUSHBUTTON, 0, 0, QuitButtonLength, 
-       StatusElHeight, hwMain, (HMENU) 2, hInst, NULL);
+       StatusElHeight, hwMain, (HMENU)(UINT_PTR)QUIT_BUTTON_ID, hInst, NULL);
     
     if (!hwQuitButton) goto THE_END;
 
@@ -954,7 +968,7 @@ THE_END:
 
 int f_f_l_u_s_h( FILE * __stream)
 {
-    if (((__stream == stdout) && (oflag == FALSE)) || (__stream == stderr))
+    if (((__stream == stdout) && !flogp) || (__stream == stderr))
         return 0;
     else
         return fflush(__stream);
@@ -975,7 +989,7 @@ int fg_e_t_c( FILE * __stream)
 int f_g_e_t_p_o_s( FILE * __stream, fpos_t * __pos)
 {
     int result;
-    if ((__stream == stdin) || ((__stream == stdout) && (oflag == FALSE)) || (__stream == stderr)) {
+    if ((__stream == stdin) || ((__stream == stdout) && !flogp) || (__stream == stderr)) {
         assert(FALSE);
         return 0;
     } else
@@ -1005,12 +1019,12 @@ char * fg_e_t_s(char * __s, int __n, FILE * __stream)
 
 int fp_u_t_c(int __c, FILE * __stream)
 {
-    if ((oflag == FALSE) && ((__stream == stdout) || (__stream == stderr))) {
+    if (!flogp && ((__stream == stdout) || (__stream == stderr))) {
         if ( __c == LF)
             w_putch( CR);
         return w_putch(__c);
 //   Ausgabe in Datei *.log  14.6.2000
-    } else if ((oflag == TRUE) && ((__stream == stdout) || __stream == stderr)) {
+    } else if (flogp && ((__stream == stdout) || __stream == stderr)) {
         return fputc( __c, flogp);
     } else
         return fputc( __c, __stream);
@@ -1018,7 +1032,7 @@ int fp_u_t_c(int __c, FILE * __stream)
 
 int fp_u_t_s(const char * __s, FILE * __stream)
 {
-//  if (((__stream == stdout) && (oflag == FALSE)) || (__stream == stderr)) {    hvogt 14.6.2000
+//  if (((__stream == stdout) && !flogp) || (__stream == stderr)) {    hvogt 14.6.2000
     if ((__stream == stdout) || (__stream == stderr)) {
 
         int c = SE;
@@ -1041,7 +1055,7 @@ int fp_r_i_n_t_f(FILE * __stream, const char * __format, ...)
     va_list args;
     va_start(args, __format);
 
-//  if (((__stream == stdout) && (oflag == FALSE)) || (__stream == stderr)) {
+//  if (((__stream == stdout) && !flogp) || (__stream == stderr)) {
     if ((__stream == stdout) || (__stream == stderr)) {
 
         s[0] = SE;
@@ -1056,7 +1070,7 @@ int fp_r_i_n_t_f(FILE * __stream, const char * __format, ...)
 
 int f_c_l_o_s_e( FILE * __stream)
 {
-    if ((__stream == stdin) || ((__stream == stdout) && (oflag == FALSE)) || (__stream == stderr)) {
+    if ((__stream == stdin) || ((__stream == stdout) && !flogp) || (__stream == stderr)) {
         assert(FALSE);
         return 0;
     }
@@ -1065,8 +1079,8 @@ int f_c_l_o_s_e( FILE * __stream)
 
 size_t f_r_e_a_d(void * __ptr, size_t __size, size_t __n, FILE * __stream)
 {
-//  if ((__stream == stdin) || ((__stream == stdout) && (oflag == FALSE)) || (__stream == stderr)) {
-    if (((__stream == stdout) && (oflag == FALSE)) || (__stream == stderr)) {
+//  if ((__stream == stdin) || ((__stream == stdout) && !flogp) || (__stream == stderr)) {
+    if (((__stream == stdout) && !flogp) || (__stream == stderr)) {
         assert(FALSE);
         return 0;
     }
@@ -1093,7 +1107,7 @@ size_t f_r_e_a_d(void * __ptr, size_t __size, size_t __n, FILE * __stream)
 
 FILE * f_r_e_o_p_e_n(const char * __path, const char * __mode, FILE * __stream)
 {
-    if ((__stream == stdin)/* || ((__stream == stdout) && (oflag == FALSE)) || (__stream == stderr)*/) {
+    if ((__stream == stdin)/* || ((__stream == stdout) && !flogp) || (__stream == stderr)*/) {
         assert(FALSE);
         return 0;
     }
@@ -1105,7 +1119,7 @@ int fs_c_a_n_f(FILE * __stream, const char * __format, ...)
     int result;
     va_list args;
     va_start(args, __format);
-    if ((__stream == stdin) || ((__stream == stdout) && (oflag == FALSE)) || (__stream == stderr)) {
+    if ((__stream == stdin) || ((__stream == stdout) && !flogp) || (__stream == stderr)) {
         assert(FALSE);
         return 0;
     }
@@ -1116,7 +1130,7 @@ int fs_c_a_n_f(FILE * __stream, const char * __format, ...)
 
 int f_s_e_e_k(FILE * __stream, long __offset, int __whence)
 {
-    if ((__stream == stdin) || ((__stream == stdout) && (oflag == FALSE)) || (__stream == stderr)) {
+    if ((__stream == stdin) || ((__stream == stdout) && !flogp) || (__stream == stderr)) {
         assert(FALSE);
         return 0;
     }
@@ -1125,7 +1139,7 @@ int f_s_e_e_k(FILE * __stream, long __offset, int __whence)
 
 int f_s_e_t_p_o_s(FILE * __stream, const fpos_t *__pos)
 {
-    if ((__stream == stdin) || ((__stream == stdout) && (oflag == FALSE)) || (__stream == stderr)) {
+    if ((__stream == stdin) || ((__stream == stdout) && !flogp) || (__stream == stderr)) {
         assert(FALSE);
         return 0;
     }
@@ -1134,7 +1148,7 @@ int f_s_e_t_p_o_s(FILE * __stream, const fpos_t *__pos)
 
 long f_t_e_l_l(FILE * __stream)
 {
-    if ((__stream == stdin) || ((__stream == stdout) && (oflag == FALSE)) || (__stream == stderr)) {
+    if ((__stream == stdin) || ((__stream == stdout) && !flogp) || (__stream == stderr)) {
         assert(FALSE);
         return 0;
     }
@@ -1157,7 +1171,7 @@ size_t f_w_r_i_t_e(const void * __ptr, size_t __size, size_t __n, FILE * __strea
 
 //      p_r_i_n_t_f("test1 %s\n", __s);
 
-        if (!__s) return EOF;
+        if (!__s) return 0 /*EOF*/;
         for (i = 0; i< (__size * __n); i++) {
             if (*__s) {
                 c = *__s++;
@@ -1186,7 +1200,7 @@ void p_e_r_r_o_r(const char * __s)
     fp_r_i_n_t_f(stderr, "%s: %s\n", __s, cp);
     /* output to message box 
     sprintf(s, "%s: %s\n", __s, cp);
-    if (!oflag) winmessage(s);*/
+    if (!flogp) winmessage(s);*/
 }
 
 int p_r_i_n_t_f(const char * __format, ...)
@@ -1210,12 +1224,15 @@ int p_u_t_s(const char * __s)
 
 int s_c_a_n_f(const char * __format, ...)
 {
+    NG_IGNORE(__format);
     assert( FALSE);
     return FALSE;
 }
 
 int ung_e_t_c(int __c, FILE * __stream)
 {
+    NG_IGNORE(__c);
+    NG_IGNORE(__stream);
     assert( FALSE);
     return FALSE;
 }
@@ -1226,7 +1243,7 @@ int vfp_r_i_n_t_f(FILE * __stream, const char * __format, void * __arglist)
     char s [IOBufSize];
 
     s[0] = SE;
-//  if (((__stream == stdout) && (oflag == FALSE)) || (__stream == stderr)) {
+//  if (((__stream == stdout) && !flogp) || (__stream == stderr)) {
     if ((__stream == stdout) || (__stream == stderr)) {
 
         result = vsprintf( s, __format, __arglist);
@@ -1394,7 +1411,7 @@ int system( const char * command)
 #endif
 */
 /* Strip leading spaces, return a copy of s */
-char* rlead(char *s)
+/*static char* rlead(char *s)
 {
    int i,j=0;
    static char temp[512];
@@ -1403,7 +1420,7 @@ char* rlead(char *s)
    {
       if(isspace(s[i]) && has_space)
       {
-         ; /*Do nothing*/
+         ; //Do nothing
       }
       else
       {
@@ -1415,11 +1432,12 @@ char* rlead(char *s)
    temp[j] = '\0';
    return copy(temp);
 } 
+*/
 
 void winmessage(char* new_msg)
 {
     /* open a message box only if message is not written into -o xxx.log */
-   if (oflag == FALSE)
+   if (!flogp)
       MessageBox(NULL, new_msg, "Ngspice Info", MB_OK|MB_ICONERROR);
 }
 

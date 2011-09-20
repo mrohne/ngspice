@@ -1,7 +1,7 @@
 /**********
 Copyright 1990 Regents of the University of California.  All rights reserved.
 Author: 1985 Wayne A. Christopher, U. C. Berkeley CAD Group
-$Id: parse.c,v 1.35 2010/12/28 19:01:30 h_vogt Exp $
+$Id: parse.c,v 1.38 2011/08/20 17:27:11 rlar Exp $
 **********/
 
 /*
@@ -9,16 +9,14 @@ $Id: parse.c,v 1.35 2010/12/28 19:01:30 h_vogt Exp $
  * This also handles relational and logical expressions.
  */
 
-#include <ngspice.h>
-#include <bool.h>
-#include <fteparse.h>
-#include <fteext.h>
-#include <sim.h>
+#include <ngspice/ngspice.h>
+#include <ngspice/bool.h>
+#include <ngspice/fteparse.h>
+#include <ngspice/fteext.h>
+#include <ngspice/sim.h>
 
 #include "evaluate.h"
 #include "parse.h"
-
-#include "../maths/cmaths/cmath2.h"
 
 /* static declarations */
 static bool checkvalid(struct pnode *pn);
@@ -143,6 +141,8 @@ typedef void* cx_function_t(void*,short int,int,int*,short int*);
 struct func ft_funcs[] = {
         { "mag",    cx_mag } ,
         { "magnitude", cx_mag } ,
+        { "cph",     cx_cph } ,  /* SJdV */
+        { "cphase",  cx_cph } ,  /* SJdV Continious phase*/
         { "ph",     cx_ph } ,
         { "phase",  cx_ph } ,
         { "j",      cx_j } ,
@@ -160,6 +160,9 @@ struct func ft_funcs[] = {
         { "sin",    cx_sin } ,
         { "cos",    cx_cos } ,
         { "tan",    cx_tan } ,
+        { "sinh",   cx_sinh } ,
+        { "cosh",   cx_cosh } ,
+        { "tanh",   cx_tanh } ,
         { "atan",   cx_atan } ,
         { "norm",   cx_norm } ,
         { "rnd",    cx_rnd } ,

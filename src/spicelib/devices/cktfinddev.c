@@ -4,16 +4,15 @@ Author: 1985 Thomas L. Quarles
 **********/
 
 #include <config.h>
-#include <cktdefs.h>
-#include <devdefs.h>
-#include <sperror.h>
+#include <ngspice/cktdefs.h>
+#include <ngspice/devdefs.h>
+#include <ngspice/sperror.h>
 #include "string.h"
 
 
 int
-CKTfndDev(CKTcircuit *Ckt, int *type, GENinstance **fast, IFuid name, GENmodel *modfast, IFuid modname)
+CKTfndDev(CKTcircuit *ckt, int *type, GENinstance **fast, IFuid name, GENmodel *modfast, IFuid modname)
 {
-    CKTcircuit *ckt= /* fixme, drop that */ Ckt;
    GENinstance *here;
    GENmodel *mods;
 
@@ -51,7 +50,7 @@ CKTfndDev(CKTcircuit *Ckt, int *type, GENinstance **fast, IFuid name, GENmodel *
 	     mods = mods->GENnextModel) 
       {
          /* and all instances */
-         if (modname == (char *)NULL || mods->GENmodName == modname) {
+         if (modname == NULL || mods->GENmodName == modname) {
             for (here = mods->GENinstances;
                here != NULL; 
                here = here->GENnextInstance) 
@@ -77,7 +76,7 @@ CKTfndDev(CKTcircuit *Ckt, int *type, GENinstance **fast, IFuid name, GENmodel *
             mods = mods->GENnextModel) 
          {
             /* and all instances */
-            if(modname == (char *)NULL || mods->GENmodName == modname) {
+            if(modname == NULL || mods->GENmodName == modname) {
                for (here = mods->GENinstances;
                   here != NULL; 
                   here = here->GENnextInstance) 

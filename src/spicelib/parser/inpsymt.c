@@ -9,13 +9,13 @@ Author: 1985 Wayne A. Christopher, U. C. Berkeley CAD Group
  */
 /* MW. Special INPinsertNofree for routines from spiceif.c and outif.c */
 
-#include "ngspice.h"
+#include <ngspice/ngspice.h>
 #include <stdio.h>		/* Take this out soon. */
-#include "ifsim.h"
-#include "iferrmsg.h"
-#include "inpdefs.h"
-#include "cpstd.h"
-#include "fteext.h"
+#include <ngspice/ifsim.h>
+#include <ngspice/iferrmsg.h>
+#include <ngspice/inpdefs.h>
+#include <ngspice/cpstd.h>
+#include <ngspice/fteext.h>
 #include "inp.h"
 
 
@@ -57,10 +57,10 @@ int INPtermInsert(CKTcircuit *ckt, char **token, INPtables * tab, CKTnode **node
 	}
     }
     t = TMALLOC(struct INPnTab, 1);
-    if (t == (struct INPnTab *) NULL)
+    if (t == NULL)
 	return (E_NOMEM);
     ZERO(t, struct INPnTab);
-    error = (*(ft_sim->newNode)) (ckt, &t->t_node, *token);
+    error = ft_sim->newNode (ckt, &(t->t_node), *token);
     if (error)
 	return (error);
     if (node)
@@ -94,7 +94,7 @@ int INPmkTerm(CKTcircuit *ckt, char **token, INPtables * tab, CKTnode **node)
 	}
     }
     t = TMALLOC(struct INPnTab, 1);
-    if (t == (struct INPnTab *) NULL)
+    if (t == NULL)
 	return (E_NOMEM);
     ZERO(t, struct INPnTab);
     t->t_node = *node;
@@ -123,10 +123,10 @@ int INPgndInsert(CKTcircuit *ckt, char **token, INPtables * tab, CKTnode **node)
 	}
     }
     t = TMALLOC(struct INPnTab, 1);
-    if (t == (struct INPnTab *) NULL)
+    if (t == NULL)
 	return (E_NOMEM);
     ZERO(t, struct INPnTab);
-    error = (*(ft_sim->groundNode)) (ckt, &t->t_node, *token);
+    error = ft_sim->groundNode (ckt, &(t->t_node), *token);
     if (error)
 	return (error);
     if (node)
@@ -169,7 +169,7 @@ int INPinsert(char **token, INPtables * tab)
 	    return (E_EXISTS);
 	}
     t = TMALLOC(struct INPtab, 1);
-    if (t == (struct INPtab *) NULL)
+    if (t == NULL)
 	return (E_NOMEM);
     ZERO(t, struct INPtab);
     t->t_ent = *token;
@@ -196,7 +196,7 @@ int INPinsertNofree(char **token, INPtables * tab)
 	    return (E_EXISTS);
 	}
     t = TMALLOC(struct INPtab, 1);
-    if (t == (struct INPtab *) NULL)
+    if (t == NULL)
 	return (E_NOMEM);
     ZERO(t, struct INPtab);
     t->t_ent = *token;

@@ -5,12 +5,12 @@ Author: 1988 Thomas L. Quarles
 
 /* subroutine to do DC Transfer Function analysis     */
 
-#include "ngspice.h"
-#include "cktdefs.h"
-#include "ifsim.h"
-#include "sperror.h"
-#include "smpdefs.h"
-#include "tfdefs.h"
+#include <ngspice/ngspice.h>
+#include <ngspice/cktdefs.h>
+#include <ngspice/ifsim.h>
+#include <ngspice/sperror.h>
+#include <ngspice/smpdefs.h>
+#include <ngspice/tfdefs.h>
 
 
 /* ARGSUSED */
@@ -50,7 +50,7 @@ TFanal(CKTcircuit *ckt, int restart)
     Vtype = CKTtypelook("Vsource");
     if(Itype != -1) {
         error = CKTfndDev(ckt,&Itype,&ptr,
-                ((TFan*)ckt->CKTcurJob)->TFinSrc, (GENmodel *)NULL, (IFuid)NULL);
+                ((TFan*)ckt->CKTcurJob)->TFinSrc, NULL, NULL);
         if(error ==0) {
             ((TFan*)ckt->CKTcurJob)->TFinIsI = 1;
             ((TFan*)ckt->CKTcurJob)->TFinIsV = 0;
@@ -61,12 +61,12 @@ TFanal(CKTcircuit *ckt, int restart)
 
     if( (Vtype != -1) && (ptr==NULL) ) {
         error = CKTfndDev(ckt,&Vtype,&ptr,
-                ((TFan*)ckt->CKTcurJob)->TFinSrc, (GENmodel *)NULL,
-                (IFuid)NULL);
+                ((TFan*)ckt->CKTcurJob)->TFinSrc, NULL,
+                NULL);
         ((TFan*)ckt->CKTcurJob)->TFinIsV = 1;
         ((TFan*)ckt->CKTcurJob)->TFinIsI = 0;
         if(error !=0) {
-            (*(SPfrontEnd->IFerror))(ERR_WARNING,
+            SPfrontEnd->IFerror (ERR_WARNING,
                     "Transfer function source %s not in circuit",
                     &(((TFan*)ckt->CKTcurJob)->TFinSrc));
             ((TFan*)ckt->CKTcurJob)->TFinIsV = 0;
@@ -92,27 +92,27 @@ TFanal(CKTcircuit *ckt, int restart)
     ckt->CKTrhs[0]=0;
 
     /* make a UID for the transfer function output */
-    (*(SPfrontEnd->IFnewUid))(ckt,&tfuid,(IFuid)NULL,"Transfer_function",
+    SPfrontEnd->IFnewUid (ckt, &tfuid, NULL, "Transfer_function",
             UID_OTHER, NULL);
 
     /* make a UID for the input impedance */
-    (*(SPfrontEnd->IFnewUid))(ckt,&inuid,((TFan*)ckt->CKTcurJob)->TFinSrc,
+    SPfrontEnd->IFnewUid (ckt, &inuid, ((TFan*)ckt->CKTcurJob)->TFinSrc,
             "Input_impedance", UID_OTHER, NULL);
 
     /* make a UID for the output impedance */
     if(((TFan*)ckt->CKTcurJob)->TFoutIsI) {
-        (*(SPfrontEnd->IFnewUid))(ckt,&outuid,((TFan*)ckt->CKTcurJob)->TFoutSrc
+        SPfrontEnd->IFnewUid (ckt, &outuid, ((TFan*)ckt->CKTcurJob)->TFoutSrc
                 ,"Output_impedance", UID_OTHER, NULL);
     } else {
         name = TMALLOC(char, strlen(((TFan*)ckt->CKTcurJob)->TFoutName) + 22);
         (void)sprintf(name,"output_impedance_at_%s",
                 ((TFan*)ckt->CKTcurJob)->TFoutName);
-        (*(SPfrontEnd->IFnewUid))(ckt,&outuid,(IFuid)NULL,
+        SPfrontEnd->IFnewUid (ckt, &outuid, NULL,
                 name, UID_OTHER, NULL);
     }
 
-    error = (*(SPfrontEnd->OUTpBeginPlot))(ckt, ckt->CKTcurJob,
-            ((TFan*)(ckt->CKTcurJob))->JOBname,(IFuid)NULL,(int)0,3,
+    error = SPfrontEnd->OUTpBeginPlot (ckt, ckt->CKTcurJob,
+            ((TFan*)(ckt->CKTcurJob))->JOBname, NULL, 0, 3,
             uids,IF_REAL,&plotptr);
     if(error) return(error);
 
@@ -167,8 +167,8 @@ done:
     outdata.v.numValue=3;
     outdata.v.vec.rVec=outputs;
     refval.rValue = 0;
-    (*(SPfrontEnd->OUTpData))(plotptr,&refval,&outdata);
-    (*(SPfrontEnd->OUTendPlot))(plotptr);
+    SPfrontEnd->OUTpData (plotptr, &refval, &outdata);
+    SPfrontEnd->OUTendPlot (plotptr);
     return(OK);
 }
 

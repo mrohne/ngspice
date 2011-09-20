@@ -1,19 +1,19 @@
 /**********
 Copyright 1991 Regents of the University of California.  All rights reserved.
 Author:	1987 Kartikeya Mayaram, U. C. Berkeley CAD Group
-$Id: onecont.c,v 1.4 2010/07/23 18:50:51 rlar Exp $
+$Id: onecont.c,v 1.5 2011/08/20 17:27:10 rlar Exp $
 **********/
 
-#include "ngspice.h"
-#include "numglobs.h"
-#include "numenum.h"
-#include "onemesh.h"
-#include "onedev.h"
-#include "spmatrix.h"
-#include "macros.h"
+#include <ngspice/ngspice.h>
+#include <ngspice/numglobs.h>
+#include <ngspice/numenum.h>
+#include <ngspice/onemesh.h>
+#include <ngspice/onedev.h>
+#include <ngspice/spmatrix.h>
+#include <ngspice/macros.h>
 #include "onedext.h"
 #include "oneddefs.h"
-#include "cidersupt.h"
+#include <ngspice/cidersupt.h>
 #include "../../maths/misc/bernoull.h"
 
 

@@ -7,12 +7,12 @@ Modified to jfet2 for PS model definition ( Anthony E. Parker )
    Copyright 1994  Macquarie University, Sydney Australia.
 **********/
 
-#include "ngspice.h"
+#include <ngspice/ngspice.h>
 #include "jfet2defs.h"
-#include "cktdefs.h"
-#include "iferrmsg.h"
-#include "noisedef.h"
-#include "suffix.h"
+#include <ngspice/cktdefs.h>
+#include <ngspice/iferrmsg.h>
+#include <ngspice/noisedef.h>
+#include <ngspice/suffix.h>
 
 /*
  * JFET2noise (mode, operation, firstModel, ckt, data, OnDens)
@@ -70,9 +70,9 @@ JFET2noise (int mode, int operation, GENmodel *genmodel, CKTcircuit *ckt, Ndata 
 
 data->namelist = TREALLOC(IFuid, data->namelist, data->numPlots + 1);
 if (!data->namelist) return(E_NOMEM);
-		(*(SPfrontEnd->IFnewUid))(ckt,
+		SPfrontEnd->IFnewUid (ckt,
 			&(data->namelist[data->numPlots++]),
-			(IFuid)NULL, name, UID_OTHER, NULL);
+			NULL, name, UID_OTHER, NULL);
 				/* we've added one more plot */
 
 
@@ -86,9 +86,9 @@ if (!data->namelist) return(E_NOMEM);
 
 data->namelist = TREALLOC(IFuid, data->namelist, data->numPlots + 1);
 if (!data->namelist) return(E_NOMEM);
-		(*(SPfrontEnd->IFnewUid))(ckt,
+		SPfrontEnd->IFnewUid (ckt,
 			&(data->namelist[data->numPlots++]),
-			(IFuid)NULL, name, UID_OTHER, NULL);
+			NULL, name, UID_OTHER, NULL);
 				/* we've added one more plot */
 
 
@@ -97,9 +97,9 @@ if (!data->namelist) return(E_NOMEM);
 
 data->namelist = TREALLOC(IFuid, data->namelist, data->numPlots + 1);
 if (!data->namelist) return(E_NOMEM);
-		(*(SPfrontEnd->IFnewUid))(ckt,
+		SPfrontEnd->IFnewUid (ckt,
 			&(data->namelist[data->numPlots++]),
-			(IFuid)NULL, name, UID_OTHER, NULL);
+			NULL, name, UID_OTHER, NULL);
 				/* we've added one more plot */
 
 			}
@@ -126,7 +126,7 @@ if (!data->namelist) return(E_NOMEM);
 				 inst->JFET2sourcePrimeNode,
 				 (2.0/3.0 * inst->JFET2m * fabs(*(ckt->CKTstate0 + inst->JFET2gm))));
 
-		    NevalSrc(&noizDens[JFET2FLNOIZ],(double*)NULL,ckt,
+		    NevalSrc(&noizDens[JFET2FLNOIZ], NULL, ckt,
 				 N_GAIN,inst->JFET2drainPrimeNode,
 				 inst->JFET2sourcePrimeNode, (double)0.0);
 		    noizDens[JFET2FLNOIZ] *= inst->JFET2m * model->JFET2fNcoef * 

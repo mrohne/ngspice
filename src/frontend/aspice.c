@@ -1,16 +1,16 @@
 /**********
 Copyright 1990 Regents of the University of California.  All rights reserved.
 Author: 1985 Wayne A. Christopher, U. C. Berkeley CAD Group
-$Id: aspice.c,v 1.23 2010/12/30 14:49:35 h_vogt Exp $
+$Id: aspice.c,v 1.24 2011/08/20 17:27:10 rlar Exp $
 **********/
 
 /*
  * Stuff for asynchronous spice runs, and also rspice.
  */
 
-#include "ngspice.h"
-#include "cpdefs.h"
-#include "ftedefs.h"
+#include <ngspice/ngspice.h>
+#include <ngspice/cpdefs.h>
+#include <ngspice/ftedefs.h>
 
 #include "aspice.h"
 #include "variable.h"
@@ -33,8 +33,8 @@ $Id: aspice.c,v 1.23 2010/12/30 14:49:35 h_vogt Exp $
 
 #include <signal.h>
 
-#include "fteinp.h"
-#include "dvec.h"
+#include <ngspice/fteinp.h>
+#include <ngspice/dvec.h>
 
 #include "../misc/mktemp.h"
 

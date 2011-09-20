@@ -42,15 +42,15 @@ NON-STANDARD FEATURES
 ============================================================================*/
 
 
-#include "ngspice.h"
-#include "smpdefs.h"
-#include "devdefs.h"
-#include "sperror.h"
+#include <ngspice/ngspice.h>
+#include <ngspice/smpdefs.h>
+#include <ngspice/devdefs.h>
+#include <ngspice/sperror.h>
 
-#include "mifproto.h"
-#include "mifparse.h"
-#include "mifdefs.h"
-#include "mifcmdat.h"
+#include <ngspice/mifproto.h>
+#include <ngspice/mifparse.h>
+#include <ngspice/mifdefs.h>
+#include <ngspice/mifcmdat.h>
 
 
 
@@ -354,7 +354,7 @@ MIFsetup(
                             IFuid names[2];
                             names[0] = here->MIFname;
                             names[1] = (IFuid) here->conn[i]->port[j]->vsource_str;
-                            (*(SPfrontEnd->IFerror))(ERR_FATAL,
+                            SPfrontEnd->IFerror (ERR_FATAL,
                                     "%s: unknown controlling source %s",names);
                             return(E_BADPARM);
                         }

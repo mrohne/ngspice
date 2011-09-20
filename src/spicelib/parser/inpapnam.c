@@ -3,12 +3,12 @@ Copyright 1990 Regents of the University of California.  All rights reserved.
 Author: 1985 Thomas L. Quarles
 **********/
 
-#include "ngspice.h"
+#include <ngspice/ngspice.h>
 #include <stdio.h>
-#include "ifsim.h"
-#include "iferrmsg.h"
-#include "cpdefs.h"
-#include "fteext.h"
+#include <ngspice/ifsim.h>
+#include <ngspice/iferrmsg.h>
+#include <ngspice/cpdefs.h>
+#include <ngspice/fteext.h>
 #include "inp.h"
 
 int
@@ -22,12 +22,12 @@ INPapName(CKTcircuit *ckt, int type, JOB *analPtr, char *parmname,
 	    if (strcmp(parmname,
 		       ft_sim->analyses[type]->analysisParms[i].keyword) ==
 		0) {
-		return (*(ft_sim->setAnalysisParm)) (ckt, analPtr,
+		return ft_sim->setAnalysisParm (ckt, analPtr,
 						     ft_sim->
 						     analyses[type]->
 						     analysisParms[i].id,
 						     value,
-						     (IFvalue *) NULL);
+						     NULL);
 	    }
     }
     return (E_BADPARM);

@@ -11,9 +11,9 @@ Author: 1985 Thomas L. Quarles
      *  lines as specified by the type parameter.
      */
 
-#include "ngspice.h"
+#include <ngspice/ngspice.h>
 #include <stdio.h>
-#include "inpdefs.h"
+#include <ngspice/inpdefs.h>
 #include "inp.h"
 
 extern void INPlist(FILE *file, card *deck, int type);  /* nowhere used function */
@@ -27,15 +27,15 @@ void INPlist(FILE * file, card * deck, int type)
     if (type == LOGICAL) {
 	for (here = deck; here != NULL; here = here->nextcard) {
 	    fprintf(file, "%6d : %s\n", here->linenum, here->line);
-	    if (here->error != (char *) NULL) {
+	    if (here->error != NULL) {
 		fprintf(file, "%s", here->error);
 	    }
 	}
     } else if (type == PHYSICAL) {
 	for (here = deck; here != NULL; here = here->nextcard) {
-	    if (here->actualLine == (card *) NULL) {
+	    if (here->actualLine == NULL) {
 		fprintf(file, "%6d : %s\n", here->linenum, here->line);
-		if (here->error != (char *) NULL) {
+		if (here->error != NULL) {
 		    fprintf(file, "%s", here->error);
 		}
 	    } else {
@@ -43,7 +43,7 @@ void INPlist(FILE * file, card * deck, int type)
 		     there = there->nextcard) {
 		    fprintf(file, "%6d : %s\n", there->linenum,
 			    there->line);
-		    if (there->error != (char *) NULL) {
+		    if (there->error != NULL) {
 			fprintf(file, "%s", there->error);
 		    }
 		}

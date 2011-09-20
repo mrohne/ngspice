@@ -10,9 +10,9 @@
  * BSIM3v3.1,   Released by yuhua  96/12/08
  */
 
-#include "ngspice.h"
+#include <ngspice/ngspice.h>
 #include "bsim3v1def.h"
-#include "suffix.h"
+#include <ngspice/suffix.h>
 
 void
 BSIM3v1destroy(GENmodel **inModel)
@@ -26,7 +26,7 @@ BSIM3v1model *oldmod = NULL;
     for (; mod ; mod = mod->BSIM3v1nextModel)
     {    if(oldmod) FREE(oldmod);
          oldmod = mod;
-         prev = (BSIM3v1instance *)NULL;
+         prev = NULL;
          for (here = mod->BSIM3v1instances; here; here = here->BSIM3v1nextInstance)
 	 {    if(prev) FREE(prev);
               prev = here;

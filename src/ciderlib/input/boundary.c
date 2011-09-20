@@ -4,13 +4,13 @@ Author:	1991 David A. Gates, U. C. Berkeley CAD Group
 Modified: 2001 Paolo Nenzi
 **********/
 
-#include "ngspice.h"
-#include "numcards.h"
-#include "numgen.h"
-#include "bdrydefs.h"
-#include "devdefs.h"
-#include "sperror.h"
-#include "suffix.h"
+#include <ngspice/ngspice.h>
+#include <ngspice/numcards.h>
+#include <ngspice/numgen.h>
+#include <ngspice/bdrydefs.h>
+#include <ngspice/devdefs.h>
+#include <ngspice/sperror.h>
+#include <ngspice/suffix.h>
 
 #define UM_TO_CM 1.0e-4
 
@@ -69,10 +69,10 @@ BDRYnewCard(void **inCard, void *inModel)
 
     newCard = NEW( BDRYcard );
     if (!newCard) {
-        *inCard = (void *)NULL;
+        *inCard = NULL;
         return(E_NOMEM);
     }
-    newCard->BDRYnextCard = (BDRYcard *)NULL;
+    newCard->BDRYnextCard = NULL;
     *inCard = (void *)newCard;
 
     tmpCard = model->GENboundaries;

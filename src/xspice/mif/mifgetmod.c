@@ -45,20 +45,20 @@ NON-STANDARD FEATURES
 
 ============================================================================*/
 
-#include "ngspice.h"
+#include <ngspice/ngspice.h>
 
 #include <stdio.h>
-#include "inpdefs.h"
-#include "devdefs.h"
-#include "ifsim.h"
-#include "cpstd.h"
-#include "fteext.h"
+#include <ngspice/inpdefs.h>
+#include <ngspice/devdefs.h>
+#include <ngspice/ifsim.h>
+#include <ngspice/cpstd.h>
+#include <ngspice/fteext.h>
 
-#include "mifproto.h"
-#include "mifdefs.h"
-#include "mifcmdat.h"
+#include <ngspice/mifproto.h>
+#include <ngspice/mifdefs.h>
+#include <ngspice/mifcmdat.h>
 
-#include "suffix.h"
+#include <ngspice/suffix.h>
 
 /*  This is the table of all models known to the program.  
     It is now defined in inpmkmod.c.      */
@@ -118,7 +118,7 @@ char *MIFgetMod(
      */
 
     /*------------------------------------
-   for (i = &modtab; *i != (INPmodel *) NULL; i = &((*i)->INPnextModel)) {
+   for (i = &modtab; *i != NULL; i = &((*i)->INPnextModel)) {
         if (strcmp((*i)->INPmodName, token) == 0) {
             return (OK);
         }
@@ -126,14 +126,14 @@ char *MIFgetMod(
     --------------------------*/
 
     /* loop through modtable looking for this model (*name) */
-    for (modtmp = modtab; modtmp != NULL; modtmp = ((modtmp)->INPnextModel) ) {
+    for (modtmp = modtab; modtmp != NULL; modtmp = modtmp->INPnextModel) {
 
 #ifdef TRACE
       /* SDB debug statement */
-      printf("In MIFgetMod, checking model against stored model = %s . . .\n", (modtmp)->INPmodName );
+      printf("In MIFgetMod, checking model against stored model = %s . . .\n", modtmp->INPmodName);
 #endif
 
-        if (strcmp((modtmp)->INPmodName,name) == 0) {
+        if (strcmp(modtmp->INPmodName, name) == 0) {
 
 #ifdef TRACE
 	/* SDB debug statement */
@@ -144,7 +144,7 @@ char *MIFgetMod(
 	/* ==============    and return an appropriate pointer to it ===================== */
 
             /* make sure the type is valid before proceeding */
-	if( (modtmp)->INPmodType < 0) {
+	if(modtmp->INPmodType < 0) {
                 /* illegal device type, so can't handle */
                 *model = NULL;
 
@@ -158,11 +158,11 @@ char *MIFgetMod(
             }
 
             /* check to see if this model's parameters have been processed */
-            if(! ((modtmp)->INPmodUsed )) {
+            if(! modtmp->INPmodUsed) {
 
                 /* not already processed, so create data struct */
-                error = (*(ft_sim->newModel))( ckt,(modtmp)->INPmodType,
-                        &((modtmp)->INPmodfast), (modtmp)->INPmodName);
+                error = ft_sim->newModel ( ckt, modtmp->INPmodType,
+                        &(modtmp->INPmodfast), modtmp->INPmodName);
                 if(error)
                     return(INPerror(error));
 
@@ -179,7 +179,7 @@ char *MIFgetMod(
                 /* remaining initializations will be done by MIFmParam() and MIFsetup() */
 
                 /* parameter isolation, identification, binding */
-                line = ((modtmp)->INPmodLine)->line;
+                line = modtmp->INPmodLine->line;
                 INPgetTok(&line,&parm,1);     /* throw away '.model' */
                 INPgetTok(&line,&parm,1);     /* throw away 'modname' */
 
@@ -189,31 +189,29 @@ char *MIFgetMod(
 
                 while(*line != 0) {
                     INPgetTok(&line,&parm,1);
-                    for(j=0;j<*((*(ft_sim->devices)[(modtmp)->INPmodType]).numModelParms); j++) {
-                        if (strcmp(parm,((*(ft_sim->devices) [ (modtmp)->
-                                         INPmodType ]).modelParms[j].keyword)) == 0) {
+                    for(j=0 ; j < *(ft_sim->devices[modtmp->INPmodType]->numModelParms); j++) {
+                        if (strcmp(parm, ft_sim->devices[modtmp->INPmodType]->modelParms[j].keyword) == 0) {
                            /* gtri modification: call MIFgetValue instead of INPgetValue */
                             err1 = NULL;
                             val = MIFgetValue(ckt,&line,
-                                    ((*(ft_sim->devices)[(modtmp)->
-                                    INPmodType ]).modelParms[j].
-                                    dataType),tab,&err1);
+                                    ft_sim->devices[modtmp->INPmodType]->modelParms[j].dataType,
+                                    tab, &err1);
                             if(err1) {
                                 err2 = TMALLOC(char, 25 + strlen(name) + strlen(err1));
                                 sprintf(err2, "MIF-ERROR - model: %s - %s\n", name, err1);
                                 return(err2);
                             }
-                            error = (*(ft_sim->setModelParm))(ckt,
-                                    ((modtmp)->INPmodfast),
-                                    (*(ft_sim->devices)[(modtmp)->INPmodType ]).
-                                    modelParms[j].id,val,(IFvalue*)NULL);
+                            error = ft_sim->setModelParm (ckt,
+                                    modtmp->INPmodfast,
+                                    ft_sim->devices[modtmp->INPmodType]->modelParms[j].id,
+                                    val, NULL);
                             if(error)
                                 return(INPerror(error));
                             break;
                         }
                     }
                     /* gtri modification: processing of special parameter "level" removed */
-                    if(j >= *((*(ft_sim->devices)[(modtmp)->INPmodType]).numModelParms))
+                    if(j >= *(ft_sim->devices[modtmp->INPmodType]->numModelParms))
 					{
 						//err has not been allocated, but free() in INPerrCat()
 
@@ -234,13 +232,13 @@ char *MIFgetMod(
 
                 }  /* end while end of line not reached */
 
-                (modtmp)->INPmodUsed=1;
-                (modtmp)->INPmodLine->error = err;
+                modtmp->INPmodUsed = 1;
+                modtmp->INPmodLine->error = err;
 
             }  /* end if model parameters not processed yet */
 
             *model = modtmp;
-            return((char *)NULL);
+            return(NULL);
 
         } /* end if name matches */
 
@@ -248,7 +246,7 @@ char *MIFgetMod(
 
 
     /* didn't find model - ERROR  - return NULL model */
-    *model = (INPmodel *)NULL;
+    *model = NULL;
     err = TMALLOC(char, 60 + strlen(name));
     sprintf(err, " MIF-ERROR - unable to find definition of model %s\n",name);
 

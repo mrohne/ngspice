@@ -25,7 +25,7 @@ Todo:
 
 #include "general.h"
 #include "numparam.h"
-#include "ngspice.h"
+#include <ngspice/ngspice.h>
 
 #include "../error.h" /* controlled_exit() */
 
@@ -38,9 +38,6 @@ extern long dynsubst; /* spicenum.c:144 */
 
 /* number of lines in input deck */
 extern int dynmaxline; /* inpcom.c:1529 */
-
-/* max. line length in input deck */
-/* unsigned int dynLlen; No longer needed with d strings */ /* inpcom.c:1531 */
 
 /* Uncomment this line to allow debug tracing */
 /* #define TRACE_NUMPARAMS */
@@ -329,7 +326,7 @@ transform (tdico * dico, SPICE_DSTRINGPTR dstr_p, unsigned char nostripping,
     s = spice_dstring_value(dstr_p) ;
     if (s[0] == '.')
     {
-        /* check Pspice parameter format */
+        /* check PS parameter format */
         scopy_up (&tstr, spice_dstring_value(dstr_p) ) ;
         k = 1;
 

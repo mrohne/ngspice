@@ -2,7 +2,7 @@
 Copyright 1990 Regents of the University of California.  All rights reserved.
 Author: 1988 Wayne A. Christopher, U. C. Berkeley CAD Group 
 Modified: 2000 AlansFixes
-$Id: outitf.c,v 1.48 2010/11/19 18:54:41 rlar Exp $
+$Id: outitf.c,v 1.54 2011/08/21 17:33:48 rlar Exp $
 **********/
 
 /*
@@ -12,22 +12,22 @@ $Id: outitf.c,v 1.48 2010/11/19 18:54:41 rlar Exp $
  * of nutmeg doesn't deal with OUT at all.
  */
 
-#include "ngspice.h"
-#include "cpdefs.h"
-#include "ftedefs.h"
-#include "dvec.h"
-#include "plot.h"
-#include "sim.h"
-#include "inpdefs.h"        /* for INPtables */
-#include "ifsim.h"
-#include "jobdefs.h"
-#include "iferrmsg.h"
+#include <ngspice/ngspice.h>
+#include <ngspice/cpdefs.h>
+#include <ngspice/ftedefs.h>
+#include <ngspice/dvec.h>
+#include <ngspice/plot.h>
+#include <ngspice/sim.h>
+#include <ngspice/inpdefs.h>        /* for INPtables */
+#include <ngspice/ifsim.h>
+#include <ngspice/jobdefs.h>
+#include <ngspice/iferrmsg.h>
 #include "circuits.h"
 #include "outitf.h"
 #include "variable.h"
 #include <fcntl.h>
-#include "cktdefs.h"
-#include "inpdefs.h"
+#include <ngspice/cktdefs.h>
+#include <ngspice/inpdefs.h>
 #include "breakp2.h"
 #include "runcoms.h"
 #include "plotting/graf.h"
@@ -61,7 +61,7 @@ static void freeRun(runDesc *run);
 
 /*Output data to spice module saj*/
 #ifdef TCL_MODULE
-#include "tclspice.h"
+#include <ngspice/tclspice.h>
 #endif
 /*saj*/
 
@@ -292,7 +292,7 @@ beginPlot(JOB *analysisPtr, CKTcircuit *circuitPtr, char *cktName, char *analNam
                   };
                   if (parseSpecial(tmpname, namebuf, parambuf, depbuf)) {
                     if (*depbuf) { fprintf( stderr,
-                    "Warning : unexpected dependant variable on %s\n", tmpname);
+                    "Warning : unexpected dependent variable on %s\n", tmpname);
                     } else {
                       addSpecialDesc(run, tmpname, namebuf, parambuf, depind);
                     }
@@ -494,7 +494,7 @@ OUTpData(void *plotPtr, IFvalue *refValue, IFvalue *valuePtr)
             /* we've already printed reference vec first */
             if (run->data[i].outIndex == -1) continue;
 #ifdef TCL_MODULE
-	    blt_add(i,refValue->rValue);
+	    blt_add(i, refValue ? refValue->rValue : NAN);
 #endif
 
             if (run->data[i].regular) {
@@ -564,10 +564,10 @@ OUTpData(void *plotPtr, IFvalue *refValue, IFvalue *valuePtr)
         if ((currclock-lastclock)>(0.25*CLOCKS_PER_SEC)) {
           if (run->isComplex) {
               fprintf(stderr, " Reference value : % 12.5e\r",
-                            refValue->cValue.real);
+                            refValue ? refValue->cValue.real : NAN);
           } else {
               fprintf(stderr, " Reference value : % 12.5e\r",
-                            refValue->rValue);
+                            refValue ? refValue->rValue : NAN);
           }
           lastclock = currclock;
         }
@@ -892,7 +892,7 @@ fileEndPoint(FILE *fp, bool bin)
 {
   if (bin) {
     /*  write row buffer to file  */
-    fwrite((char *)rowbuf, rowbuflen, 1, fp);
+    fwrite(rowbuf, rowbuflen, 1, fp);
   }; /* otherwise the data has already been written */
   return;
 }
@@ -906,10 +906,10 @@ fileEnd(runDesc *run)
 
     if (run->fp != stdout) {
 	place = ftell(run->fp);
-	fseek(run->fp, run->pointPos, 0);
+	fseek(run->fp, run->pointPos, SEEK_SET);
         fprintf(run->fp, "%d", run->pointCount);
 	fprintf(stdout, "\nNo. of Data Rows : %d\n", run->pointCount);
-	fseek(run->fp, place, 0);
+	fseek(run->fp, place, SEEK_SET);
     } else {
 	/* Yet another hack-around */
 	fprintf(stderr, "@@@ %ld %d\n", run->pointPos, run->pointCount);
@@ -966,6 +966,14 @@ plotInit(runDesc *run)
             v->v_type = SV_TIME;
         else if (cieq(v->v_name, "frequency"))
             v->v_type = SV_FREQUENCY;
+        else if (cieq(v->v_name, "onoise_spectrum"))
+            v->v_type = SV_OUTPUT_N_DENS;
+        else if (cieq(v->v_name, "onoise_integrated"))
+            v->v_type = SV_OUTPUT_NOISE;
+        else if (cieq(v->v_name, "inoise_spectrum"))
+            v->v_type = SV_INPUT_N_DENS;
+        else if (cieq(v->v_name, "inoise_integrated"))
+            v->v_type = SV_INPUT_NOISE;
         else if (cieq(v->v_name, "temp-sweep"))
             v->v_type = SV_TEMP;
         else if (cieq(v->v_name, "res-sweep"))

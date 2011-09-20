@@ -7,11 +7,11 @@ Author: 1985 Wayne A. Christopher, U. C. Berkeley CAD Group
  * Line-printer (ASCII) plots.
  */
 
-#include "ngspice.h"
-#include "cpdefs.h"
-#include "ftedefs.h"
-#include "dvec.h"
-#include "fteparse.h"
+#include <ngspice/ngspice.h>
+#include <ngspice/cpdefs.h>
+#include <ngspice/ftedefs.h>
+#include <ngspice/dvec.h>
+#include <ngspice/fteparse.h>
 #include "agraf.h"
 
 
@@ -67,10 +67,10 @@ ft_agraf(double *xlims, double *ylims, struct dvec *xscale, struct plot *plot, s
     if ((xscale->v_gridtype == GRID_YLOG) ||
             (xscale->v_gridtype == GRID_LOGLOG))
         ylogscale = TRUE;
-    if (!cp_getvar("width", CP_NUM, (char *) &maxy)) {
+    if (!cp_getvar("width", CP_NUM, &maxy)) {
       maxy = DEF_WIDTH;
     }
-    if (!cp_getvar("height", CP_NUM, (char *) &height))
+    if (!cp_getvar("height", CP_NUM, &height))
         height = DEF_HEIGHT;
     if (ft_nopage)
 	nobreakp = TRUE;

@@ -1,8 +1,14 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
 <!--
-  $Id: ngspiceMODULE.c.xml,v 1.5 2011/01/13 17:05:46 dwarning Exp $
+  $Id: ngspiceMODULE.c.xml,v 1.7 2011/08/20 17:49:37 rlar Exp $
   $Log: ngspiceMODULE.c.xml,v $
+  Revision 1.7  2011/08/20 17:49:37  rlar
+  #6/7 use a subdirectory "ngspice" for includes to create a uniq namespace
+
+  Revision 1.6  2011/07/23 07:57:07  dwarning
+  lower case substitution in xml module
+
   Revision 1.5  2011/01/13 17:05:46  dwarning
   set version parameter to 2.3.0
 
@@ -51,10 +57,10 @@
 <admst:value-of select="attribute[name='ngspicename']/value"/>
 <admst:variable name="module" select="%s"/>
 
-#include &quot;ngspice.h&quot;
-#include &quot;devdefs.h&quot;
+#include &lt;ngspice/ngspice.h&gt;
+#include &lt;ngspice/devdefs.h&gt;
 #include &quot;$(module)defs.h&quot;
-#include &quot;suffix.h&quot;
+#include &lt;ngspice/suffix.h&gt;
 
 <admst:text format="IFparm $(module)pTable[] = {\n"/>
 <admst:join select="variable[parametertype='instance' and input='yes']" separator=",\n">
@@ -62,13 +68,13 @@
     <admst:when test="[type='real']">
       <admst:value-of select="name"/>
       <admst:value-of select="name"/>
-      <admst:value-of select="name"/>
+      <admst:value-of select="lower-case(name)"/>
       <admst:text format=" IOP(&quot;%s&quot;,$(module)_instance_%s,IF_REAL,&quot;%s&quot;)"/>
     </admst:when>
     <admst:when test="[type='integer']">
       <admst:value-of select="name"/>
       <admst:value-of select="name"/>
-      <admst:value-of select="name"/>
+      <admst:value-of select="lower-case(name)"/>
       <admst:text format=" IOP(&quot;%s&quot;,$(module)_instance_%s,IF_INTEGER,&quot;%s&quot;)"/>
     </admst:when>
     <admst:otherwise>
@@ -83,13 +89,13 @@
     <admst:when test="[type='real']">
       <admst:value-of select="name"/>
       <admst:value-of select="name"/>
-      <admst:value-of select="name"/>
+      <admst:value-of select="lower-case(name)"/>
       <admst:text format=" IOP(&quot;%s&quot;,$(module)_model_%s,IF_REAL,&quot;%s&quot;)"/>
     </admst:when>
     <admst:when test="[type='integer']">
       <admst:value-of select="name"/>
       <admst:value-of select="name"/>
-      <admst:value-of select="name"/>
+      <admst:value-of select="lower-case(name)"/>
       <admst:text format=" IOP(&quot;%s&quot;,$(module)_model_%s,IF_INTEGER,&quot;%s&quot;)"/>
     </admst:when>
     <admst:otherwise>

@@ -5,10 +5,10 @@ Copyright 1992 Regents of the University of California.  All rights reserved.
 /* CKTdltNod
 */
 
-#include "ngspice.h"
-#include "cktdefs.h"
-#include "ifsim.h"
-#include "sperror.h"
+#include <ngspice/ngspice.h>
+#include <ngspice/cktdefs.h>
+#include <ngspice/ifsim.h>
+#include <ngspice/sperror.h>
 
 /* ARGSUSED */
 int
@@ -18,9 +18,8 @@ CKTdltNod(CKTcircuit *ckt, CKTnode *node)
 }
 
 int
-CKTdltNNum(CKTcircuit *cktp, int num)
+CKTdltNNum(CKTcircuit *ckt, int num)
 {
-    CKTcircuit *ckt = /* fixme, drop that */  cktp;
     CKTnode *n, *prev, *node, *sprev;
     int	error;
 
@@ -49,7 +48,7 @@ CKTdltNNum(CKTcircuit *cktp, int num)
     if (node == ckt->CKTlastNode)
 	ckt->CKTlastNode = sprev;
 
-    error = (*(SPfrontEnd->IFdelUid))(ckt,node->name, UID_SIGNAL);
+    error = SPfrontEnd->IFdelUid (ckt, node->name, UID_SIGNAL);
     tfree(node);
 
     return error;

@@ -1,18 +1,18 @@
 /**********
 Copyright 1990 Regents of the University of California.  All rights reserved.
 Author: 1985 Wayne A. Christopher, U. C. Berkeley CAD Group
-$Id: breakp2.c,v 1.7 2010/10/28 19:32:34 rlar Exp $
+$Id: breakp2.c,v 1.9 2011/08/20 17:27:10 rlar Exp $
 **********/
 
 /*
  * Code to deal with breakpoints and tracing.
  */
 
-#include "ngspice.h"
-#include "cpdefs.h"
-#include "ftedefs.h"
-#include "dvec.h"
-#include "ftedebug.h"
+#include <ngspice/ngspice.h>
+#include <ngspice/cpdefs.h>
+#include <ngspice/ftedefs.h>
+#include <ngspice/dvec.h>
+#include <ngspice/ftedebug.h>
 #include "quote.h"
 #include "breakp2.h"
 
@@ -68,7 +68,7 @@ settrace(wordlist *wl, int what, char *name)
                     d->db_type = DB_SAVE;
                     break;
             }
-/*          wrd_chtrace((char *) NULL, TRUE, what); */
+/*          wrd_chtrace(NULL, TRUE, what); */
         } else {
             switch (what) {
                 case VF_PRINT:

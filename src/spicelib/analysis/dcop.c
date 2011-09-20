@@ -4,17 +4,17 @@ Author: 1985 Thomas L. Quarles
 Modified: 2000  AlansFixes
 **********/
 
-#include "ngspice.h"
-#include "cktdefs.h"
-#include "sperror.h"
-#include "ifsim.h"
+#include <ngspice/ngspice.h>
+#include <ngspice/cktdefs.h>
+#include <ngspice/sperror.h>
+#include <ngspice/ifsim.h>
 
 #ifdef XSPICE
 /* gtri - add - wbk - 12/19/90 - Add headers */
-#include "mif.h"
-#include "evt.h"
-#include "evtproto.h"
-#include "ipctiein.h"
+#include <ngspice/mif.h>
+#include <ngspice/evt.h>
+#include <ngspice/evtproto.h>
+#include <ngspice/ipctiein.h>
 /* gtri - end - wbk */
 #endif
 
@@ -45,9 +45,9 @@ DCop(CKTcircuit *ckt, int notused)
 
     error = CKTnames(ckt,&numNames,&nameList);
     if(error) return(error);
-    error = (*(SPfrontEnd->OUTpBeginPlot))(ckt,
+    error = SPfrontEnd->OUTpBeginPlot (ckt,
 	ckt->CKTcurJob, ckt->CKTcurJob->JOBname,
-	(IFuid)NULL,IF_REAL,numNames,nameList, IF_REAL,&plot);
+	NULL, IF_REAL, numNames, nameList, IF_REAL, &plot);
     tfree(nameList); /* va: nameList not used any longer, it was a memory leak */
     if(error) return(error);
 
@@ -108,7 +108,7 @@ DCop(CKTcircuit *ckt, int notused)
              i++;
            }
            fprintf(stdout,"\n");
-	   (*(SPfrontEnd->OUTendPlot))(plot); */
+	   SPfrontEnd->OUTendPlot (plot); */
 	   
 	   return(converged);
 	 }
@@ -144,7 +144,7 @@ DCop(CKTcircuit *ckt, int notused)
     if(g_ipc.enabled)
         ipc_send_dcop_prefix();
 
-    CKTdump(ckt,(double)0,plot);
+    CKTdump(ckt, 0.0, plot);
 
     if(g_ipc.enabled)
         ipc_send_dcop_suffix();
@@ -152,11 +152,11 @@ DCop(CKTcircuit *ckt, int notused)
 /* gtri - end - wbk */
 #else
     if(converged == 0) {
-	   CKTdump(ckt,(double)0,plot);
+	   CKTdump(ckt, 0.0, plot);
          } else {
            fprintf(stderr,"error: circuit reload failed.\n");
          }
 #endif
-    (*(SPfrontEnd->OUTendPlot))(plot);
+    SPfrontEnd->OUTendPlot (plot);
     return(converged);
 }

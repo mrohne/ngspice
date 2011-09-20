@@ -1,7 +1,7 @@
 /**********
 Copyright 1990 Regents of the University of California.  All rights reserved.
 Author: 1986 Wayne A. Christopher, U. C. Berkeley CAD Group
-$Id: terminal.c,v 1.22 2010/11/19 18:52:44 rlar Exp $
+$Id: terminal.c,v 1.24 2011/08/20 17:27:11 rlar Exp $
 **********/
 
 /*
@@ -9,7 +9,7 @@ $Id: terminal.c,v 1.22 2010/11/19 18:52:44 rlar Exp $
  * dependencies in here, and it isn't clear that versions of this stuff
  * can be written for every possible machine...
  */
-#include "ngspice.h"
+#include <ngspice/ngspice.h>
 #include "config.h"
 
 #include <stdarg.h>
@@ -47,7 +47,7 @@ extern int vasprintf(char **out, const char *fmt, va_list ap);
 #include <ncurses/termcap.h>
 #endif
 
-#include <cpdefs.h>
+#include <ngspice/cpdefs.h>
 
 #include "variable.h"
 #include "terminal.h"
@@ -114,9 +114,9 @@ out_init(void)
 #endif
 
     if (!xsize)
-        (void) cp_getvar("width", CP_NUM, (char *) &xsize);
+        (void) cp_getvar("width", CP_NUM, &xsize);
     if (!ysize)
-        (void) cp_getvar("height", CP_NUM, (char *) &ysize);
+        (void) cp_getvar("height", CP_NUM, &ysize);
 
     if (!xsize)
         xsize = DEF_SCRWIDTH;

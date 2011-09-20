@@ -5,9 +5,9 @@ Author: 1985 Gordon Jacobs
 /*
  */
 
-#include "ngspice.h"
+#include <ngspice/ngspice.h>
 #include "cswdefs.h"
-#include "suffix.h"
+#include <ngspice/suffix.h>
 
 
 void
@@ -22,7 +22,7 @@ CSWdestroy(GENmodel **inModel)
     for( ; mod ; mod = mod->CSWnextModel) {
         if(oldmod) FREE(oldmod);
         oldmod = mod;
-        prev = (CSWinstance *)NULL;
+        prev = NULL;
         for(here = mod->CSWinstances ; here ; here = here->CSWnextInstance) {
             if(prev) FREE(prev);
             prev = here;

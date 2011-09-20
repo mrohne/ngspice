@@ -5,9 +5,9 @@ Author: 1985 Thomas L. Quarles
 /*
  */
 
-#include "ngspice.h"
+#include <ngspice/ngspice.h>
 #include "diodefs.h"
-#include "suffix.h"
+#include <ngspice/suffix.h>
 
 
 void
@@ -22,7 +22,7 @@ DIOdestroy(GENmodel **inModel)
     for( ; mod ; mod = mod->DIOnextModel) {
         if(oldmod) FREE(oldmod);
         oldmod = mod;
-        prev = (DIOinstance *)NULL;
+        prev = NULL;
         for(here = mod->DIOinstances ; here ; here = here->DIOnextInstance) {
             if(prev) FREE(prev);
             prev = here;

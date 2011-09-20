@@ -7,16 +7,18 @@ Author:   2008 Holger Vogt
  * Code to do fast fourier transform on data.
  */
 
-#include "ngspice.h"
-#include "ftedefs.h"
-#include "dvec.h"
-#include "sim.h"
+#define GREEN /* select fast Green's fft */
+
+#include <ngspice/ngspice.h>
+#include <ngspice/ftedefs.h>
+#include <ngspice/dvec.h>
+#include <ngspice/sim.h>
 
 #include "com_fft.h"
 #include "variable.h"
 #include "parse.h"
 #include "../misc/misc_time.h"
-#include "../maths/fft/fftext.h"
+#include <ngspice/fftext.h>
 
 static void fftext(double*, double*, long int, long int, int);
 
@@ -30,6 +32,10 @@ com_fft(wordlist *wl)
     int     fpts, i, j, tlen, ngood;
     struct dvec  *f, *vlist, *lv = NULL, *vec;
     struct pnode *names, *first_name;
+
+#ifdef GREEN
+    int mm;
+#endif
 
     double *reald, *imagd;
     int size, sign, order;
@@ -50,11 +56,20 @@ com_fft(wordlist *wl)
     span = time[tlen-1] - time[0];
     delta_t = span/(tlen - 1);
 
+#ifdef GREEN
+    // size of input vector is power of two and larger than spice vector
+    size = 1;
+    mm = 0;
+    while (size < tlen) {
+        size <<= 1;
+        mm++;
+    }
+#else
     /* size of input vector is power of two and larger than spice vector */
     size = 1;
     while (size < tlen)
         size *= 2;
-
+#endif
     /* output vector has length of size/2 */
     fpts = size/2;
 
@@ -233,7 +248,19 @@ com_fft(wordlist *wl)
             reald[j] = 0.0;
             imagd[j] = 0.0;
         }
-
+#ifdef GREEN
+        // Green's FFT 
+        fftInit(mm);
+        rffts(reald, mm, 1);
+        fftFree();
+        scale = size;
+/* Re(x[0]), Re(x[N/2]), Re(x[1]), Im(x[1]), Re(x[2]), Im(x[2]), ... Re(x[N/2-1]), Im(x[N/2-1]). */
+        for (j=0;j<fpts;j++){
+            fdvec[i][j].cx_real = reald[2*j]/scale;
+            fdvec[i][j].cx_imag = reald[2*j+1]/scale;
+        }
+        fdvec[i][0].cx_imag = 0;
+#else
         fftext(reald, imagd, size, tlen, sign);
         scale = 0.66;
 
@@ -241,6 +268,7 @@ com_fft(wordlist *wl)
             fdvec[i][j].cx_real = reald[j]/scale;
             fdvec[i][j].cx_imag = imagd[j]/scale;
         }
+#endif
     }
     tfree(reald);
     tfree(imagd);
@@ -257,14 +285,14 @@ com_psd(wordlist *wl)
     double  **tdvec;
     double  *freq, *win, *time, *ave;
     double  delta_t, span, noipower;
-    int     ngood, mm;
-    unsigned long fpts, i, j, tlen, jj, smooth, hsmooth;
+    int     mm;
+    unsigned long size, ngood, fpts, i, j, tlen, jj, smooth, hsmooth;
     char    *s;
-    struct dvec  *f, *vlist, *lv, *vec;
+    struct dvec  *f, *vlist, *lv = NULL, *vec;
     struct pnode *names, *first_name;
 
-    float *reald, *imagd;
-    int size, sign, isreal;
+    double *reald, *imagd;
+    int sign, isreal;
     double scaling, sum;
     int order;
     double scale, sigma;
@@ -286,7 +314,8 @@ com_psd(wordlist *wl)
     
     // get filter length from parameter input
     s = wl->wl_word;
-    if (!(ave = ft_numparse(&s, FALSE)) || (*ave < 1.0)) {
+    ave = ft_numparse(&s, FALSE);
+    if (!ave || (*ave < 1.0)) {
     	fprintf(cp_out, "Number of averaged data points:  %d\n", 1);
         smooth = 1;
     }
@@ -402,7 +431,7 @@ com_psd(wordlist *wl)
         vec = ft_evaluate(names);
         names = names->pn_next;
         while (vec) {
-            if (vec->v_length != tlen) {
+            if (vec->v_length != (int)tlen) {
                 fprintf(cp_err, "Error: lengths of %s vectors don't match: %d, %d\n",
                         vec->v_name, vec->v_length, tlen);
                 vec = vec->v_link2;
@@ -427,7 +456,7 @@ com_psd(wordlist *wl)
             ngood++;
         }
     }
-    free_pnode(first_name);
+    free_pnode_o(first_name);
     if (!ngood) {
        return;
     }
@@ -439,7 +468,7 @@ com_psd(wordlist *wl)
     plot_cur->pl_name = copy("PSD");
     plot_cur->pl_date = copy(datestring( ));
 
-    freq = (double *) tmalloc(fpts * sizeof(double));
+    freq = TMALLOC(double, fpts + 1);
     f = alloc(struct dvec);
     ZERO(f, struct dvec);
     f->v_name = copy("frequency");
@@ -449,19 +478,19 @@ com_psd(wordlist *wl)
     f->v_realdata = freq;
     vec_new(f);
 
-    for (i = 0; i<fpts; i++) freq[i] = i*1./span*tlen/size;
+    for (i = 0; i <= fpts; i++) freq[i] = i*1./span*tlen/size;
 
     tdvec = TMALLOC(double*, ngood);
     fdvec = TMALLOC(ngcomplex_t*, ngood);
     for (i = 0, vec = vlist; i<ngood; i++) {
        tdvec[i] = vec->v_realdata; /* real input data */
-       fdvec[i] = TMALLOC(ngcomplex_t, fpts); /* complex output data */
+       fdvec[i] = TMALLOC(ngcomplex_t, fpts + 1); /* complex output data */
        f = alloc(struct dvec);
        ZERO(f, struct dvec);
        f->v_name = vec_basename(vec);
        f->v_type = SV_NOTYPE; //vec->v_type;
        f->v_flags = (VF_COMPLEX | VF_PERMANENT);
-       f->v_length = fpts;
+       f->v_length = fpts + 1;
        f->v_compdata = fdvec[i];
        vec_new(f);
        vec = vec->v_link2;
@@ -473,14 +502,15 @@ com_psd(wordlist *wl)
     sign = 1;
     isreal = 1;
     
-    reald = TMALLOC(float, size);
-    imagd = TMALLOC(float, size);
+    reald = TMALLOC(double, size);
+    imagd = TMALLOC(double, size);
         
 //        scale = 0.66;
 
     for (i = 0; i<ngood; i++) {
+        double intres;
         for (j = 0; j < tlen; j++){
-    	   reald[j] = tdvec[i][j]*win[j];
+    	   reald[j] = (tdvec[i][j]*win[j]);
            imagd[j] = 0.;
         }            
         for (j = tlen; j < size; j++){
@@ -492,46 +522,51 @@ com_psd(wordlist *wl)
         fftInit(mm);
         rffts(reald, mm, 1);
         fftFree();
-        scaling = size*0.3;
+        scaling = size;
 
 /* Re(x[0]), Re(x[N/2]), Re(x[1]), Im(x[1]), Re(x[2]), Im(x[2]), ... Re(x[N/2-1]), Im(x[N/2-1]). */
-        noipower = fdvec[i][0].cx_real = (double)reald[0]*(double)reald[0];
-        fdvec[i][fpts-1].cx_real = (double)reald[1]*(double)reald[1];
+        intres = (double)size * (double)size;
+        noipower = fdvec[i][0].cx_real = reald[0]*reald[0]/intres;
+        fdvec[i][fpts].cx_real = reald[1]*reald[1]/intres;
         noipower += fdvec[i][fpts-1].cx_real;    
-        for (j=1; j<(fpts - 1); j++){
+        for (j=1; j < fpts; j++){
            jj = j<<1;
-           fdvec[i][j].cx_real = ((double)reald[jj]*(double)reald[jj] + (double)reald[jj + 1]*(double)reald[jj + 1]);
+           fdvec[i][j].cx_real = 2.* (reald[jj]*reald[jj] + reald[jj + 1]*reald[jj + 1])/intres;
            fdvec[i][j].cx_imag = 0;
            noipower += fdvec[i][j].cx_real;
+        if (!finite(noipower))
+            break;
         }
-        printf("Total noise power up to Nyquist frequency %5.3e Hz:\n%e V^2 (or A^2), \nnoise voltage or current %e V (or A)\n", 
-           freq[fpts-1],noipower/span*tlen/size/scaling, sqrt(noipower/span*tlen/size/scaling));
-/*         for (j=0; j<fpts ; j++)
-           fdvec[i][j].cx_real = sqrt(fdvec[i][j].cx_real)/scaling;
-*/          
+
+        printf("Total noise power up to Nyquist frequency %5.3e Hz:\n%e V^2 (or A^2), \nnoise voltage or current %e V (or A)\n",
+            freq[fpts],noipower, sqrt(noipower));
+         
         /* smoothing with rectangular window of width "smooth",
            plotting V/sqrt(Hz) or I/sqrt(Hz) */
+        if (smooth < 1)
+            continue;
+
         hsmooth = smooth>>1;
         for (j=0; j<hsmooth; j++){
            sum = 0.;
            for (jj = 0; jj < hsmooth + j; jj++)
               sum += fdvec[i][jj].cx_real;
-           sum /= (double)(hsmooth + j);        
-           reald[j] = sqrt(sum)/scaling;
+           sum /= (hsmooth + j);        
+           reald[j] = (sqrt(sum)/scaling);
         }
         for (j=hsmooth; j<fpts-hsmooth; j++){
            sum = 0.;
            for (jj = 0; jj < smooth; jj++)
               sum += fdvec[i][j-hsmooth+jj].cx_real;
-           sum /= (double)smooth;        
-           reald[j] = sqrt(sum)/scaling;
+           sum /= smooth;        
+           reald[j] = (sqrt(sum)/scaling);
         }
         for (j=fpts-hsmooth; j<fpts; j++){
            sum = 0.;
            for (jj = 0; jj < smooth; jj++)
               sum += fdvec[i][j-hsmooth+jj].cx_real;
-           sum /= (double)(fpts - j + hsmooth - 1);        
-           reald[j] = sqrt(sum)/scaling;
+           sum /= (fpts - j + hsmooth - 1);        
+           reald[j] = (sqrt(sum)/scaling);
         }        
         for (j=0; j<fpts; j++)
            fdvec[i][j].cx_real = reald[j];
@@ -625,9 +660,10 @@ static void fftext(double* x, double* y, long int n, long int nn, int dir)
 
    /* Scaling for forward transform */
    if (dir == 1) {
+      double scale = 1.0 / nn;
       for (i=0;i<n;i++) {
-         x[i] /= nn; /* don't consider zero padded values */
-         y[i] /= nn;
+         x[i] *= scale; /* don't consider zero padded values */
+         y[i] *= scale;
       }
    }
 }

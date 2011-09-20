@@ -4,17 +4,17 @@ Author: 1985 Thomas L. Quarles
 Modified 2001: AlansFixes
 **********/
 
-#include "ngspice.h"
-#include "cktdefs.h"
-#include "acdefs.h"
-#include "devdefs.h"
-#include "sperror.h"
+#include <ngspice/ngspice.h>
+#include <ngspice/cktdefs.h>
+#include <ngspice/acdefs.h>
+#include <ngspice/devdefs.h>
+#include <ngspice/sperror.h>
 
 #ifdef XSPICE
 /* gtri - add - wbk - 12/19/90 - Add headers */ 
-#include "mif.h"
-#include "evtproto.h"
-#include "ipctiein.h"
+#include <ngspice/mif.h>
+#include <ngspice/evtproto.h>
+#include <ngspice/ipctiein.h>
 /* gtri - end - wbk */
 #endif
 
@@ -129,16 +129,16 @@ ACan(CKTcircuit *ckt, int restart)
          * Moreover the begin plot has not even been done yet at this 
          * point... 
          */
-        (*(SPfrontEnd->OUTpBeginPlot))(ckt, ckt->CKTcurJob,
-            ckt->CKTcurJob->JOBname,(IFuid)NULL,IF_REAL,numNames,nameList,
+        SPfrontEnd->OUTpBeginPlot (ckt, ckt->CKTcurJob,
+            ckt->CKTcurJob->JOBname, NULL, IF_REAL, numNames, nameList,
             IF_REAL,&acPlot);
         tfree(nameList);
 
         ipc_send_dcop_prefix();
-        CKTdump(ckt,(double)0,acPlot);
+        CKTdump(ckt, 0.0, acPlot);
         ipc_send_dcop_suffix();
 
-        (*(SPfrontEnd->OUTendPlot))(acPlot);
+        SPfrontEnd->OUTendPlot (acPlot);
     }
 /* gtri - end - wbk */
 #endif
@@ -152,18 +152,18 @@ ACan(CKTcircuit *ckt, int restart)
 
 	if (ckt->CKTkeepOpInfo) {
 	    /* Dump operating point. */
-	    error = (*(SPfrontEnd->OUTpBeginPlot))(ckt,
+	    error = SPfrontEnd->OUTpBeginPlot (ckt,
 		ckt->CKTcurJob, "AC Operating Point",
-		(IFuid)NULL,IF_REAL,numNames,nameList, IF_REAL,&plot);
+		NULL, IF_REAL, numNames, nameList, IF_REAL, &plot);
 	    if(error) return(error);
-	    CKTdump(ckt,(double)0,plot);
-	    (*(SPfrontEnd->OUTendPlot))(plot);
+	    CKTdump(ckt, 0.0, plot);
+	    SPfrontEnd->OUTendPlot (plot);
 	    plot = NULL;
 	}
 
-        (*(SPfrontEnd->IFnewUid))(ckt,&freqUid,(IFuid)NULL,
+        SPfrontEnd->IFnewUid (ckt, &freqUid, NULL,
                 "frequency", UID_OTHER, NULL);
-        error = (*(SPfrontEnd->OUTpBeginPlot))(ckt,
+        error = SPfrontEnd->OUTpBeginPlot (ckt,
 		ckt->CKTcurJob,
                 ckt->CKTcurJob->JOBname,freqUid,IF_REAL,numNames,nameList,
                 IF_COMPLEX,&acPlot);
@@ -171,7 +171,7 @@ ACan(CKTcircuit *ckt, int restart)
 	if(error) return(error);
 
         if (((ACAN*)ckt->CKTcurJob)->ACstepType != LINEAR) {
-	    (*(SPfrontEnd->OUTattributes))((void *)acPlot,NULL,
+	    SPfrontEnd->OUTattributes (acPlot, NULL,
 		    OUT_SCALE_LOG, NULL);
 	}
         freq = ((ACAN*)ckt->CKTcurJob)->ACstartFreq;
@@ -179,11 +179,9 @@ ACan(CKTcircuit *ckt, int restart)
     } else {    /* continue previous analysis */
         freq = ((ACAN*)ckt->CKTcurJob)->ACsaveFreq;
         ((ACAN*)ckt->CKTcurJob)->ACsaveFreq = 0; /* clear the 'old' frequency */
-	/* fix resume? saj*/
-	error = (*(SPfrontEnd->OUTpBeginPlot))(ckt,
-		ckt->CKTcurJob,
-                ckt->CKTcurJob->JOBname,freqUid,IF_REAL,numNames,nameList,
-                IF_COMPLEX,&acPlot);
+	/* fix resume? saj, indeed !*/
+	error = SPfrontEnd->OUTpBeginPlot
+	    (NULL, NULL, NULL, NULL, 0, 666, NULL, 666, &acPlot);
 	/* saj*/    
     }
         
@@ -222,7 +220,7 @@ ACan(CKTcircuit *ckt, int restart)
 
     /* main loop through all scheduled frequencies */
     while(freq <= ((ACAN*)ckt->CKTcurJob)->ACstopFreq+freqTol) {
-        if( (*(SPfrontEnd->IFpauseTest))() ) { 
+        if(SPfrontEnd->IFpauseTest()) {
             /* user asked us to pause via an interrupt */
             ((ACAN*)ckt->CKTcurJob)->ACsaveFreq = freq;
             return(E_PAUSE);
@@ -373,7 +371,7 @@ ACan(CKTcircuit *ckt, int restart)
 
     }
 endsweep:
-    (*(SPfrontEnd->OUTendPlot))(acPlot);
+    SPfrontEnd->OUTendPlot (acPlot);
     acPlot = NULL;
     ckt->CKTcurrentAnalysis = 0;
     ckt->CKTstat->STATacTime += SPfrontEnd->IFseconds() - startTime;
@@ -418,8 +416,8 @@ CKTacLoad(CKTcircuit *ckt)
     SMPcClear(ckt->CKTmatrix);
 
     for (i=0;i<DEVmaxnum;i++) {
-        if ( DEVices[i] && ((*DEVices[i]).DEVacLoad != NULL) && (ckt->CKThead[i] != NULL) ){
-            error = (*((*DEVices[i]).DEVacLoad))(ckt->CKThead[i],ckt);
+        if ( DEVices[i] && DEVices[i]->DEVacLoad && ckt->CKThead[i] ) {
+            error = DEVices[i]->DEVacLoad (ckt->CKThead[i], ckt);
 #ifdef PARALLEL_ARCH
 	    if (error) goto combine;
 #else

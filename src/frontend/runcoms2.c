@@ -1,19 +1,19 @@
 /**********
 Copyright 1990 Regents of the University of California.  All rights reserved.
 Author: 1985 Wayne A. Christopher, U. C. Berkeley CAD Group
-$Id: runcoms2.c,v 1.17 2010/11/19 18:54:41 rlar Exp $
+$Id: runcoms2.c,v 1.21 2011/08/21 08:55:58 rlar Exp $
 **********/
 
 /*
  * Circuit simulation commands.
  */
 
-#include "ngspice.h"
-#include "cpdefs.h"
-#include "ftedefs.h"
-#include "ftedev.h"
-#include "ftedebug.h"
-#include "dvec.h"
+#include <ngspice/ngspice.h>
+#include <ngspice/cpdefs.h>
+#include <ngspice/ftedefs.h>
+#include <ngspice/ftedev.h>
+#include <ngspice/ftedebug.h>
+#include <ngspice/dvec.h>
 
 #include "circuits.h"
 #include "runcoms2.h"
@@ -23,16 +23,16 @@ $Id: runcoms2.c,v 1.17 2010/11/19 18:54:41 rlar Exp $
 #include "plotting/graf.h"
 #include "spiceif.h"
 
-#include "inpdefs.h"
+#include <ngspice/inpdefs.h>
 
 #define RAWBUF_SIZE 32768
 extern char rawfileBuf[RAWBUF_SIZE];
+extern void line_free_x(struct line * deck, bool recurse);
+#define line_free(line,flag)	{ line_free_x(line,flag); line = NULL; }
 
 /* Continue a simulation. If there is non in progress, this is the
  * equivalent of "run".
  */
-
-/* ARGSUSED */
 
 /* This is a hack to tell iplot routine to redraw the grid and initialize
 	the display device
@@ -138,14 +138,14 @@ com_resume(wordlist *wl)
 
     /*end saj*/
 
-   err = if_run(ft_curckt->ci_ckt, "resume", (wordlist *) NULL,
+   err = if_run(ft_curckt->ci_ckt, "resume", NULL,
             ft_curckt->ci_symtab); 
 
    /*close rawfile saj*/
    if (rawfileFp){
       if (ftell(rawfileFp)==0) {
          (void) fclose(rawfileFp);
-         (void) remove(last_used_rawfile);
+         (void) unlink(last_used_rawfile);
       } else {
          (void) fclose(rawfileFp);
       }
@@ -168,7 +168,6 @@ com_resume(wordlist *wl)
  * should be obsolete.
  */
 
-/* ARGSUSED */
 void
 com_rset(wordlist *wl)
 {
@@ -189,7 +188,62 @@ com_rset(wordlist *wl)
     }
     ft_curckt->ci_vars = NULL;
 
-    inp_dodeck(ft_curckt->ci_deck, ft_curckt->ci_name, (wordlist *) NULL,
+    inp_dodeck(ft_curckt->ci_deck, ft_curckt->ci_name, NULL,
             TRUE, ft_curckt->ci_options, ft_curckt->ci_filename);
     return;
 }
+
+void
+com_remcirc(wordlist *wl)
+{
+    struct variable *v, *next;
+    struct line *dd;     /*in: the spice deck */
+    struct circ *p, *prev = NULL;
+
+    NG_IGNORE(wl);
+
+    if (ft_curckt == NULL) {
+        fprintf(cp_err, "Error: there is no circuit loaded.\n");
+        return;
+    }
+    /* The next lines stem from com_rset */
+    INPkillMods(); 
+
+    if_cktfree(ft_curckt->ci_ckt, ft_curckt->ci_symtab);
+    for (v = ft_curckt->ci_vars; v; v = next) {
+	next = v->va_next;
+	tfree(v);
+    }
+    ft_curckt->ci_vars = NULL;
+    /* delete the deck in ft_curckt */
+    dd = ft_curckt->ci_deck;
+    line_free(dd,TRUE);
+    if (ft_curckt->ci_name)
+        tfree(ft_curckt->ci_name);
+    if (ft_curckt->ci_filename)
+        tfree(ft_curckt->ci_filename);
+
+    /* delete the actual circuit entry from ft_circuits */
+    for (p = ft_circuits; p; p = p->ci_next) {
+        if (ft_curckt == p) {
+            if (prev == NULL) {
+                ft_circuits = p->ci_next;
+                tfree(p);
+                p = NULL;
+                break;
+            }
+            else {
+                prev->ci_next = p->ci_next;
+                tfree(p);
+                p = NULL;
+                break;
+            }
+        }
+        prev = p;
+    }
+    /* make first entry in ft_circuits the actual circuit (or NULL) */
+    ft_curckt = ft_circuits;
+
+    return;
+}
+

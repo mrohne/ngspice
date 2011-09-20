@@ -2,20 +2,20 @@
 Copyright 1990 Regents of the University of California.  All rights reserved.
 Author: 1985 Thomas L. Quarles
 Modified: 2000 AlansFixes
-$Id: vsrcload.c,v 1.21 2011/02/28 20:32:35 rlar Exp $
+$Id: vsrcload.c,v 1.22 2011/08/20 17:27:16 rlar Exp $
 **********/
 
-#include "ngspice.h"
-#include "cktdefs.h"
+#include <ngspice/ngspice.h>
+#include <ngspice/cktdefs.h>
 #include "vsrcdefs.h"
-#include "trandefs.h"
-#include "sperror.h"
-#include "suffix.h"
-#include "1-f-code.h"
+#include <ngspice/trandefs.h>
+#include <ngspice/sperror.h>
+#include <ngspice/suffix.h>
+#include <ngspice/1-f-code.h>
 
 #ifdef XSPICE_EXP
 /* gtri - begin - wbk - modify for supply ramping option */
-#include "cmproto.h"
+#include <ngspice/cmproto.h>
 /* gtri - end   - wbk - modify for supply ramping option */
 #endif
 

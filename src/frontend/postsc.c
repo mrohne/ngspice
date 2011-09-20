@@ -1,20 +1,20 @@
 /**********
 Copyright 1990 Regents of the University of California.  All rights reserved.
 Author: 1988 Jeffrey M. Hsu
-$Id: postsc.c,v 1.17 2010/11/19 18:54:41 rlar Exp $
+$Id: postsc.c,v 1.20 2011/08/20 17:27:11 rlar Exp $
 **********/
 
 /*
     Postscript driver
 */
 
-#include "ngspice.h"
-#include "cpdefs.h"
-#include "graph.h"
-#include "ftedbgra.h"
-#include "ftedev.h"
-#include "fteinput.h"
-#include "fteext.h"
+#include <ngspice/ngspice.h>
+#include <ngspice/cpdefs.h>
+#include <ngspice/graph.h>
+#include <ngspice/ftedbgra.h>
+#include <ngspice/ftedev.h>
+#include <ngspice/fteinput.h>
+#include <ngspice/fteext.h>
 
 #include "postsc.h"
 #include "variable.h"
@@ -107,7 +107,7 @@ PS_Init(void)
 
     /* plot size */
     if (!cp_getvar("hcopywidth", CP_STRING, pswidth)) {
-        dispdev->width = 7.75 * 72.0 * scale;       /* (8 1/2 - 3/4) * 72 */
+        dispdev->width = (int)(7.75 * 72.0 * scale);       /* (8 1/2 - 3/4) * 72 */
     } else {
         sscanf(pswidth, "%d", &(dispdev->width));
         if (dispdev->width <= 100)
@@ -141,21 +141,21 @@ PS_Init(void)
         fontsize = 10;
         fontwidth = 6;
         fontheight = 14;
-        xtadj = XTADJ * scale;
-        ytadj = YTADJ * scale;
+        xtadj = (int)(XTADJ * scale);
+        ytadj = (int)(YTADJ * scale);
     } else {
         sscanf(psfontsize, "%d", &fontsize);
         if ((fontsize < 10) || (fontsize > 14))
             fontsize = 10;
-        fontwidth = 0.5 + 0.6 * fontsize;
-        fontheight = 2.5 + 1.2 * fontsize;
-        xtadj = XTADJ * scale * fontsize / 10;
-        ytadj = YTADJ * scale * fontsize / 10;
+        fontwidth = (int)(0.5 + 0.6 * fontsize);
+        fontheight = (int)(2.5 + 1.2 * fontsize);
+        xtadj = (int)(XTADJ * scale * fontsize / 10);
+        ytadj = (int)(YTADJ * scale * fontsize / 10);
     }
 
     screenflag = 0;
-    dispdev->minx = XOFF / scale;
-    dispdev->miny = YOFF / scale;
+    dispdev->minx = (int)(XOFF / scale);
+    dispdev->miny = (int)(YOFF / scale);
 
     return(0);
 
@@ -181,8 +181,8 @@ PS_NewViewport(GRAPH *graph)
     }
 
     /* reasonable values, used in gr_ for placement */
-    graph->fontwidth = fontwidth * scale; /* was 12, p.w.h. */
-    graph->fontheight = fontheight * scale; /* was 24, p.w.h. */
+    graph->fontwidth = (int)(fontwidth * scale); /* was 12, p.w.h. */
+    graph->fontheight = (int)(fontheight * scale); /* was 24, p.w.h. */
 
     graph->absolute.width = dispdev->width;
     graph->absolute.height = dispdev->height;
@@ -190,13 +190,13 @@ PS_NewViewport(GRAPH *graph)
     graph->viewportxoff = 8 * fontwidth;
     graph->viewportyoff = 4 * fontheight;
 
-    xoff = scale * XOFF;
-    yoff = scale * YOFF;
+    xoff = (int)(scale * XOFF);
+    yoff = (int)(scale * YOFF);
 
-    x1 = 0.75 * 72;
+    x1 = (int)(0.75 * 72);
     y1 = x1;
-    x2 = graph->absolute.width + .75 * 72;
-    y2 = graph->absolute.height + .75 * 72;
+    x2 = (int)(graph->absolute.width + .75 * 72);
+    y2 = (int)(graph->absolute.height + .75 * 72);
     /* start file off with a % */
     fprintf(plotfile, "%%!PS-Adobe-3.0 EPSF-3.0\n");
     fprintf(plotfile, "%%%%Creator: nutmeg\n");
@@ -384,7 +384,7 @@ PS_SelectColor(int colorid)           /* should be replaced by PS_DefineColor */
 {
   char colorN[30]="", colorstring[30]="";
   char rgb[30], s_red[30]="0x", s_green[30]="0x", s_blue[30]="0x";
-  long red=0, green=0, blue=0, scale=1;
+  int  red=0, green=0, blue=0, scale=1;
   int i;
   typedef struct { int red, green, blue;} COLOR;
   /* duplicated colors from src/frontend/plotting/x11.c in rgb-style */
@@ -423,12 +423,12 @@ PS_SelectColor(int colorid)           /* should be replaced by PS_DefineColor */
 
     if ((strlen(s_blue) == strlen(s_red) && strlen(s_green) == strlen(s_red))
 	       && (strlen(s_blue) > 2) && (strlen(s_blue) < 7)){
-      sscanf(s_red,"%lx",&red);
-      sscanf(s_green,"%lx",&green);
-      sscanf(s_blue,"%lx",&blue);
+      sscanf(s_red,"%x",&red);
+      sscanf(s_green,"%x",&green);
+      sscanf(s_blue,"%x",&blue);
       scale= (1 << (strlen(s_blue) - 2) * 4) - 1;
       sprintf(colorstring,"%1.3f %1.3f %1.3f",
-	     (float) red/scale, (float) green/scale, (float) blue/scale);
+	     (double) red/scale, (double) green/scale, (double) blue/scale);
       strcpy(pscolor, colorstring);
     }
   }

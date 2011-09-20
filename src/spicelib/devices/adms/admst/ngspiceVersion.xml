@@ -1,10 +1,16 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <!-- RCS Info -->
 <!--
-  $Id: ngspiceVersion.xml,v 1.21 2011/01/13 17:05:46 dwarning Exp $
+  $Id: ngspiceVersion.xml,v 1.23 2011/08/28 09:11:47 dwarning Exp $
 -->
 <!--
   $Log: ngspiceVersion.xml,v $
+  Revision 1.23  2011/08/28 09:11:47  dwarning
+  psp102 module name change
+
+  Revision 1.22  2011/08/24 19:27:51  dwarning
+  mextram name change
+
   Revision 1.21  2011/01/13 17:05:46  dwarning
   set version parameter to 2.3.0
 
@@ -1978,13 +1984,13 @@
           <admst:value-to select="value" value="hicum2"/>
         </admst:new>
       </admst:when>
-      <admst:when test="[name='bjt504_va']">
+      <admst:when test="[name='bjt504tva']">
         <admst:new datatype="attribute" arguments="ngspicename">
           <admst:push into="../attribute" select="." onduplicate="abort"/>
-          <admst:value-to select="value" value="mextram"/>
+          <admst:value-to select="value" value="bjt504t"/>
         </admst:new>
       </admst:when>
-      <admst:when test="[name='psp102']">
+      <admst:when test="[lower-case(name)='psp102va']">
         <admst:new datatype="attribute" arguments="ngspicename">
           <admst:push into="../attribute" select="." onduplicate="abort"/>
           <admst:value-to select="value" value="psp102"/>
@@ -2049,7 +2055,7 @@
           </admst:new>
         </admst:if>
       </admst:when>
-      <admst:when test="[name='vbic' or name='hic0_full' or name='hic2_full' or name='bjt504_va']">
+      <admst:when test="[name='vbic' or name='hic0_full' or name='hic2_full' or name='bjt504tva']">
         <admst:if test="[nilled(variable[name='npn'])]">
           <admst:value-of select="analog"/>
           <admst:value-of select="."/>
@@ -2095,7 +2101,7 @@
           </admst:new>
         </admst:if>
       </admst:when>
-      <admst:when test="[name='psp102']">
+      <admst:when test="[lower-case(name)='psp102va']">
         <admst:if test="[nilled(variable[name='nmos'])]">
           <admst:value-of select="analog"/>
           <admst:value-of select="."/>

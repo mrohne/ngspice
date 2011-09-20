@@ -10,10 +10,10 @@ Author: 1985 Thomas L. Quarles
      * specified circuit
      */
 
-#include "ngspice.h"
-#include "ifsim.h"
-#include "sperror.h"
-#include "cktdefs.h"
+#include <ngspice/ngspice.h>
+#include <ngspice/ifsim.h>
+#include <ngspice/sperror.h>
+#include <ngspice/cktdefs.h>
 
 
 
@@ -29,7 +29,7 @@ CKTmkCur(CKTcircuit *ckt, CKTnode **node, IFuid basename, char *suffix)
     error = CKTmkNode(ckt,&mynode);
     if(error) return(error);
     checknode = mynode;
-    error = (*(SPfrontEnd->IFnewUid))(ckt,&uid,basename,
+    error = SPfrontEnd->IFnewUid (ckt, &uid, basename,
             suffix, UID_SIGNAL, &checknode);
     if(error) {
         FREE(mynode);

@@ -1,21 +1,21 @@
 /**********
 Copyright 1990 Regents of the University of California.  All rights reserved.
 Author: 1995 Min-Chie Jeng and Mansun Chan.
-File: b3v0pzld.c
+File: b3pzld.c
 **********/
 
-#include "ngspice.h"
-#include "cktdefs.h"
-#include "complex.h"
-#include "sperror.h"
+#include <ngspice/ngspice.h>
+#include <ngspice/cktdefs.h>
+#include <ngspice/complex.h>
+#include <ngspice/sperror.h>
 #include "bsim3v0def.h"
-#include "suffix.h"
+#include <ngspice/suffix.h>
 
 int
 BSIM3v0pzLoad(GENmodel *inModel, CKTcircuit *ckt, SPcomplex *s)
 {
-register BSIM3v0model *model = (BSIM3v0model*)inModel;
-register BSIM3v0instance *here;
+BSIM3v0model *model = (BSIM3v0model*)inModel;
+BSIM3v0instance *here;
 double xcggb, xcgdb, xcgsb, xcbgb, xcbdb, xcbsb, xcddb, xcssb, xcdgb;
 double gdpr, gspr, gds, gbd, gbs, capbd, capbs, xcsgb, xcdsb, xcsdb;
 double cggb, cgdb, cgsb, cbgb, cbdb, cbsb, cddb, cdgb, cdsb;

@@ -3,14 +3,14 @@ Copyright 1990 Regents of the University of California.  All rights reserved.
 Author: 1988 Thomas L. Quarles
 **********/
 
-#include "ngspice.h"
+#include <ngspice/ngspice.h>
 #include <stdio.h>
-#include "ifsim.h"
-#include "inpdefs.h"
-#include "inpmacs.h"
-#include "fteext.h"
+#include <ngspice/ifsim.h>
+#include <ngspice/inpdefs.h>
+#include <ngspice/inpmacs.h>
+#include <ngspice/fteext.h>
 #include "inp.h"
-#include "cktdefs.h"
+#include <ngspice/cktdefs.h>
 
 void INP2B(CKTcircuit *ckt, INPtables * tab, card * current)
 {
@@ -53,7 +53,7 @@ void INP2B(CKTcircuit *ckt, INPtables * tab, card * current)
 
     if (!tab->defBmod) {
         /* create default B model */
-        IFnewUid(ckt, &uid, (IFuid) NULL, "B", UID_MODEL, NULL);
+        IFnewUid(ckt, &uid, NULL, "B", UID_MODEL, NULL);
         IFC(newModel, (ckt, type, &(tab->defBmod), uid));
     }
     IFC(newInstance, (ckt, tab->defBmod, &fast, name));

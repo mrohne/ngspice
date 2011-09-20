@@ -6,13 +6,13 @@ Modified: 2004 Paolo Nenzi - (ng)spice integration
 **********/
 
 
-#include "ngspice.h"
-#include "smpdefs.h"
+#include <ngspice/ngspice.h>
+#include <ngspice/smpdefs.h>
 #include "cpldefs.h"
-#include "sperror.h"
-#include "suffix.h"
+#include <ngspice/sperror.h>
+#include <ngspice/suffix.h>
 
-#include "multi_line.h"
+#include <ngspice/multi_line.h>
 
 #include "../../../frontend/error.h" /* controlled_exit() */
 
@@ -151,27 +151,27 @@ CPLsetup(SMPmatrix *matrix, GENmodel *inModel, CKTcircuit *ckt, int *state)
     for( ; model != NULL; model = model->CPLnextModel ) {
 
         if (!model->Rmgiven) {
-           (*(SPfrontEnd->IFerror))(ERR_FATAL, 
+           SPfrontEnd->IFerror (ERR_FATAL,
                "model %s: lossy line series resistance not given", &(model->CPLmodName));
           return(E_BADPARM);
         }
         if (!model->Gmgiven) {
-           (*(SPfrontEnd->IFerror))(ERR_FATAL, 
+           SPfrontEnd->IFerror (ERR_FATAL,
                "model %s: lossy line parallel conductance not given", &(model->CPLmodName));
           return(E_BADPARM);
         }
         if (!model->Lmgiven) {
-          (*(SPfrontEnd->IFerror)) (ERR_FATAL,
+          SPfrontEnd->IFerror (ERR_FATAL,
               "model %s: lossy line series inductance not given", &(model->CPLmodName));
           return (E_BADPARM);
         }
         if (!model->Cmgiven) {
-          (*(SPfrontEnd->IFerror)) (ERR_FATAL,
+          SPfrontEnd->IFerror (ERR_FATAL,
               "model %s: lossy line parallel capacitance not given", &(model->CPLmodName));
           return (E_BADPARM);
         }
         if (!model->lengthgiven) {
-          (*(SPfrontEnd->IFerror)) (ERR_FATAL,
+          SPfrontEnd->IFerror (ERR_FATAL,
               "model %s: lossy line length must be given", &(model->CPLmodName));
           return (E_BADPARM);
         }
@@ -185,7 +185,7 @@ CPLsetup(SMPmatrix *matrix, GENmodel *inModel, CKTcircuit *ckt, int *state)
 
 /* macro to make elements with built in test for out of memory */
 #define TSTALLOC(ptr,first,second) \
-if((here->ptr = SMPmakeElt(matrix,here->first,here->second))==(double *)NULL){\
+if((here->ptr = SMPmakeElt(matrix, here->first, here->second)) == NULL){\
     return(E_NOMEM);\
 }
                     
@@ -1291,8 +1291,8 @@ coupled(int dim)
    loop_ZY(dim, 0.0);
    eval_frequency(dim, deg_o);
    eval_Si_Si_1(dim, 0.0);
-   store_SiSv_1(dim, (int) 0);
-   store(dim, (int) 0);
+   store_SiSv_1(dim, 0);
+   store(dim, 0);
 
    /***     Step  1     ***/
    /***     Step  2     ***/

@@ -3,9 +3,9 @@ Copyright 1990 Regents of the University of California.  All rights reserved.
 Author: 1990 Jaijeet S. Roychowdhury
 **********/
 
-#include "ngspice.h"
+#include <ngspice/ngspice.h>
 #include "ltradefs.h"
-#include "suffix.h"
+#include <ngspice/suffix.h>
 
 void
 LTRAdestroy(GENmodel **inModel)
@@ -20,7 +20,7 @@ LTRAdestroy(GENmodel **inModel)
     if (oldmod)
       FREE(oldmod);
     oldmod = mod;
-    prev = (LTRAinstance *) NULL;
+    prev = NULL;
     for (here = mod->LTRAinstances; here; here = here->LTRAnextInstance) {
       if (prev)
 	FREE(prev);

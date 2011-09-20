@@ -1,13 +1,13 @@
 /**********
 Copyright 1990 Regents of the University of California.  All rights reserved.
 Author: 1985 Wayne A. Christopher, U. C. Berkeley CAD Group
-$Id: com_history.c,v 1.10 2010/11/19 18:52:44 rlar Exp $
+$Id: com_history.c,v 1.11 2011/08/20 17:27:10 rlar Exp $
 **********/
 
 /* Do history substitutions.  */
 
-#include <ngspice.h>
-#include <cpdefs.h>
+#include <ngspice/ngspice.h>
+#include <ngspice/cpdefs.h>
 
 #include "com_history.h"
 

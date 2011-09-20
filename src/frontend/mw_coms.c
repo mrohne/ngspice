@@ -1,13 +1,13 @@
 /* Michael Widlok 		2 Jun 1999 */
-/* $Id: mw_coms.c,v 1.11 2010/11/16 20:38:24 rlar Exp $ */
+/* $Id: mw_coms.c,v 1.13 2011/08/20 17:27:11 rlar Exp $ */
 /* New commands for unloading circuits */
 
-#include "ngspice.h"
-#include "cpdefs.h"
-#include "ftedefs.h"
-#include "ftedev.h"
-#include "ftedebug.h"
-#include "dvec.h"
+#include <ngspice/ngspice.h>
+#include <ngspice/cpdefs.h>
+#include <ngspice/ftedefs.h>
+#include <ngspice/ftedev.h>
+#include <ngspice/ftedebug.h>
+#include <ngspice/dvec.h>
 
 #include "circuits.h"
 #include "mw_coms.h"
@@ -49,6 +49,9 @@ com_removecirc(wordlist *wl)
 	tfree(v);
     }
     
+    /* PN FTESTATS*/
+    tfree(ct->FTEstats);
+
     ct->ci_vars = NULL;
     caux=ft_circuits;
     namecircuit = strdup(ft_curckt->ci_name);

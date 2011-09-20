@@ -6,11 +6,11 @@ Author: 1987 Kanwar Jit Singh
  * singh@ic.Berkeley.edu
  */
 
-#include "ngspice.h"
-#include "cktdefs.h"
+#include <ngspice/ngspice.h>
+#include <ngspice/cktdefs.h>
 #include "asrcdefs.h"
-#include "sperror.h"
-#include "suffix.h"
+#include <ngspice/sperror.h>
+#include <ngspice/suffix.h>
 
 
 /*ARGSUSED*/
@@ -50,13 +50,12 @@ ASRCsetup(SMPmatrix *matrix, GENmodel *inModel, CKTcircuit *ckt, int *states)
 
 /* macro to make elements with built in test for out of memory */
 #define TSTALLOC(ptr,first,second) \
-if((here->ptr = SMPmakeElt(matrix,here->first,here->second))==(double *)NULL){\
+if((here->ptr = SMPmakeElt(matrix, here->first, here->second)) == NULL){\
     return(E_NOMEM);\
 }
 
 #define MY_TSTALLOC(ptr,first,second) \
-if((here->ptr = SMPmakeElt(matrix, here->first, (second)->number))\
-        ==(double *)NULL){\
+if((here->ptr = SMPmakeElt(matrix, here->first, (second)->number)) == NULL){\
     return(E_NOMEM);\
 }
 
@@ -68,7 +67,7 @@ if((here->ptr = SMPmakeElt(matrix, here->first, (second)->number))\
 	    if( here->ASRCtype == ASRC_VOLTAGE) {
 
                 if(here->ASRCposNode == here->ASRCnegNode) {
-                    (*(SPfrontEnd->IFerror))(ERR_FATAL,
+                    SPfrontEnd->IFerror (ERR_FATAL,
                               "instance %s is a shorted ASRC", &here->ASRCname);
                     return(E_UNSUPP);
                 }
@@ -89,7 +88,7 @@ if((here->ptr = SMPmakeElt(matrix, here->first, (second)->number))\
                         IFuid namarray[2];
                         namarray[0] =  here->ASRCname;
                         namarray[1] = here->ASRCtree->vars[i].uValue;
-                        (*(SPfrontEnd->IFerror))(ERR_FATAL,
+                        SPfrontEnd->IFerror (ERR_FATAL,
                                 "%s: unknown controlling source %s",namarray);
                         return(E_BADPARM);
                     }

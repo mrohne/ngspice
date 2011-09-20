@@ -7,11 +7,11 @@ Remarks:  This code is based on a version written by Serban Popescu which
           to conform to INP standard. (PN)
 **********/
 
-#include "ngspice.h"
-#include "ifsim.h"
-#include "inpdefs.h"
-#include "inpmacs.h"
-#include "fteext.h"
+#include <ngspice/ngspice.h>
+#include <ngspice/ifsim.h>
+#include <ngspice/inpdefs.h>
+#include <ngspice/inpmacs.h>
+#include <ngspice/fteext.h>
 #include "inp.h"
 
 /* undefine to add tracing to this file */
@@ -79,7 +79,7 @@ void INP2R(CKTcircuit *ckt, INPtables * tab, card * current)
     for(s = line; NULL != (s = strstr(s, "tc")); ) {
 
         char *p;
-        int left_length;
+        size_t left_length;
 
         s += 2;
 
@@ -106,7 +106,7 @@ void INP2R(CKTcircuit *ckt, INPtables * tab, card * current)
         while(*s && !isspace(*s))
             s++;
 
-        left_length = s - current->line;
+        left_length = (size_t) (s - current->line);
 
         /* skip any additional white space */
         while(isspace(*s))
@@ -155,7 +155,7 @@ void INP2R(CKTcircuit *ckt, INPtables * tab, card * current)
           printf("In INP2R, Valid R Model: %s\n", model);
 #endif
           INPinsert(&model, tab);
-          thismodel = (INPmodel *) NULL;
+          thismodel = NULL;
           current->error = INPgetMod(ckt, model, &thismodel, tab);
           if (thismodel != NULL) {
             if (mytype != thismodel->INPmodType) {
@@ -171,7 +171,7 @@ void INP2R(CKTcircuit *ckt, INPtables * tab, card * current)
           line = saveline;	/* go back */
           type = mytype;
           if (!tab->defRmod) {	/* create default R model */
-            IFnewUid(ckt, &uid, (IFuid) NULL, "R", UID_MODEL,
+            IFnewUid(ckt, &uid, NULL, "R", UID_MODEL,
                 NULL);
             IFC(newModel, (ckt, type, &(tab->defRmod), uid));
           }
@@ -184,7 +184,7 @@ void INP2R(CKTcircuit *ckt, INPtables * tab, card * current)
       type = mytype;
       if (!tab->defRmod) {
           /* create default R model */
-          IFnewUid(ckt, &uid, (IFuid) NULL, "R", UID_MODEL,
+          IFnewUid(ckt, &uid, NULL, "R", UID_MODEL,
               NULL);
           IFC(newModel, (ckt, type, &(tab->defRmod), uid));
       }

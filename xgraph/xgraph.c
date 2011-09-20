@@ -1,4 +1,4 @@
-/* $Header: /cvsroot/ngspice/ngspice/ng-spice-rework/xgraph/xgraph.c,v 1.1 2004/01/25 09:00:49 pnenzi Exp $ */
+/* $Header: /cvsroot/ngspice/ngspice/ng-spice-rework/xgraph/xgraph.c,v 1.2 2011/04/27 18:30:17 rlar Exp $ */
 /*
  * xgraph - A Simple Plotter for X
  *
@@ -10,6 +10,9 @@
  * of this software.
  *
  * $Log: xgraph.c,v $
+ * Revision 1.2  2011/04/27 18:30:17  rlar
+ * code cleanup
+ *
  * Revision 1.1  2004/01/25 09:00:49  pnenzi
  *
  * Added xgraph plotting program.
@@ -25,7 +28,7 @@
  *
  */
 #ifndef lint
-static char rcsid[] = "$Id: xgraph.c,v 1.1 2004/01/25 09:00:49 pnenzi Exp $";
+static char rcsid[] = "$Id: xgraph.c,v 1.2 2011/04/27 18:30:17 rlar Exp $";
 #endif
 
 #include "copyright.h"
@@ -1179,7 +1182,7 @@ int     doc_p;			/* Documentation predicate       */
     flags = 0;
     if (doc_p)
 	flags |= D_DOCU;
-    if ((*init_fun) (out_stream, final_w, final_h, ti_fam, ti_size,
+    if (init_fun (out_stream, final_w, final_h, ti_fam, ti_size,
 		     ax_fam, ax_size, flags, &(thisWin.dev_info), ierr)) {
 	DrawWindow(&thisWin);
 	if (thisWin.dev_info.xg_end) {

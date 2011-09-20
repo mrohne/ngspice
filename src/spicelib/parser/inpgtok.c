@@ -13,9 +13,9 @@ Modified: 2000 AlansFixes
 	   (called from INPevaluate)
  */
 
-#include "ngspice.h"
-#include "iferrmsg.h"
-#include "inpdefs.h"
+#include <ngspice/ngspice.h>
+#include <ngspice/iferrmsg.h>
+#include <ngspice/inpdefs.h>
 #include "inp.h"
 
 /*-------------------------------------------------------------------
@@ -95,7 +95,7 @@ int INPgetTok(char **line, char **token, int gobble)
 
     }
 
-    diffpoints = point - *line;
+    diffpoints = (int)(point - *line);
     if ((diffpoints < 1) && *point)
         diffpoints = 1;	/* Weird items, 1 char */
     *token = TMALLOC(char, 1 + diffpoints);
@@ -193,7 +193,7 @@ int INPgetNetTok(char **line, char **token, int gobble)
     }
 
     /* now copy found token into *token */
-    diffpoints = point - *line;
+    diffpoints = (int)(point - *line);
     if ((diffpoints < 1) && *point)
         diffpoints = 1;	/* Weird items, 1 char */
     *token = TMALLOC(char, 1 + diffpoints);

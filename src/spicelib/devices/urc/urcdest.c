@@ -6,9 +6,9 @@ Author: 1987 Thomas L. Quarles
  */
 
 
-#include "ngspice.h"
+#include <ngspice/ngspice.h>
 #include "urcdefs.h"
-#include "suffix.h"
+#include <ngspice/suffix.h>
 
 
 void
@@ -23,7 +23,7 @@ URCdestroy(GENmodel **inModel)
     for( ; mod ; mod = mod->URCnextModel) {
         if(oldmod) FREE(oldmod);
         oldmod = mod;
-        prev = (URCinstance *)NULL;
+        prev = NULL;
         for(here = mod->URCinstances ; here ; here = here->URCnextInstance) {
             if(prev) FREE(prev);
             prev = here;

@@ -1,18 +1,18 @@
 /**********
 Copyright 1990 Regents of the University of California.  All rights reserved.
-$Id: graphdb.c,v 1.9 2010/11/19 18:54:41 rlar Exp $
+$Id: graphdb.c,v 1.11 2011/08/20 17:27:11 rlar Exp $
 **********/
 
 /*
     Manage graph data structure.
 */
 
-#include <ngspice.h>
-#include <graph.h>
-#include <ftedebug.h>
-#include <fteext.h>
+#include <ngspice/ngspice.h>
+#include <ngspice/graph.h>
+#include <ngspice/ftedebug.h>
+#include <ngspice/fteext.h>
 
-#include "ftedbgra.h"
+#include <ngspice/ftedbgra.h>
 #include "graphdb.h"
 #include "../breakp2.h"
 #include "../error.h"
@@ -63,7 +63,7 @@ GRAPH *NewGraph(void)
 
     if ((list = NEWLISTGRAPH) == NULL) {
       internalerror("can't allocate a listgraph");
-      return((GRAPH *) NULL);
+      return(NULL);
     }
 
     pgraph = &list->graph;

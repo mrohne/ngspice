@@ -3,20 +3,16 @@
 SUBDIRS = \
 	asrc	\
 	bjt	\
-	bjt2	\
 	bsim1	\
 	bsim2	\
 	bsim3	\
 	bsim3soi	\
 	bsim4		\
-	bsim4v2		\
-	bsim4v3		\
 	bsim4v4		\
 	bsim4v5		\
+	bsim4v6		\
 	bsim3v0		\
 	bsim3v1		\
-	bsim3v1a	\
-	bsim3v1s	\
 	bsim3v32	\
 	bsim3soi_pd	\
 	bsim3soi_fd	\
@@ -31,7 +27,8 @@ SUBDIRS = \
 	isrc	\
 	hfet1	\
 	hfet2	\
-	hisim	\
+	hisim2	\
+	hisimhv	\
 	jfet	\
 	jfet2	\
 	ltra	\
@@ -66,20 +63,16 @@ DIST_SUBDIRS = \
 	@VLADEVDIR@ \
 	asrc	\
 	bjt	\
-	bjt2	\
 	bsim1	\
 	bsim2	\
 	bsim3	\
 	bsim3soi	\
 	bsim4		\
-	bsim4v2		\
-	bsim4v3		\
 	bsim4v4		\
 	bsim4v5		\
+	bsim4v6		\
 	bsim3v0		\
 	bsim3v1		\
-	bsim3v1a	\
-	bsim3v1s	\
 	bsim3v32	\
 	bsim3soi_pd	\
 	bsim3soi_fd	\
@@ -94,7 +87,8 @@ DIST_SUBDIRS = \
 	isrc	\
 	hfet1	\
 	hfet2	\
-	hisim	\
+	hisim2	\
+	hisimhv	\
 	jfet	\
 	jfet2	\
 	ltra	\

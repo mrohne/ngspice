@@ -72,6 +72,7 @@ libckt_la_SOURCES = \
 		dcoaskq.c	\
 		dcop.c		\
 		dcosetp.c	\
+		dcpss.c		\
 		dctaskq.c	\
 		dctran.c	\
 		dctrcurv.c	\
@@ -85,6 +86,9 @@ libckt_la_SOURCES = \
 		ninteg.c	\
 		noisean.c	\
 		nsetparm.c	\
+		pssaskq.c	\
+		pssinit.c	\
+		psssetp.c	\
 		pzan.c		\
 		pzaskq.c	\
 		pzsetp.c	\
@@ -96,8 +100,7 @@ libckt_la_SOURCES = \
 		tranaskq.c	\
 		traninit.c	\
 		transetp.c	\
-		cluster.c	\
-		ckt.h
+		cluster.c
 
 
 AM_CPPFLAGS =  -I$(top_srcdir)/src/include -I$(top_srcdir)/src/spicelib/devices

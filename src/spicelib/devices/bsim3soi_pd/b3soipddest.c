@@ -10,9 +10,9 @@ Modified by Paolo Nenzi 2002
  * BSIMPD2.2.3 release
  */
 
-#include "ngspice.h"
+#include <ngspice/ngspice.h>
 #include "b3soipddef.h"
-#include "suffix.h"
+#include <ngspice/suffix.h>
 
 void
 B3SOIPDdestroy(GENmodel **inModel)
@@ -26,7 +26,7 @@ B3SOIPDmodel *oldmod = NULL;
     for (; mod ; mod = mod->B3SOIPDnextModel)
     {    if(oldmod) FREE(oldmod);
          oldmod = mod;
-         prev = (B3SOIPDinstance *)NULL;
+         prev = NULL;
          for (here = mod->B3SOIPDinstances; here; here = here->B3SOIPDnextInstance)
 	 {    if(prev) FREE(prev);
               prev = here;

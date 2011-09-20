@@ -5,11 +5,11 @@ Author: 1992 Charles Hough
 **********/
 
 
-#include "ngspice.h"
-#include "smpdefs.h"
+#include <ngspice/ngspice.h>
+#include <ngspice/smpdefs.h>
 #include "txldefs.h"
-#include "sperror.h"
-#include "suffix.h"
+#include <ngspice/sperror.h>
+#include <ngspice/suffix.h>
 
 #include "../../../frontend/error.h" /* controlled_exit() */
 
@@ -88,27 +88,27 @@ TXLsetup(SMPmatrix *matrix, GENmodel *inModel, CKTcircuit*ckt, int *state)
     for( ; model != NULL; model = model->TXLnextModel ) {
 
         if (!model->Rgiven) {
-           (*(SPfrontEnd->IFerror))(ERR_FATAL, 
+           SPfrontEnd->IFerror (ERR_FATAL,
                "model %s: lossy line series resistance not given", &(model->TXLmodName));
           return(E_BADPARM);
         }
         if (!model->Ggiven) {
-           (*(SPfrontEnd->IFerror))(ERR_FATAL, 
+           SPfrontEnd->IFerror (ERR_FATAL,
                "model %s: lossy line parallel conductance not given", &(model->TXLmodName));
           return(E_BADPARM);
         }
         if (!model->Lgiven) {
-          (*(SPfrontEnd->IFerror)) (ERR_FATAL,
+          SPfrontEnd->IFerror (ERR_FATAL,
               "model %s: lossy line series inductance not given", &(model->TXLmodName));
           return (E_BADPARM);
         }
         if (!model->Cgiven) {
-          (*(SPfrontEnd->IFerror)) (ERR_FATAL,
+          SPfrontEnd->IFerror (ERR_FATAL,
               "model %s: lossy line parallel capacitance not given", &(model->TXLmodName));
           return (E_BADPARM);
         }
         if (!model->lengthgiven) {
-          (*(SPfrontEnd->IFerror)) (ERR_FATAL,
+          SPfrontEnd->IFerror (ERR_FATAL,
               "model %s: lossy line length must be given", &(model->TXLmodName));
           return (E_BADPARM);
         }
@@ -119,7 +119,7 @@ TXLsetup(SMPmatrix *matrix, GENmodel *inModel, CKTcircuit*ckt, int *state)
             
 /* macro to make elements with built in test for out of memory */
 #define TSTALLOC(ptr,first,second) \
-if((here->ptr = SMPmakeElt(matrix,here->first,here->second))==(double *)NULL){\
+if((here->ptr = SMPmakeElt(matrix, here->first, here->second)) == NULL){\
     return(E_NOMEM);\
 }
 

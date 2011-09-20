@@ -8,11 +8,11 @@ Copyright 1990 Regents of the University of California.  All rights reserved.
  * given circuit, setup ...
  */
 
-#include "ngspice.h"
-#include "smpdefs.h"
-#include "cktdefs.h"
-#include "devdefs.h"
-#include "sperror.h"
+#include <ngspice/ngspice.h>
+#include <ngspice/smpdefs.h>
+#include <ngspice/cktdefs.h>
+#include <ngspice/devdefs.h>
+#include <ngspice/sperror.h>
 
 
 int
@@ -35,7 +35,7 @@ CKTpzSetup(CKTcircuit *ckt, int type)
 
     for (i = 0; i < DEVmaxnum; i++) {
         if (DEVices[i] && DEVices[i]->DEVpzSetup != NULL && ckt->CKThead[i] != NULL) {
-            error = (*DEVices[i]->DEVpzSetup)(matrix, ckt->CKThead[i],
+            error = DEVices[i]->DEVpzSetup (matrix, ckt->CKThead[i],
 		ckt, &ckt->CKTnumStates);
             if (error != OK)
 	        return(error);

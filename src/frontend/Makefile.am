@@ -1,5 +1,5 @@
 ## Process this file with automake to produce Makefile.in
-## $Id: Makefile.am,v 1.39 2011/01/25 17:33:37 rlar Exp $
+## $Id: Makefile.am,v 1.40 2011/08/09 18:41:36 pnenzi Exp $
 
 SUBDIRS = plotting help parser wdisp numparam trannoise
 DIST_SUBDIRS = plotting help parser wdisp numparam trannoise
@@ -76,6 +76,7 @@ libfte_la_SOURCES =	\
 	control.h	\
 	control.c	\
 	ftehelp.h	\
+	ftesopt.c	\
 	hcomp.c		\
 	hcomp.h		\
 	init.c		\
@@ -129,6 +130,7 @@ libfte_la_SOURCES =	\
 	inpcom.h	\
 	interp.c	\
 	interp.h	\
+	inventory.c     \
 	linear.c	\
 	linear.h	\
 	measure.c	\

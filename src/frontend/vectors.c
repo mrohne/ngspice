@@ -1,22 +1,23 @@
 /**********
 Copyright 1990 Regents of the University of California.  All rights reserved.
 Author: 1985 Wayne A. Christopher, U. C. Berkeley CAD Group 
-$Id: vectors.c,v 1.26 2010/11/19 18:54:41 rlar Exp $
+$Id: vectors.c,v 1.30 2011/08/20 17:27:11 rlar Exp $
 **********/
 
 /*
  * Routines for dealing with the vector database.
  */
 
-#include <ngspice.h>
-#include <cpdefs.h>
-#include <ftedefs.h>
-#include <dvec.h>
-#include <sim.h>
+#include <ngspice/ngspice.h>
+#include <ngspice/cpdefs.h>
+#include <ngspice/ftedefs.h>
+#include <ngspice/dvec.h>
+#include <ngspice/sim.h>
 
 #include "circuits.h"
 #include "completion.h"
 #include "variable.h"
+#include "dimens.h"
 #include "../misc/misc_time.h"
 #include "vectors.h"
 #include "plotting/plotting.h"
@@ -273,7 +274,7 @@ plot_add(struct plot *pl)
     pl->pl_typename = copy(buf);
     plot_new(pl);
     cp_addkword(CT_PLOT, buf);
-    pl->pl_ccom = cp_kwswitch(CT_VECTOR, (char *) NULL);
+    pl->pl_ccom = cp_kwswitch(CT_VECTOR, NULL);
     plot_setcur(pl->pl_typename);
 
     return;
@@ -445,8 +446,8 @@ vec_get(const char *vec_name)
               * if_setparam(ft_curckt->ci_ckt, &dev, param, dv, do_model);
               */
 
-            /* vv = (*if_getparam)(ft_curckt->ci_ckt, &name, param, 0, 0); */
-	    vv = (*if_getparam)(ft_curckt->ci_ckt, &name, param, 0, 0);	
+            /* vv = if_getparam (ft_curckt->ci_ckt, &name, param, 0, 0); */
+	    vv = if_getparam (ft_curckt->ci_ckt, &name, param, 0, 0);
 	    if (!vv) {
 	        tfree(whole);
 		tfree(wd);
@@ -707,7 +708,7 @@ plot_alloc(char *name)
     pl->pl_typename = copy(buf);
     cp_addkword(CT_PLOT, buf);
     /* va: create a new, empty keyword tree for class CT_VECTOR, s=old tree */
-    s = cp_kwswitch(CT_VECTOR, (char *) NULL);
+    s = cp_kwswitch(CT_VECTOR, NULL);
     cp_addkword(CT_VECTOR, "all");
     pl->pl_ccom = cp_kwswitch(CT_VECTOR, s);
     /* va: keyword tree is old tree again, new tree is linked to pl->pl_ccom */

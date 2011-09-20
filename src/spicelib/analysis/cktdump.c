@@ -17,14 +17,14 @@ TODO:
      * this is a simple program to dump the rhs vector to stdout
      */
 
-#include "ngspice.h"
-#include "smpdefs.h"
-#include "cktdefs.h"
+#include <ngspice/ngspice.h>
+#include <ngspice/smpdefs.h>
+#include <ngspice/cktdefs.h>
 
 #ifdef CIDER
 /* Begin cider integration */
-#include "gendefs.h"
-#include "devdefs.h"
+#include <ngspice/gendefs.h>
+#include <ngspice/devdefs.h>
  
 /* End cider integration */
 #endif
@@ -41,7 +41,7 @@ CKTdump(CKTcircuit *ckt, double ref, void *plot)
     refData.rValue = ref;
     valData.v.numValue = ckt->CKTmaxEqNum-1;
     valData.v.vec.rVec = ckt->CKTrhsOld+1;
-    (*(SPfrontEnd->OUTpData))(plot,&refData,&valData);
+    SPfrontEnd->OUTpData (plot, &refData, &valData);
 
 #ifdef CIDER
 /* 
@@ -54,9 +54,8 @@ CKTdump(CKTcircuit *ckt, double ref, void *plot)
  */
  
   for (i=0; i<DEVmaxnum; i++) {
-    if ( DEVices[i] && ((*DEVices[i]).DEVdump != NULL) &&
-                (ckt->CKThead[i] != NULL) ){
-                (*((*DEVices[i]).DEVdump))(ckt->CKThead[i],ckt);
+    if ( DEVices[i] && DEVices[i]->DEVdump && ckt->CKThead[i] ) {
+                DEVices[i]->DEVdump (ckt->CKThead[i], ckt);
     }
   }
 /* End cider integration */
@@ -87,9 +86,8 @@ NDEVacct(CKTcircuit *ckt, FILE *file)
     }
 
      for (i=0; i<DEVmaxnum; i++) {
-        if ( DEVices[i] && ((*DEVices[i]).DEVacct != NULL) &&
-                (ckt->CKThead[i] != NULL) ){
-                (*((*DEVices[i]).DEVacct))(ckt->CKThead[i],ckt, file);
+        if ( DEVices[i] && DEVices[i]->DEVacct && ckt->CKThead[i] ) {
+                DEVices[i]->DEVacct (ckt->CKThead[i], ckt, file);
     }
    }
     return;

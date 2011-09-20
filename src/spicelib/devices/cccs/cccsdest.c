@@ -5,9 +5,9 @@ Author: 1985 Thomas L. Quarles
 /*
  */
 
-#include "ngspice.h"
+#include <ngspice/ngspice.h>
 #include "cccsdefs.h"
-#include "suffix.h"
+#include <ngspice/suffix.h>
 
 
 void
@@ -23,7 +23,7 @@ CCCSdestroy(GENmodel **inModel)
     for( ; mod ; mod = mod->CCCSnextModel) {
         if(oldmod) FREE(oldmod);
         oldmod = mod;
-        prev = (CCCSinstance *)NULL;
+        prev = NULL;
         for(here = mod->CCCSinstances ; here ; here = here->CCCSnextInstance) {
             if(prev) FREE(prev);
             prev = here;

@@ -1,17 +1,17 @@
 /***********
 Copyright 1990 Regents of the University of California.  All rights reserved.
 Author: 1995 Min-Chie Jeng and Mansun Chan.
-File: b3v0temp.c
+File: b3temp.c
 **********/
 /* Lmin, Lmax, Wmin, Wmax */
 
-#include "ngspice.h"
-#include "smpdefs.h"
-#include "cktdefs.h"
+#include <ngspice/ngspice.h>
+#include <ngspice/smpdefs.h>
+#include <ngspice/cktdefs.h>
 #include "bsim3v0def.h"
-#include "const.h"
-#include "sperror.h"
-#include "suffix.h"
+#include <ngspice/const.h>
+#include <ngspice/sperror.h>
+#include <ngspice/suffix.h>
 
 #define Kb 1.3806226e-23
 #define KboQ 8.617087e-5  /* Kb / q  where q = 1.60219e-19 */
@@ -28,8 +28,8 @@ File: b3v0temp.c
 int
 BSIM3v0temp(GENmodel *inModel, CKTcircuit *ckt)
 {
-register BSIM3v0model *model = (BSIM3v0model*) inModel;
-register BSIM3v0instance *here;
+BSIM3v0model *model = (BSIM3v0model*) inModel;
+BSIM3v0instance *here;
 struct bsim3v0SizeDependParam *pSizeDependParamKnot, *pLastKnot, *pParam = NULL;
 double tmp1, tmp2, Eg, ni, T0, T1, T2, T3, Ldrn, Wdrn;
 double Temp, TRatio, Inv_L, Inv_W, Inv_LW, Vtm0, Tnom;
@@ -101,7 +101,7 @@ int Size_Not_Found;
 	          {   IFuid namarray[2];
                       namarray[0] = model->BSIM3v0modName;
                       namarray[1] = here->BSIM3v0name;
-                      (*(SPfrontEnd->IFerror))(ERR_FATAL,
+                      SPfrontEnd->IFerror (ERR_FATAL,
                       "BSIM3v0: mosfet %s, model %s: Effective channel length <= 0",
                        namarray);
                       return(E_BADPARM);
@@ -112,7 +112,7 @@ int Size_Not_Found;
 	          {   IFuid namarray[2];
                       namarray[0] = model->BSIM3v0modName;
                       namarray[1] = here->BSIM3v0name;
-                      (*(SPfrontEnd->IFerror))(ERR_FATAL,
+                      SPfrontEnd->IFerror (ERR_FATAL,
                       "BSIM3v0: mosfet %s, model %s: Effective channel width <= 0",
                        namarray);
                       return(E_BADPARM);
@@ -123,7 +123,7 @@ int Size_Not_Found;
 	          {   IFuid namarray[2];
                       namarray[0] = model->BSIM3v0modName;
                       namarray[1] = here->BSIM3v0name;
-                      (*(SPfrontEnd->IFerror))(ERR_FATAL,
+                      SPfrontEnd->IFerror (ERR_FATAL,
                       "BSIM3v0: mosfet %s, model %s: Effective channel length for C-V <= 0",
                        namarray);
                       return(E_BADPARM);
@@ -134,7 +134,7 @@ int Size_Not_Found;
 	          {   IFuid namarray[2];
                       namarray[0] = model->BSIM3v0modName;
                       namarray[1] = here->BSIM3v0name;
-                      (*(SPfrontEnd->IFerror))(ERR_FATAL,
+                      SPfrontEnd->IFerror (ERR_FATAL,
                       "BSIM3v0: mosfet %s, model %s: Effective channel width for C-V <= 0",
                        namarray);
                       return(E_BADPARM);

@@ -1,7 +1,7 @@
 /**********
 Copyright 1990 Regents of the University of California.  All rights reserved.
 Author: 1985 Wayne A. Christopher, U. C. Berkeley CAD Group
-$Id: resource.c,v 1.37 2010/09/07 20:07:57 rlar Exp $
+$Id: resource.c,v 1.43 2011/08/20 17:27:11 rlar Exp $
 **********/
 
 /*
@@ -14,21 +14,23 @@ $Id: resource.c,v 1.37 2010/09/07 20:07:57 rlar Exp $
  */
 
 #include "config.h"
-#include "ngspice.h"
-#include "cpdefs.h"
-#include "ftedefs.h"
+#include <ngspice/ngspice.h>
+#include <ngspice/cpdefs.h>
+#include <ngspice/ftedefs.h>
 
 #include "circuits.h"
 #include "quote.h"
 #include "resource.h"
 #include "variable.h"
-#include "cktdefs.h"
+#include <ngspice/cktdefs.h>
+
+#include <inttypes.h>
 
 #include "../misc/misc_time.h" /* timediff */
 
 #ifdef XSPICE
 /* gtri - add - 12/12/90 - wbk - include ipc stuff */
-#include "ipctiein.h"
+#include <ngspice/ipctiein.h>
 /* gtri - end - 12/12/90 */
 #endif
 
@@ -69,11 +71,11 @@ $Id: resource.c,v 1.37 2010/09/07 20:07:57 rlar Exp $
 
 /* static declarations */
 static void printres(char *name);
-static void fprintmem(FILE* stream, unsigned long int memory);
+static void fprintmem(FILE* stream, unsigned long long memory);
 
 #if defined(HAVE_WIN32) || defined(HAVE__PROC_MEMINFO) 
-static size_t get_procm(struct proc_mem *memall);
-static size_t get_sysmem(struct sys_mem *memall);
+static int get_procm(struct proc_mem *memall);
+static int get_sysmem(struct sys_mem *memall);
 
 struct sys_mem mem_t, mem_t_act; 
 struct proc_mem mem_ng, mem_ng_act;
@@ -120,7 +122,7 @@ char* copyword;
     /* Fill in the SPICE accounting structure... */
 
     if (wl && (eq(wl->wl_word, "everything") || eq(wl->wl_word, "all"))) {
-        printres((char *) NULL);
+        printres(NULL);
     } else if (wl) {
         for (; wl; wl = wl->wl_next) {
          /*   printres(cp_unquote(wl->wl_word)); DG: bad, memory leak*/
@@ -146,14 +148,14 @@ char* copyword;
 void
 ft_ckspace(void)
 {
-    unsigned long int usage, limit;
+    unsigned long long usage, limit;
 
 #if defined(HAVE_WIN32) || defined(HAVE__PROC_MEMINFO) 
     get_procm(&mem_ng_act);
     usage = mem_ng_act.size;
     limit = mem_t.free;    
 #else 
-    static unsigned long int old_usage = 0;
+    static size_t old_usage = 0;
     char *hi;
 
 #ifdef HAVE_GETRLIMIT
@@ -168,7 +170,7 @@ ft_ckspace(void)
 #endif /* HAVE_GETRLIMIT */
     
     hi=sbrk(0);
-    usage = (unsigned long int) (hi - enddata); 
+    usage = (size_t) (hi - enddata);
 
     if (limit < 0)
 	return;	/* what else do you do? */
@@ -179,7 +181,7 @@ ft_ckspace(void)
     old_usage = usage;
 #endif /* not HAS_WINDOWS */
 
-    if (usage > limit * 0.9) {
+    if ((double)usage > (double)limit * 0.9) {
         fprintf(cp_err, "Warning - approaching max data size: ");
 	fprintf(cp_err, "current size = ");
 	fprintmem(cp_err, usage);
@@ -203,12 +205,6 @@ printres(char *name)
     static long lastsec = 0, lastusec = 0;
     struct variable *v, *vfree = NULL;
     char   *cpu_elapsed;
-
-#ifdef XSPICE
-    /* gtri - add - 12/12/90 - wbk - a temp for testing purposes  */
-    double ipc_test;
-    /* gtri - end - 12/12/90 - wbk - */
-#endif
 
     if (!name || eq(name, "totalcputime") || eq(name, "cputime")) {
 	int	total, totalu;
@@ -280,8 +276,6 @@ printres(char *name)
 
 #ifdef XSPICE
    /* gtri - add - 12/12/90 - wbk - record cpu time used for ipc */
-        g_ipc.cpu_time = lastsec;
-        ipc_test = lastsec;
         g_ipc.cpu_time = (double) lastusec;
         g_ipc.cpu_time /= 1.0e6;
         g_ipc.cpu_time += (double) lastsec;
@@ -302,29 +296,29 @@ printres(char *name)
     if (!name || eq(name, "space")) {
 
 #ifdef ipsc
-	unsigned long int usage = 0, limit = 0;
+	size_t usage = 0, limit = 0;
 	NXINFO cur = nxinfo, start = nxinfo_snap;
 
 	usage = cur.dataend - cur.datastart;
 	limit = start.availmem;
 #else /* ipsc */
 #  ifdef HAVE_GETRLIMIT
-	unsigned long int usage = 0, limit = 0;
+	size_t usage = 0, limit = 0;
         struct rlimit rld;
         char *hi;
 
         getrlimit(RLIMIT_DATA, &rld);
-	limit = rld.rlim_cur - (enddata - startdata);
+	limit = rld.rlim_cur - (size_t)(enddata - startdata);
         hi = (char*) sbrk(0);
-	usage = (unsigned long int) (hi - enddata);
+	usage = (size_t) (hi - enddata);
 #  else /* HAVE_GETRLIMIT */
 #    ifdef HAVE_ULIMIT
-	unsigned long int usage = 0, limit = 0;
+	size_t usage = 0, limit = 0;
         char *hi;
 
-	limit = ulimit(3, 0L) - (enddata - startdata);
+	limit = ulimit(3, 0L) - (size_t)(enddata - startdata);
         hi = sbrk(0);
-	usage = (unsigned long int) (hi - enddata);
+	usage = (size_t) (hi - enddata);
 #    endif /* HAVE_ULIMIT */
 #  endif /* HAVE_GETRLIMIT */
 #endif /* ipsc */
@@ -401,6 +395,36 @@ printres(char *name)
 #endif
     } 
 
+    /* PN Now get all the frontend resource stuff */
+    if (ft_curckt) {
+        if (name && eq(name, "task")) {
+            vfree = v = ft_getstat(ft_curckt, NULL);
+        } else {
+            vfree = v = ft_getstat(ft_curckt, name);
+        }
+
+        if (name && v) {
+            fprintf(cp_out, "%s= ", v->va_name);
+            wl_print(cp_varwl(v), cp_out);
+            (void)putc('\n', cp_out);
+            yy = TRUE;
+        } else if (v) {
+            (void) putc('\n', cp_out);
+            while (v) {
+                wordlist *wlpr = cp_varwl(v);
+                fprintf(cp_out, "%s = ", v->va_name);
+                wl_print(wlpr, cp_out);
+                wl_free(wlpr);
+                (void) putc('\n', cp_out);
+                v = v->va_next;
+            }
+            yy = TRUE;
+        }
+    }
+
+    if(vfree)
+        free_struct_variable(vfree);
+
     /* Now get all the spice resource stuff. */
     if (ft_curckt && ft_curckt->ci_ckt) {
 
@@ -461,18 +485,18 @@ printres(char *name)
 
 /* Print to stream the given memory size in a human friendly format */
 static void
-fprintmem(FILE* stream, unsigned long int memory) {
+fprintmem(FILE* stream, unsigned long long memory) {
     if (memory > 1048576)
-      fprintf(stream, "%8.6f MB", memory/1048576.);
+      fprintf(stream, "%8.6f MB", (double)memory / 1048576.);
     else if (memory > 1024) 
-      fprintf(stream, "%5.3f kB", memory/1024.);
+      fprintf(stream, "%5.3f kB", (double)memory / 1024.);
     else
-      fprintf(stream, "%lu bytes", memory);
+      fprintf(stream, "%" PRIu64 " bytes", memory);
 }
 
 #if defined(HAVE_WIN32) || defined(HAVE__PROC_MEMINFO) 
 
-static size_t get_procm(struct proc_mem *memall) {
+static int get_procm(struct proc_mem *memall) {
 #if defined (_MSC_VER) || defined(__MINGW32__)
 #if (_WIN32_WINNT >= 0x0500) && defined(HAS_WINDOWS)
 /* Use Windows API function to obtain size of memory - more accurate */
@@ -525,12 +549,12 @@ static size_t get_procm(struct proc_mem *memall) {
        return 0;
     buffer[bytes_read] = '\0';
     
-    sscanf (buffer, "%d %d %d %d %d %d %d", &memall->size, &memall->resident, &memall->shared, &memall->trs, &memall->drs, &memall->lrs, &memall->dt);
+    sscanf (buffer, "%" SCNu64 " %" SCNu64 " %" SCNu64 " %" SCNu64 " %" SCNu64 " %" SCNu64 " %" SCNu64, &memall->size, &memall->resident, &memall->shared, &memall->trs, &memall->drs, &memall->lrs, &memall->dt);
 #endif
    return 1;
 }
 
-static size_t get_sysmem(struct sys_mem *memall) {
+static int get_sysmem(struct sys_mem *memall) {
 #ifdef HAVE_WIN32
 #if ( _WIN32_WINNT >= 0x0500)
    MEMORYSTATUSEX ms;
@@ -554,7 +578,7 @@ static size_t get_sysmem(struct sys_mem *memall) {
    char buffer[2048];
    size_t bytes_read;
    char *match;
-   long mem_got;
+   unsigned long long mem_got;
 
    if((fp = fopen("/proc/meminfo", "r")) == NULL) {
       perror("fopen(\"/proc/meminfo\")");
@@ -571,25 +595,25 @@ static size_t get_sysmem(struct sys_mem *memall) {
    match = strstr (buffer, "MemTotal");
    if (match == NULL) /* not found */
       return 0;
-   sscanf (match, "MemTotal: %ld", &mem_got);
+   sscanf (match, "MemTotal: %" SCNu64, &mem_got);
    memall->size = mem_got*1024; /* 1MB = 1024KB */
    /* Search for string "MemFree" */
    match = strstr (buffer, "MemFree");
    if (match == NULL) /* not found */
       return 0;
-   sscanf (match, "MemFree: %ld", &mem_got);
+   sscanf (match, "MemFree: %" SCNu64, &mem_got);
    memall->free = mem_got*1024; /* 1MB = 1024KB */  
    /* Search for string "SwapTotal" */
    match = strstr (buffer, "SwapTotal");
    if (match == NULL) /* not found */
       return 0;
-   sscanf (match, "SwapTotal: %ld", &mem_got);
+   sscanf (match, "SwapTotal: %" SCNu64, &mem_got);
    memall->swap_t = mem_got*1024; /* 1MB = 1024KB */
    /* Search for string "SwapFree" */
    match = strstr (buffer, "SwapFree");
    if (match == NULL) /* not found */
       return 0;
-   sscanf (match, "SwapFree: %ld", &mem_got);
+   sscanf (match, "SwapFree: %" SCNu64, &mem_got);
    memall->swap_f = mem_got*1024; /* 1MB = 1024KB */
 #endif   
    return 1;     

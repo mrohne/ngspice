@@ -7,9 +7,9 @@ Author: 1985 Thomas L. Quarles
  *  appropriate strchr for the device found, or -1 for not found 
  */
 
-#include "ngspice.h"
-#include "cktdefs.h"
-#include "devdefs.h"
+#include <ngspice/ngspice.h>
+#include <ngspice/cktdefs.h>
+#include <ngspice/devdefs.h>
 
 
 int
@@ -18,7 +18,7 @@ CKTtypelook(char *type)
 
     int i;
     for(i=0;i<DEVmaxnum;i++) {
-        if(DEVices[i] && strcmp(type,(*DEVices[i]).DEVpublic.name)==0) {
+        if(DEVices[i] && !strcmp(type, DEVices[i]->DEVpublic.name)) {
             /*found the device - return it */
             return(i);
         }

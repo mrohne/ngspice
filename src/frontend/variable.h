@@ -1,12 +1,12 @@
 /*
   variable.h
-  $Id: variable.h,v 1.13 2010/10/16 15:58:14 rlar Exp $
+  $Id: variable.h,v 1.14 2011/08/20 17:27:11 rlar Exp $
 */
 
 #ifndef _VARIABLE_H
 #define _VARIABLE_H
 
-#include "cpextern.h"
+#include <ngspice/cpextern.h>
 
 /* Variables that are accessible to the parser via $varname
  * expansions.  If the type is CP_LIST the value is a pointer to a

@@ -11,14 +11,14 @@ Modified: 2000 AlansFixes
  * affected by emitter, collector, and base resistances)
  */
 
-#include "ngspice.h"
-#include "cktdefs.h"
-#include "smpdefs.h"
+#include <ngspice/ngspice.h>
+#include <ngspice/cktdefs.h>
+#include <ngspice/smpdefs.h>
 #include "bjtdefs.h"
-#include "const.h"
-#include "sperror.h"
-#include "ifsim.h"
-#include "suffix.h"
+#include <ngspice/const.h>
+#include <ngspice/sperror.h>
+#include <ngspice/ifsim.h>
+#include <ngspice/suffix.h>
 
 int
 BJTsetup(SMPmatrix *matrix, GENmodel *inModel, CKTcircuit *ckt, int *states)
@@ -296,6 +296,14 @@ BJTsetup(SMPmatrix *matrix, GENmodel *inModel, CKTcircuit *ckt, int *states)
         if(!model->BJTtns2Given) {
             model->BJTtns2 = 0.0;
         }
+        if(!model->BJTnkfGiven) {
+            model->BJTnkf = 0.5;
+        } else {
+          if (model->BJTnkf > 1.0) {
+            printf("Warning: NKF has been set to its maximum value: 1.0\n");
+            model->BJTnkf = 1.0;
+          } 
+        }
 
 /*
  * COMPATABILITY WARNING!
@@ -398,7 +406,7 @@ matrixpointers:
 
 /* macro to make elements with built in test for out of memory */
 #define TSTALLOC(ptr,first,second) \
-if((here->ptr = SMPmakeElt(matrix,here->first,here->second))==(double *)NULL){\
+if((here->ptr = SMPmakeElt(matrix, here->first, here->second)) == NULL){\
     return(E_NOMEM);\
 }
             TSTALLOC(BJTcolColPrimePtr,BJTcolNode,BJTcolPrimeNode)

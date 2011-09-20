@@ -1,8 +1,8 @@
-/**** BSIM4.6.2 Released by Wenwei Yang 07/31/2008 ****/
+/**** BSIM4.7.0 Released by Darsen Lu 04/08/2011 ****/
 
 /**********
  * Copyright 2006 Regents of the University of California. All rights reserved.
- * File: b4geo.c of BSIM4.6.2.
+ * File: b4geo.c of BSIM4.7.0.
  * Author: 2000 Weidong Liu
  * Authors: 2001- Xuemei Xi, Mohan Dunga, Ali Niknejad, Chenming Hu.
  * Authors: 2006- Mohan Dunga, Ali Niknejad, Chenming Hu
@@ -10,8 +10,9 @@
  * Project Director: Prof. Chenming Hu.
  **********/
 
-#include "ngspice.h"
+#include <ngspice/ngspice.h>
 #include "bsim4def.h"
+
 
 /*
  * WDLiu:
@@ -20,13 +21,11 @@
  * for multi-fingers and varous GEO and RGEO options.
  */
 
-int
-BSIM4RdsEndIso(double, double, double, double, double, double, int, int, double *);
-int
-BSIM4RdsEndSha(double, double, double, double, double, double, int, int, double *);
-
 static int
-BSIM4NumFingerDiff(double nf, int minSD, double *nuIntD, double *nuEndD, double *nuIntS, double *nuEndS)
+BSIM4NumFingerDiff(
+double nf,
+int minSD,
+double *nuIntD, double *nuEndD, double *nuIntS, double *nuEndS)
 {
 int NF;
         NF = (int)nf;
@@ -53,7 +52,11 @@ return 0;
 
 
 int
-BSIM4PAeffGeo(double nf, int geo, int minSD, double Weffcj, double DMCG, double DMCI, double DMDG, double *Ps, double *Pd, double *As, double *Ad)
+BSIM4PAeffGeo(
+double nf,
+int geo, int minSD,
+double Weffcj, double DMCG, double DMCI, double DMDG,
+double *Ps, double *Pd, double *As, double *Ad)
 {
 double T0, T1, T2;
 double ADiso, ADsha, ADmer, ASiso, ASsha, ASmer;
@@ -150,9 +153,14 @@ return 0;
 
 
 int
-BSIM4RdseffGeo(double nf, int geo, int rgeo, int minSD, double Weffcj, double Rsh, double DMCG, double DMCI, double DMDG, int Type, double *Rtot)
+BSIM4RdseffGeo(
+double nf,
+int geo, int rgeo, int minSD,
+double Weffcj, double Rsh, double DMCG, double DMCI, double DMDG,
+int Type,
+double *Rtot)
 {
-double Rint = 0.0, Rend = 0.0;
+double Rint=0.0, Rend = 0.0;
 double nuIntD = 0.0, nuEndD = 0.0, nuIntS = 0.0, nuEndS = 0.0;
 
         if (geo < 9) /* since geo = 9 and 10 only happen when nf = even */
@@ -265,9 +273,13 @@ return 0;
 
 
 int
-BSIM4RdsEndIso(double Weffcj, double Rsh, double DMCG, double DMCI, double DMDG, double nuEnd, int rgeo, int Type, double *Rend)
+BSIM4RdsEndIso(
+double Weffcj, double Rsh, double DMCG, double DMCI, double DMDG,
+double nuEnd,
+int rgeo, int Type,
+double *Rend)
 {	
-	NG_IGNORE(DMDG);
+        NG_IGNORE(DMDG);
 
 	if (Type == 1)
 	{   switch(rgeo)
@@ -322,7 +334,11 @@ return 0;
 
 
 int
-BSIM4RdsEndSha(double Weffcj, double Rsh, double DMCG, double DMCI, double DMDG, double nuEnd, int rgeo, int Type, double *Rend)
+BSIM4RdsEndSha(
+double Weffcj, double Rsh, double DMCG, double DMCI, double DMDG,
+double nuEnd,
+int rgeo, int Type,
+double *Rend)
 {
         NG_IGNORE(DMCI);
         NG_IGNORE(DMDG);

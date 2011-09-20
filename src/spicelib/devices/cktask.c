@@ -8,16 +8,15 @@ Author: 1985 Thomas L. Quarles
  * Ask questions about a specified device.  */
 
 #include <config.h>
-#include <devdefs.h>
-#include <sperror.h>
+#include <ngspice/devdefs.h>
+#include <ngspice/sperror.h>
 
 #include "dev.h"
 
 
 int
-CKTask(CKTcircuit *ckt, GENinstance *fast, int which, IFvalue *value, IFvalue *selector)
+CKTask(CKTcircuit *ckt, GENinstance *instance, int which, IFvalue *value, IFvalue *selector)
 {
-    GENinstance *instance = /*fixme*/ fast;
     int type = instance->GENmodPtr->GENmodType;
     int error;
 #ifdef PARALLEL_ARCH
@@ -27,9 +26,9 @@ CKTask(CKTcircuit *ckt, GENinstance *fast, int which, IFvalue *value, IFvalue *s
     SPICEdev **DEVices;
 
     DEVices = devices();
-    if((*DEVices[type]).DEVask) {
+    if(DEVices[type]->DEVask) {
         error = DEVices[type]->DEVask(ckt,
-                fast, which, value, selector);
+                instance, which, value, selector);
     } else {
 	error = E_BADPARM;
     }

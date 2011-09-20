@@ -3,7 +3,7 @@
  * Copyright (c) 1990 University of California
  * Copyright (c) 2000 Arno W. Peters
  *
- * $Id: dev.c,v 1.54 2010/11/16 20:38:24 rlar Exp $
+ * $Id: dev.c,v 1.65 2011/08/24 19:27:51 dwarning Exp $
  *
  * Permission to use, copy, modify, and distribute this software and
  * its documentation without fee, and without a written agreement is
@@ -29,14 +29,15 @@
  * HAVE NO OBLIGATIONS TO PROVIDE MAINTENANCE, SUPPORT, UPDATES,
  * ENHANCEMENTS, OR MODIFICATIONS. */
 
+#include <ngspice/ngspice.h>
 #include "config.h"
 #include "assert.h"
 
-#include "devdefs.h"
-#include "ifsim.h"
+#include <ngspice/devdefs.h>
+#include <ngspice/ifsim.h>
 
 #include "dev.h"
-#include "memory.h" /* to alloc, realloc devices*/
+#include <ngspice/memory.h> /* to alloc, realloc devices*/
 
 
 #ifdef XSPICE
@@ -44,14 +45,16 @@
 #include <string.h> /* for strcpy, strcat*/
 #if (!defined HAS_WINDOWS) && (!defined __MINGW32__) && (!defined _MSC_VER)
 #include <dlfcn.h> /* to load libraries*/
+typedef void *  funptr_t;
 #else /* ifdef HAS_WINDOWS */
 #undef BOOLEAN
 #include <windows.h>
 #ifdef HAS_WINDOWS
-#include "wstdio.h"
+#include <ngspice/wstdio.h>
 #endif
+typedef FARPROC funptr_t;
 void *dlopen (const char *, int);
-void *dlsym (void *, const char *);
+funptr_t dlsym (void *, const char *);
 int dlclose (void *);
 char *dlerror (void);
 #define RTLD_LAZY	1	/* lazy function call binding */
@@ -59,8 +62,8 @@ char *dlerror (void);
 #define RTLD_GLOBAL	4	/* symbols in this dlopen'ed obj are visible to other dlopen'ed objs */
 static char errstr[128];
 #endif /* ifndef HAS_WINDOWS */
-#include "dllitf.h" /* the coreInfo Structure*/
-#include "evtudn.h" /*Use defined nodes */
+#include <ngspice/dllitf.h> /* the coreInfo Structure*/
+#include <ngspice/evtudn.h> /*Use defined nodes */
 
 Evt_Udn_Info_t  **g_evt_udn_info = NULL;
 int g_evt_num_udn_types = 0;
@@ -75,20 +78,16 @@ int add_udn(int,Evt_Udn_Info_t **);
 
 #include "asrc/asrcitf.h"
 #include "bjt/bjtitf.h"
-#include "bjt2/bjt2itf.h"
 #include "bsim1/bsim1itf.h"
 #include "bsim2/bsim2itf.h"
 #include "bsim3/bsim3itf.h"
 #include "bsim3v0/bsim3v0itf.h"
 #include "bsim3v1/bsim3v1itf.h"
-#include "bsim3v1a/bsim3v1aitf.h"
-#include "bsim3v1s/bsim3v1sitf.h"
 #include "bsim3v32/bsim3v32itf.h"
 #include "bsim4/bsim4itf.h"
-#include "bsim4v2/bsim4v2itf.h"
-#include "bsim4v3/bsim4v3itf.h"
 #include "bsim4v4/bsim4v4itf.h"
 #include "bsim4v5/bsim4v5itf.h"
+#include "bsim4v6/bsim4v6itf.h"
 #include "bsim3soi/b4soiitf.h"
 #include "bsim3soi_pd/b3soipditf.h"
 #include "bsim3soi_fd/b3soifditf.h"
@@ -100,7 +99,8 @@ int add_udn(int,Evt_Udn_Info_t **);
 #include "dio/dioitf.h"
 #include "hfet1/hfetitf.h"
 #include "hfet2/hfet2itf.h"
-#include "hisim/hsm1itf.h"
+#include "hisim2/hsm2itf.h"
+#include "hisimhv/hsmhvitf.h"
 #include "ind/inditf.h"
 #include "isrc/isrcitf.h"
 #include "jfet/jfetitf.h"
@@ -127,7 +127,7 @@ int add_udn(int,Evt_Udn_Info_t **);
 #ifdef ADMS
 #include "adms/hicum0/hicum0itf.h"
 #include "adms/hicum2/hicum2itf.h"
-#include "adms/mextram/mextramitf.h"
+#include "adms/mextram/bjt504titf.h"
 #include "adms/ekv/ekvitf.h"
 #include "adms/psp102/psp102itf.h"
 #endif
@@ -145,9 +145,9 @@ int add_udn(int,Evt_Udn_Info_t **);
 
 /*saj in xspice the DEVices size can be varied so DEVNUM is an int*/
 #ifdef XSPICE
-   static int DEVNUM = 65;
+   static int DEVNUM = 63;
 #else
-   #define DEVNUM 65
+   #define DEVNUM 63
 #endif
 
 /*Make this dynamic for later attempt to make all devices dynamic*/
@@ -186,90 +186,87 @@ spice_init_devices(void)
     DEVices[ 0] = get_urc_info();
     DEVices[ 1] = get_asrc_info();
     DEVices[ 2] = get_bjt_info();
-    DEVices[ 3] = get_bjt2_info();
-    DEVices[ 4] = get_bsim1_info();
-    DEVices[ 5] = get_bsim2_info();
-    DEVices[ 6] = get_bsim3_info();
-    DEVices[ 7] = get_bsim3v0_info();
-    DEVices[ 8] = get_bsim3v1_info();
-    DEVices[ 9] = get_bsim3v1a_info();
-    DEVices[10] = get_bsim3v1s_info();
-    DEVices[11] = get_bsim3v32_info();
-    DEVices[12] = get_b4soi_info();
-    DEVices[13] = get_bsim4_info();
-    DEVices[14] = get_bsim4v2_info();
-    DEVices[15] = get_bsim4v3_info();
-    DEVices[16] = get_bsim4v4_info();
-    DEVices[17] = get_bsim4v5_info();
-    DEVices[18] = get_b3soipd_info();
-    DEVices[19] = get_b3soifd_info();
-    DEVices[20] = get_b3soidd_info();
-    DEVices[21] = get_cap_info();
-    DEVices[22] = get_cccs_info();
-    DEVices[23] = get_ccvs_info();
-    DEVices[24] = get_cpl_info();
-    DEVices[25] = get_csw_info();
-    DEVices[26] = get_dio_info();
-    DEVices[27] = get_hfeta_info();
-    DEVices[28] = get_hfet2_info();
-    DEVices[29] = get_hsm1_info();  
-    DEVices[30] = get_ind_info();
-    DEVices[31] = get_mut_info();
-    DEVices[32] = get_isrc_info();
-    DEVices[33] = get_jfet_info();
-    DEVices[34] = get_jfet2_info();
-    DEVices[35] = get_ltra_info();
-    DEVices[36] = get_mes_info();
-    DEVices[37] = get_mesa_info();
-    DEVices[38] = get_mos1_info();
-    DEVices[39] = get_mos2_info();
-    DEVices[40] = get_mos3_info();
-    DEVices[41] = get_mos6_info();
-    DEVices[42] = get_mos9_info();
-    DEVices[43] = get_res_info();
-    DEVices[44] = get_soi3_info();
-    DEVices[45] = get_sw_info();
-    DEVices[46] = get_tra_info();
-    DEVices[47] = get_txl_info();
-    DEVices[48] = get_vbic_info();
-    DEVices[49] = get_vccs_info();
-    DEVices[50] = get_vcvs_info();
-    DEVices[51] = get_vsrc_info();
+    DEVices[ 3] = get_bsim1_info();
+    DEVices[ 4] = get_bsim2_info();
+    DEVices[ 5] = get_bsim3_info();
+    DEVices[ 6] = get_bsim3v0_info();
+    DEVices[ 7] = get_bsim3v1_info();
+    DEVices[ 8] = get_bsim3v32_info();
+    DEVices[ 9] = get_b4soi_info();
+    DEVices[10] = get_bsim4_info();
+    DEVices[11] = get_bsim4v4_info();
+    DEVices[12] = get_bsim4v5_info();
+    DEVices[13] = get_bsim4v6_info();
+    DEVices[14] = get_b3soipd_info();
+    DEVices[15] = get_b3soifd_info();
+    DEVices[16] = get_b3soidd_info();
+    DEVices[17] = get_cap_info();
+    DEVices[18] = get_cccs_info();
+    DEVices[19] = get_ccvs_info();
+    DEVices[20] = get_cpl_info();
+    DEVices[21] = get_csw_info();
+    DEVices[22] = get_dio_info();
+    DEVices[23] = get_hfeta_info();
+    DEVices[24] = get_hfet2_info();
+    DEVices[25] = get_hsm2_info();  
+    DEVices[26] = get_hsmhv_info();  
+    DEVices[27] = get_ind_info();
+    DEVices[28] = get_mut_info();
+    DEVices[29] = get_isrc_info();
+    DEVices[30] = get_jfet_info();
+    DEVices[31] = get_jfet2_info();
+    DEVices[32] = get_ltra_info();
+    DEVices[33] = get_mes_info();
+    DEVices[34] = get_mesa_info();
+    DEVices[35] = get_mos1_info();
+    DEVices[36] = get_mos2_info();
+    DEVices[37] = get_mos3_info();
+    DEVices[38] = get_mos6_info();
+    DEVices[39] = get_mos9_info();
+    DEVices[40] = get_res_info();
+    DEVices[41] = get_soi3_info();
+    DEVices[42] = get_sw_info();
+    DEVices[43] = get_tra_info();
+    DEVices[44] = get_txl_info();
+    DEVices[45] = get_vbic_info();
+    DEVices[46] = get_vccs_info();
+    DEVices[47] = get_vcvs_info();
+    DEVices[48] = get_vsrc_info();
 #ifdef CIDER
-    DEVices[52] = get_nbjt_info();
-    DEVices[53] = get_nbjt2_info();
-    DEVices[54] = get_numd_info();
-    DEVices[55] = get_numd2_info();
-    DEVices[56] = get_numos_info();   
+    DEVices[49] = get_nbjt_info();
+    DEVices[50] = get_nbjt2_info();
+    DEVices[51] = get_numd_info();
+    DEVices[52] = get_numd2_info();
+    DEVices[53] = get_numos_info();   
 #else
+    DEVices[49] = NULL;
+    DEVices[50] = NULL;
+    DEVices[51] = NULL;
     DEVices[52] = NULL;
-    DEVices[53] = NULL;
-    DEVices[54] = NULL;
-    DEVices[55] = NULL;
-    DEVices[56] = NULL;  
+    DEVices[53] = NULL;  
 #endif
           
 #ifdef ADMS
-    DEVices[57] = get_hicum0_info();
-    DEVices[58] = get_hicum2_info();
-    DEVices[59] = get_mextram_info();
-    DEVices[60] = get_ekv_info();
-    DEVices[61] = get_psp102_info();
+    DEVices[54] = get_hicum0_info();
+    DEVices[55] = get_hicum2_info();
+    DEVices[56] = get_bjt504t_info();
+    DEVices[57] = get_ekv_info();
+    DEVices[58] = get_psp102_info();
 #else
+    DEVices[54] = NULL;
+    DEVices[55] = NULL;
+    DEVices[56] = NULL;
     DEVices[57] = NULL;
     DEVices[58] = NULL;
-    DEVices[59] = NULL;
-    DEVices[60] = NULL;
-    DEVices[61] = NULL;
 #endif
    
 #ifdef NDEV    /* NDEV */
-   DEVices[62] = get_ndev_info();
+   DEVices[59] = get_ndev_info();
 #else
-   DEVices[62] = NULL;
+   DEVices[59] = NULL;
 #endif
-   DEVices[63] = NULL;
-   DEVices[64] = NULL;
+   DEVices[60] = NULL;
+   DEVices[61] = NULL;
    return;
 }
 
@@ -293,13 +290,13 @@ SPICEdev ** devices(void)
 /*not yet usable*/
 
 #ifdef ADMS
-#define DEVICES_USED {"asrc", "bjt", "bjt2", "vbic", "bsim1", "bsim2", "bsim3", "bsim3v32", "bsim3v2", "bsim3v1", "bsim4", "bsim4v2", "bsim4v3", "bsim4v4", "bsim4v5", \
-	              "bsim4soi", "bsim3soipd", "bsim3soifd", "bsim3soidd", \
+#define DEVICES_USED {"asrc", "bjt", "vbic", "bsim1", "bsim2", "bsim3", "bsim3v32", "bsim3v2", "bsim3v1", "bsim4", "bsim4v4", "bsim4v5", "bsim4v6", \
+                      "bsim4soi", "bsim3soipd", "bsim3soifd", "bsim3soidd", "hisim2", "hisimhv", \
                       "cap", "cccs", "ccvs", "csw", "dio", "hfet", "hfet2", "ind", "isrc", "jfet", "ltra", "mes", "mesa" ,"mos1", "mos2", "mos3", \
-                      "mos6", "mos9", "res", "soi3", "sw", "tra", "urc", "vccs", "vcvs", "vsrc", "hicum0", "hicum2", "mextram", "ekv", "psp102"}
+                      "mos6", "mos9", "res", "soi3", "sw", "tra", "urc", "vccs", "vcvs", "vsrc", "hicum0", "hicum2", "bjt504t", "ekv", "psp102"}
 #else
-#define DEVICES_USED {"asrc", "bjt", "bjt2", "vbic", "bsim1", "bsim2", "bsim3", "bsim3v32", "bsim3v2", "bsim3v1", "bsim4", "bsim4v4", "bsim4v2", "bsim4v3", "bsim4v4", "bsim4v5", \
-	              "bsim4soi", "bsim3soipd", "bsim3soifd", "bsim3soidd", \
+#define DEVICES_USED {"asrc", "bjt", "vbic", "bsim1", "bsim2", "bsim3", "bsim3v32", "bsim3v2", "bsim3v1", "bsim4", "bsim4v4", "bsim4v5", "bsim4v6", \
+                      "bsim4soi", "bsim3soipd", "bsim3soifd", "bsim3soidd", "hisim2", "hisimhv", \
                       "cap", "cccs", "ccvs", "csw", "dio", "hfet", "hfet2", "ind", "isrc", "jfet", "ltra", "mes", "mesa" ,"mos1", "mos2", "mos3", \
                       "mos6", "mos9", "res", "soi3", "sw", "tra", "urc", "vccs", "vcvs", "vsrc"}
 #endif
@@ -307,7 +304,7 @@ int load_dev(char *name) {
   char *msg;
   char libname[50];
   void *lib;
-  SPICEdev *(*fetch)(void)=NULL;
+  funptr_t fetch;
   SPICEdev *device;
 
   strcpy(libname, "lib");
@@ -331,7 +328,7 @@ int load_dev(char *name) {
     printf("%s\n", msg);
     return 1;
   }
-  device = fetch();
+  device = ((SPICEdev * (*)(void)) fetch) ();
   add_device(1,&device,0);
   return 0;
 }
@@ -348,11 +345,11 @@ void load_alldevs(void){
 
 /*--------------------   XSPICE additions below  ----------------------*/
 #ifdef XSPICE
-#include "mif.h"
-#include "cm.h"
-#include "cpextern.h"
-#include "fteext.h"  /* for ft_sim */
-#include "cktdefs.h" /* for DEVmaxnum */
+#include <ngspice/mif.h>
+#include <ngspice/cm.h>
+#include <ngspice/cpextern.h>
+#include <ngspice/fteext.h>  /* for ft_sim */
+#include <ngspice/cktdefs.h> /* for DEVmaxnum */
 
 static void relink(void) {
 
@@ -411,7 +408,7 @@ int load_opus(char *name){
   struct coreInfo_t **core;
   SPICEdev **devs;
   Evt_Udn_Info_t  **udns;
-  void *fetch = NULL;
+  funptr_t fetch;
 
   lib = dlopen(name,RTLD_NOW);
   if(!lib){
@@ -426,7 +423,6 @@ int load_opus(char *name){
 #ifdef TRACE
     printf("Got %u devices.\n",*num);
 #endif
-    fetch = NULL;
   }else{
     msg = dlerror();
     printf("%s\n", msg);
@@ -436,7 +432,6 @@ int load_opus(char *name){
   fetch = dlsym(lib,"CMdevs");
   if(fetch){
     devs = ((SPICEdev ** (*)(void)) fetch) ();
-    fetch = NULL;
   }else{
     msg = dlerror();
     printf("%s\n", msg);
@@ -447,7 +442,6 @@ int load_opus(char *name){
   if(fetch){
     core = ((struct coreInfo_t ** (*)(void)) fetch) ();
     *core = &coreInfo;
-    fetch = NULL;
   }else{
     msg = dlerror();
     printf("%s\n", msg);
@@ -461,7 +455,6 @@ int load_opus(char *name){
 #ifdef TRACE
     printf("Got %u udns.\n",*num);
 #endif
-    fetch = NULL;
   }else{
     msg = dlerror();
     printf("%s\n", msg);
@@ -471,7 +464,6 @@ int load_opus(char *name){
   fetch = dlsym(lib,"CMudns");
   if(fetch){
     udns = ((Evt_Udn_Info_t  ** (*)(void)) fetch) ();
-    fetch = NULL;
   }else{
     msg = dlerror();
     printf("%s\n", msg);
@@ -487,10 +479,11 @@ int load_opus(char *name){
 
 void *dlopen(const char *name,int type)
 {
+	NG_IGNORE(type);
 	return LoadLibrary(name);
 }
 
-void *dlsym(void *hDll, const char *funcname)
+funptr_t dlsym(void *hDll, const char *funcname)
 {
 	return GetProcAddress(hDll, funcname);
 }

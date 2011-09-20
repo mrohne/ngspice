@@ -3,12 +3,12 @@ Copyright 1990 Regents of the University of California.  All rights reserved.
 Author: 1990 Jaijeet S. Roychowdhury
 **********/
 
-#include "ngspice.h"
+#include <ngspice/ngspice.h>
 #include <stdio.h>
-#include "ifsim.h"
-#include "inpdefs.h"
-#include "inpmacs.h"
-#include "fteext.h"
+#include <ngspice/ifsim.h>
+#include <ngspice/inpdefs.h>
+#include <ngspice/inpmacs.h>
+#include <ngspice/fteext.h>
 #include "inp.h"
 
 
@@ -76,7 +76,7 @@ void INP2O(CKTcircuit *ckt, INPtables * tab, card * current)
     } else {
 	if (!tab->defOmod) {
 	    /* create default O model */
-	    IFnewUid(ckt, &uid, (IFuid) NULL, "O", UID_MODEL,
+	    IFnewUid(ckt, &uid, NULL, "O", UID_MODEL,
 		     NULL);
 	    IFC(newModel, (ckt, type, &(tab->defOmod), uid));
 	}

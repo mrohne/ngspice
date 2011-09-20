@@ -9,12 +9,12 @@ Author: 1985 Thomas L. Quarles
      *  Take a parameter by Name and set it on the specified device 
      */
 
-#include "ngspice.h"
+#include <ngspice/ngspice.h>
 #include <stdio.h>
-#include "cpdefs.h"
-#include "fteext.h"
-#include "ifsim.h"
-#include "iferrmsg.h"
+#include <ngspice/cpdefs.h>
+#include <ngspice/fteext.h>
+#include <ngspice/ifsim.h>
+#include <ngspice/iferrmsg.h>
 #include "inp.h"
 
 int INPpName(char *parm, IFvalue * val, CKTcircuit *ckt, int dev, GENinstance *fast)
@@ -27,21 +27,18 @@ int INPpName(char *parm, IFvalue * val, CKTcircuit *ckt, int dev, GENinstance *f
     int error;			/* int to store evaluate error return codes in */
     int i;
 
-    for (i = 0; i < (*(*(ft_sim->devices)[dev]).numInstanceParms); i++) {
-	if (strcmp(parm,
-		   ((*(ft_sim->devices)[dev]).instanceParms[i].keyword)) ==
-	    0) {
+    for (i = 0; i < *(ft_sim->devices[dev]->numInstanceParms); i++) {
+	if (strcmp(parm, ft_sim->devices[dev]->instanceParms[i].keyword) == 0) {
 	    error =
-		(*(ft_sim->setInstanceParm)) (ckt, fast,
-					      (*(ft_sim->devices)[dev]).
-					      instanceParms[i].id, val,
-					      (IFvalue *) NULL);
+		ft_sim->setInstanceParm (ckt, fast,
+					 ft_sim->devices[dev]->instanceParms[i].id,
+					 val, NULL);
 	    if (error)
 		return (error);
 	    break;
 	}
     }
-    if (i == (*(*(ft_sim->devices)[dev]).numInstanceParms)) {
+    if (i == *(ft_sim->devices[dev]->numInstanceParms)) {
 	return (E_BADPARM);
     }
     return (OK);

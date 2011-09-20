@@ -1,14 +1,14 @@
 #include <config.h>
 #include <stdio.h>
 
-#include <ngspice.h>
-#include <defines.h>
-#include <bool.h>
-#include <wordlist.h>
-#include <cpdefs.h>
-#include <fteinput.h>
-#include <ftedev.h>
-#include "ftedbgra.h"
+#include <ngspice/ngspice.h>
+#include <ngspice/defines.h>
+#include <ngspice/bool.h>
+#include <ngspice/wordlist.h>
+#include <ngspice/cpdefs.h>
+#include <ngspice/fteinput.h>
+#include <ngspice/ftedev.h>
+#include <ngspice/ftedbgra.h>
 
 #include "plotting/plotit.h"
 #include "plotting/graphdb.h"
@@ -27,7 +27,6 @@
 void
 com_hardcopy(wordlist *wl)
 {
-    char *buf2;
     char *fname;
     char buf[BSIZE_SP], device[BSIZE_SP];
     bool tempf = FALSE;
@@ -140,8 +139,10 @@ com_hardcopy(wordlist *wl)
     if (!foundit) {
 
         if (!wl) {
+            char *buf2;
             outmenuprompt("which variable ? ");
-            if ((buf2 = prompt(cp_in)) == (char *) -1)	/* XXXX Sick */
+            buf2 = prompt(cp_in);
+            if (!buf2)
                 return;
             wl = TMALLOC(struct wordlist, 1);
             wl->wl_word = buf2;
@@ -151,7 +152,7 @@ com_hardcopy(wordlist *wl)
 
         if (DevSwitch(devtype)) return;
 
-        if (!wl || !plotit(wl, fname, (char *) NULL)) {
+        if (!wl || !plotit(wl, fname, NULL)) {
             printf("com_hardcopy: graph not defined\n");
             DevSwitch(NULL);    /* remember to switch back */
             return;

@@ -2,14 +2,14 @@
 Copyright 1991 Regents of the University of California.  All rights reserved.
 Author:	1987 Kartikeya Mayaram, U. C. Berkeley CAD Group
 Author:	1991 David A. Gates, U. C. Berkeley CAD Group
-$Id: suprem.c,v 1.4 2010/11/19 18:54:41 rlar Exp $
+$Id: suprem.c,v 1.5 2011/08/20 17:27:10 rlar Exp $
 **********/
 
 /* Functions to read SUPREM (Binary or Ascii) & ASCII input files */
 
-#include "ngspice.h"
-#include "profile.h"
-#include "cidersupt.h"
+#include <ngspice/ngspice.h>
+#include <ngspice/profile.h>
+#include <ngspice/cidersupt.h>
 
 void
 readAsciiData( char *fileName, int impType, DOPtable **ppTable )

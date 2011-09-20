@@ -4,9 +4,9 @@ Author: 1995 Min-Chie Jeng and Mansun Chan.
 File: b3v0dest.c
 **********/
 
-#include "ngspice.h"
+#include <ngspice/ngspice.h>
 #include "bsim3v0def.h"
-#include "suffix.h"
+#include <ngspice/suffix.h>
 
 void
 BSIM3v0destroy(GENmodel **inModel)
@@ -20,7 +20,7 @@ BSIM3v0model *oldmod = NULL;
     for (; mod ; mod = mod->BSIM3v0nextModel)
     {    if(oldmod) FREE(oldmod);
          oldmod = mod;
-         prev = (BSIM3v0instance *)NULL;
+         prev = NULL;
          for (here = mod->BSIM3v0instances; here; here = here->BSIM3v0nextInstance)
 	 {    if(prev) FREE(prev);
               prev = here;

@@ -3,12 +3,12 @@ Copyright 1990 Regents of the University of California.  All rights reserved.
 Author: 1987 Gary W. Ng
 **********/
 
-#include "ngspice.h"
+#include <ngspice/ngspice.h>
 #include "bjtdefs.h"
-#include "cktdefs.h"
-#include "iferrmsg.h"
-#include "noisedef.h"
-#include "suffix.h"
+#include <ngspice/cktdefs.h>
+#include <ngspice/iferrmsg.h>
+#include <ngspice/noisedef.h>
+#include <ngspice/suffix.h>
 
 /*
  * BJTnoise (mode, operation, firstModel, ckt, data, OnDens)
@@ -72,9 +72,9 @@ for (model=firstModel; model != NULL; model=model->BJTnextModel) {
 
 			data->namelist = TREALLOC(IFuid, data->namelist, data->numPlots + 1);
 			if (!data->namelist) return(E_NOMEM);
-			(*(SPfrontEnd->IFnewUid))(ckt,
+			SPfrontEnd->IFnewUid (ckt,
 			    &(data->namelist[data->numPlots++]),
-			    (IFuid)NULL, name, UID_OTHER, NULL);
+			    NULL, name, UID_OTHER, NULL);
 				/* we've added one more plot */
 			}
 			break;
@@ -86,9 +86,9 @@ for (model=firstModel; model != NULL; model=model->BJTnextModel) {
 
 			data->namelist = TREALLOC(IFuid, data->namelist, data->numPlots + 1);
 			if (!data->namelist) return(E_NOMEM);
-			(*(SPfrontEnd->IFnewUid))(ckt,
+			SPfrontEnd->IFnewUid (ckt,
 			    &(data->namelist[data->numPlots++]),
-			    (IFuid)NULL, name, UID_OTHER, NULL);
+			    NULL, name, UID_OTHER, NULL);
 				/* we've added one more plot */
 
 			    (void)sprintf(name,"inoise_total_%s%s",
@@ -96,9 +96,9 @@ for (model=firstModel; model != NULL; model=model->BJTnextModel) {
 
 data->namelist = TREALLOC(IFuid, data->namelist, data->numPlots + 1);
 if (!data->namelist) return(E_NOMEM);
-		(*(SPfrontEnd->IFnewUid))(ckt,
+		SPfrontEnd->IFnewUid (ckt,
 			&(data->namelist[data->numPlots++]),
-			(IFuid)NULL, name, UID_OTHER, NULL);
+			NULL, name, UID_OTHER, NULL);
 				/* we've added one more plot */
 			}
 			break;
@@ -130,7 +130,7 @@ if (!data->namelist) return(E_NOMEM);
 				 ckt,SHOTNOISE,inst->BJTbasePrimeNode, inst->BJTemitPrimeNode,
 				 *(ckt->CKTstate0 + inst->BJTcb) * inst->BJTm);
 
-		    NevalSrc(&noizDens[BJTFLNOIZ],(double*)NULL,ckt,
+		    NevalSrc(&noizDens[BJTFLNOIZ], NULL, ckt,
 				 N_GAIN,inst->BJTbasePrimeNode, inst->BJTemitPrimeNode,
 				 (double)0.0);
 		    noizDens[BJTFLNOIZ] *= inst->BJTm * model->BJTfNcoef * 

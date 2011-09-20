@@ -9,14 +9,14 @@ Modified: 2000 AlansFixes
  * BJTs in the circuit and load them into the matrix as appropriate
  */
 
-#include "ngspice.h"
-#include "cktdefs.h"
+#include <ngspice/ngspice.h>
+#include <ngspice/cktdefs.h>
 #include "bjtdefs.h"
-#include "const.h"
-#include "trandefs.h"
-#include "sperror.h"
-#include "devdefs.h"
-#include "suffix.h"
+#include <ngspice/const.h>
+#include <ngspice/trandefs.h>
+#include <ngspice/sperror.h>
+#include <ngspice/devdefs.h>
+#include <ngspice/suffix.h>
 
 int
 BJTload(GENmodel *inModel, CKTcircuit *ckt)
@@ -478,10 +478,19 @@ next1:      vtn=vt*here->BJTtemissionCoeffF;
                 q2=oik*cbe+oikr*cbc;
                 arg=MAX(0,1+4*q2);
                 sqarg=1;
-                if(arg != 0) sqarg=sqrt(arg);
+                if(!model->BJTnkfGiven) {
+                    if(arg != 0) sqarg=sqrt(arg);
+                } else {
+                    if(arg != 0) sqarg=pow(arg,model->BJTnkf);
+                }
                 qb=q1*(1+sqarg)/2;
-                dqbdve=q1*(qb*here->BJTtinvEarlyVoltR+oik*gbe/sqarg);
-                dqbdvc=q1*(qb*here->BJTtinvEarlyVoltF+oikr*gbc/sqarg);
+                if(!model->BJTnkfGiven) {
+                    dqbdve=q1*(qb*here->BJTtinvEarlyVoltR+oik*gbe/sqarg);
+                    dqbdvc=q1*(qb*here->BJTtinvEarlyVoltF+oikr*gbc/sqarg);
+                } else {
+                    dqbdve=q1*(qb*here->BJTtinvEarlyVoltR+oik*gbe*2*sqarg*model->BJTnkf/arg);
+                    dqbdvc=q1*(qb*here->BJTtinvEarlyVoltF+oikr*gbc*2*sqarg*model->BJTnkf/arg);
+                }
             }
             /*
              *   weil's approx. for excess phase applied with backward-

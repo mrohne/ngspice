@@ -9,10 +9,10 @@ Author: 1988 Thomas L. Quarles
      *
      */
 
-#include "ngspice.h"
-#include "cktdefs.h"
-#include "ifsim.h"
-#include "iferrmsg.h"
+#include <ngspice/ngspice.h>
+#include <ngspice/cktdefs.h>
+#include <ngspice/ifsim.h>
+#include <ngspice/iferrmsg.h>
 
 
 int
@@ -22,7 +22,7 @@ CKTnames(CKTcircuit *ckt, int *numNames, IFuid **nameList)
     int i;
     *numNames = ckt->CKTmaxEqNum-1;
     *nameList = TMALLOC(IFuid, *numNames);
-    if ((*nameList) == (IFuid *)NULL) return(E_NOMEM);
+    if ((*nameList) == NULL) return(E_NOMEM);
     i=0;
     for (here = ckt->CKTnodes->next; here; here = here->next)  {
         *((*nameList)+i++) = here->name;

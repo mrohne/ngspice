@@ -5,18 +5,18 @@
    In addition it contains the fcn com_meas(), which provide the 
    interactive 'meas' command.
    
-   $Id: measure.c,v 1.36 2011/02/19 22:11:45 h_vogt Exp $   
+   $Id: measure.c,v 1.39 2011/08/20 17:27:11 rlar Exp $   
 */
    
-#include "ngspice.h"
-#include "cpdefs.h"
-#include "ftedefs.h"
-#include "dvec.h"
+#include <ngspice/ngspice.h>
+#include <ngspice/cpdefs.h>
+#include <ngspice/ftedefs.h>
+#include <ngspice/dvec.h>
 
 #include "rawfile.h"
 #include "variable.h"
 #include "numparam/numpaif.h"
-#include "missing_math.h"
+#include <ngspice/missing_math.h>
 #include "com_measure2.h"
 #include "com_let.h"
 #include "com_commands.h"
@@ -46,12 +46,12 @@ com_meas(wordlist *wl) {
    /* wl: in, input line of meas command */
    char *line_in, *outvar, newvec[1000];
    wordlist * wl_count, *wl_let;
-#ifdef not
+
    char *vec_found, *token, *equal_ptr, newval[256];
    wordlist *wl_index;
    struct dvec *d;
    int err=0;
-#endif
+
    int fail;
    double result = 0;
 
@@ -60,9 +60,12 @@ com_meas(wordlist *wl) {
       return;
    }
    wl_count = wl;
-#ifdef not   
+
    /* check each wl entry, if it contain '=' and if the following token is
-      a vector. If yes, replace this vector by its value */
+      a single valued vector. If yes, replace this vector by its value.
+      Vectors may stem from other meas commands, or be generated elsewhere 
+      within the .control .endc script. All other right hand side vectors are
+      treated in com_measure2.c. */
    wl_index = wl;
 
    while ( wl_index) {
@@ -79,7 +82,9 @@ com_meas(wordlist *wl) {
             if (err) {         
                /* check if vec_found is a valid vector */	
                d = vec_get(vec_found);
-               if (d) {
+               /* Only if we have a single valued vector, replacing
+               of the rigt hand side does make sense */
+               if (d && (d->v_length == 1) && (d->v_numdims == 1)) {
                   /* get its value */
                   sprintf(newval, "%e", d->v_realdata[0]);
                   tfree(vec_found);
@@ -95,7 +100,9 @@ com_meas(wordlist *wl) {
             INPevaluate( &vec_found, &err, 1 );
             if (err) {
                d = vec_get(vec_found);
-               if (d) {
+               /* Only if we have a single valued vector, replacing
+               of the rigt hand side does make sense */
+               if (d && (d->v_length == 1) && (d->v_numdims == 1)) {
                   *equal_ptr = '\0';
                   sprintf(newval, "%s=%e", token, d->v_realdata[0]);
 //               memory leak with first part of vec_found ?
@@ -109,7 +116,7 @@ com_meas(wordlist *wl) {
       }
       wl_index = wl_index->wl_next;      
    }	  
-#endif   
+
    line_in = wl_flatten(wl);
 
    /* get output var name */

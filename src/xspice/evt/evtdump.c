@@ -42,21 +42,21 @@ NON-STANDARD FEATURES
 #include <stdio.h>
 #include <string.h>
 
-#include "ngspice.h"
+#include <ngspice/ngspice.h>
 //#include "misc.h"
 
-#include "cktdefs.h"
+#include <ngspice/cktdefs.h>
 //#include "util.h"
-#include "sperror.h"
+#include <ngspice/sperror.h>
 
-#include "mif.h"
-#include "evt.h"
-#include "evtproto.h"
-#include "evtudn.h"
+#include <ngspice/mif.h>
+#include <ngspice/evt.h>
+#include <ngspice/evtproto.h>
+#include <ngspice/evtudn.h>
 
-#include "ipc.h"
-#include "ipctiein.h"
-#include "ipcproto.h"
+#include <ngspice/ipc.h>
+#include <ngspice/ipctiein.h>
+#include <ngspice/ipcproto.h>
 
 
 
@@ -261,7 +261,7 @@ void EVTdump(
                         break;
                 }
                 /* Compare entry at end of list to rhsold */
-                (*(g_evt_udn_info[node_table[i]->udn_index]->compare)) (
+                g_evt_udn_info[node_table[i]->udn_index]->compare (
                           rhsold[i].node_value,
                           here->node_value,
                           &equal);
@@ -329,17 +329,17 @@ static void EVTsend_line(
 
     /* Get the data to send */
     if(g_evt_udn_info[udn_index]->plot_val)
-        (*(g_evt_udn_info[udn_index]->plot_val)) (node_value, "", &dvalue);
+        g_evt_udn_info[udn_index]->plot_val (node_value, "", &dvalue);
     else
         dvalue = 0.0;
 
     if(g_evt_udn_info[udn_index]->print_val)
-        (*(g_evt_udn_info[udn_index]->print_val)) (node_value, "", &svalue);
+        g_evt_udn_info[udn_index]->print_val (node_value, "", &svalue);
     else
         svalue = "";
 
     if(g_evt_udn_info[udn_index]->ipc_val)
-        (*(g_evt_udn_info[udn_index]->ipc_val)) (node_value, &pvalue, &len);
+        g_evt_udn_info[udn_index]->ipc_val (node_value, &pvalue, &len);
     else {
         pvalue = NULL;
         len = 0;

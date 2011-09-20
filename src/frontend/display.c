@@ -1,18 +1,18 @@
 /**********
 Copyright 1990 Regents of the University of California.  All rights reserved.
-$Id: display.c,v 1.30 2010/11/02 17:28:22 rlar Exp $
+$Id: display.c,v 1.34 2011/08/20 17:27:11 rlar Exp $
 **********/
 
 
-#include <ngspice.h>
-#include <graph.h>
-#include <ftedev.h>
-#include <fteinput.h>
-#include <cpdefs.h>     /* for CP_STRING */
-#include <ftedefs.h>        /* for mylog() */
+#include <ngspice/ngspice.h>
+#include <ngspice/graph.h>
+#include <ngspice/ftedev.h>
+#include <ngspice/fteinput.h>
+#include <ngspice/cpdefs.h>     /* for CP_STRING */
+#include <ngspice/ftedefs.h>        /* for mylog() */
 
 #ifdef TCL_MODULE
-#include <tclspice.h>
+#include <ngspice/tclspice.h>
 #endif
 
 #include "display.h"
@@ -31,7 +31,7 @@ static int nodev(void);
 
 #ifdef HAS_WINDOWS	/* Graphic-IO under MS Windows */
 #include "wdisp/windisp.h"
-#include "wdisp/winprint.h"
+//#include "wdisp/winprint.h"
 #endif
 
 #include "plotting/plot5.h"
@@ -169,15 +169,19 @@ DevInit(void)
 #endif
 
     if (!dispdev) {
-	externalerror(
-	 "no graphics interface;\n please check if X-server is running, \n or ngspice is compiled properly (see INSTALL)");
-	dispdev = FindDev("error");
-    } else if ((*(dispdev->Init))()) {
-      fprintf(cp_err,
-        "Warning: can't initialize display device for graphics.\n");
-      dispdev = FindDev("error");
+/* console application under MS Windows */
+#if !defined(HAS_WINDOWS) && !defined(TCL_MODULE) && (defined(_MSC_VER) || defined(__MINGW32__))
+        fprintf(cp_err, "Warning: no graphics interface!\n You may use command 'gnuplot'\n if GnuPlot is installed.\n");
+#else
+        externalerror(
+	         "no graphics interface;\n please check if X-server is running,\n or ngspice is compiled properly (see INSTALL)");
+#endif
+        dispdev = FindDev("error");
+    } else if (dispdev->Init()) {
+        fprintf(cp_err,
+            "Warning: can't initialize display device for graphics.\n");
+        dispdev = FindDev("error");
     }
-
 }
 
 /* NewViewport is responsible for filling in graph->viewport */
@@ -185,69 +189,69 @@ int
 NewViewport(GRAPH *pgraph)
 {
 
-    return (*(dispdev->NewViewport))(pgraph);
+    return dispdev->NewViewport (pgraph);
 
 }
 
 void DevClose(void)
 {
 
-    (*(dispdev->Close))();
+    dispdev->Close();
 
 }
 
 void DevClear(void)
 {
 
-    (*(dispdev->Clear))();
+    dispdev->Clear();
 
 }
 
 void DevDrawLine(int x1, int y1, int x2, int y2)
 {
-    (*(dispdev->DrawLine))(x1, y1, x2, y2);
+    dispdev->DrawLine (x1, y1, x2, y2);
 
 }
 
 void DevDrawArc(int x0, int y0, int radius, double theta, double delta_theta)
 {
 
-    (*(dispdev->DrawArc))(x0, y0, radius, theta, delta_theta);
+    dispdev->DrawArc (x0, y0, radius, theta, delta_theta);
 
 }
 
 void DevDrawText(char *text, int x, int y)
 {
 
-    (*(dispdev->DrawText))(text, x, y);
+    dispdev->DrawText (text, x, y);
 
 }
 
 void DefineColor(int colorid, double red, double green, double blue)
 {
 
-    (*(dispdev->DefineColor))(colorid, red, green, blue);
+    dispdev->DefineColor (colorid, red, green, blue);
 
 }
 
 void DefineLinestyle(int linestyleid, int mask)
 {
 
-    (*(dispdev->DefineLinestyle))(linestyleid, mask);
+    dispdev->DefineLinestyle (linestyleid, mask);
 
 }
 
 void SetLinestyle(int linestyleid)
 {
 
-    (*(dispdev->SetLinestyle))(linestyleid);
+    dispdev->SetLinestyle (linestyleid);
 
 }
 
 void SetColor(int colorid)
 {
 
-    (*(dispdev->SetColor))(colorid);
+    dispdev->SetColor (colorid);
 
 }
 
@@ -255,7 +259,7 @@ void DevUpdate(void)
 {
 
     if (dispdev)
-	    (*(dispdev->Update))();
+	    dispdev->Update();
 
 }
 
@@ -280,22 +284,22 @@ gen_DatatoScreen(GRAPH *graph, double x, double y, int *screenx, int *screeny)
             (graph->grid.gridtype == GRID_YLOG)) {
       low = mylog10(graph->datawindow.ymin);
       high = mylog10(graph->datawindow.ymax);
-      *screeny = (mylog10(y) - low) / (high - low) * graph->viewport.height
-	  + 0.5 + graph->viewportyoff;
+      *screeny = (int)((mylog10(y) - low) / (high - low) * graph->viewport.height
+	  + 0.5 + graph->viewportyoff);
     } else {
-      *screeny = ((y - graph->datawindow.ymin) / graph->aspectratioy)
-            + 0.5 + graph->viewportyoff;
+      *screeny = (int)(((y - graph->datawindow.ymin) / graph->aspectratioy)
+            + 0.5 + graph->viewportyoff);
     }
 
     if ((graph->grid.gridtype == GRID_LOGLOG) ||
             (graph->grid.gridtype == GRID_XLOG)) {
       low = mylog10(graph->datawindow.xmin);
       high = mylog10(graph->datawindow.xmax);
-      *screenx = (mylog10(x) - low) / (high - low) * graph->viewport.width
-            + 0.5 + graph ->viewportxoff;
+      *screenx = (int)((mylog10(x) - low) / (high - low) * graph->viewport.width
+            + 0.5 + graph ->viewportxoff);
     } else {
-      *screenx = (x - graph->datawindow.xmin) / graph->aspectratiox
-            + 0.5 + graph ->viewportxoff;
+      *screenx = (int)((x - graph->datawindow.xmin) / graph->aspectratiox
+            + 0.5 + graph ->viewportxoff);
     }
 
 }
@@ -303,14 +307,14 @@ gen_DatatoScreen(GRAPH *graph, double x, double y, int *screenx, int *screeny)
 void DatatoScreen(GRAPH *graph, double x, double y, int *screenx, int *screeny)
 {
 
-    (*(dispdev->DatatoScreen))(graph, x, y, screenx, screeny);
+    dispdev->DatatoScreen (graph, x, y, screenx, screeny);
 
 }
 
 void Input(REQUEST *request, RESPONSE *response)
 {
 
-    (*(dispdev->Input))(request, response);
+    dispdev->Input (request, response);
 
 }
 
@@ -393,9 +397,9 @@ int DevSwitch(char *devname)
         lastdev = NULL;
         return (1);
       }
-      (*(dispdev->Init))();
+      dispdev->Init();
     } else {
-      (*(dispdev->Close))();
+      dispdev->Close();
       dispdev = lastdev;
       lastdev = NULL;
     }

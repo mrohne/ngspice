@@ -9,10 +9,10 @@ Author: 1985 Thomas L. Quarles
  * functions provided for the circuit elements in the given circuit */
 
 #include <config.h>
-#include <devdefs.h>
-#include <sperror.h>
-#include <ifsim.h>
-#include <devdefs.h>
+#include <ngspice/devdefs.h>
+#include <ngspice/sperror.h>
+#include <ngspice/ifsim.h>
+#include <ngspice/devdefs.h>
 
 #include "dev.h"
 
@@ -30,8 +30,8 @@ CKTaccept(CKTcircuit *ckt)
 
     devs = devices();
     for (i = 0; i < DEVmaxnum; i++) {
-        if ( devs[i] && ((*devs[i]).DEVaccept != NULL) && (ckt->CKThead[i] != NULL) ){
-            error = (*((*devs[i]).DEVaccept))(ckt,ckt->CKThead[i]);
+        if ( devs[i] && devs[i]->DEVaccept && ckt->CKThead[i] ) {
+            error = devs[i]->DEVaccept (ckt, ckt->CKThead[i]);
             if (error)
 		return(error);
         }

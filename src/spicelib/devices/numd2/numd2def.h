@@ -4,21 +4,21 @@ Authors: 1987 Karti Mayaram, 1991 David Gates
 **********/
 
 #ifndef NUMD2_H
-#define NUMD2_H "NUMD2defs.h $Revision: 1.1 $  on $Date: 2003/08/11 19:35:56 $ "
+#define NUMD2_H "NUMD2defs.h $Revision: 1.2 $  on $Date: 2011/08/20 17:27:15 $ "
 
 /* data structures used to describe 2D numerical diodes */
 
 /* circuit level includes */
-#include "ifsim.h"
-#include "cktdefs.h"
-#include "gendefs.h"
+#include <ngspice/ifsim.h>
+#include <ngspice/cktdefs.h>
+#include <ngspice/gendefs.h>
 
 /* device level includes */
-#include "twomesh.h"
-#include "twodev.h"
-#include "profile.h"
-#include "numglobs.h"
-#include "carddefs.h"
+#include <ngspice/twomesh.h>
+#include <ngspice/twodev.h>
+#include <ngspice/profile.h>
+#include <ngspice/numglobs.h>
+#include <ngspice/carddefs.h>
 
 /* information needed per instance */
 typedef struct sNUMD2instance {
