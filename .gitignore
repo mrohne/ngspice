@@ -27,6 +27,7 @@ install-sh
 libtool
 ltmain.sh
 m4/
+build/
 missing
 src/maths/cmaths/test_cx_j
 src/maths/cmaths/test_cx_mag
