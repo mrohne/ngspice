@@ -1,14 +1,14 @@
 /***********************************************************************
 
  HiSIM (Hiroshima University STARC IGFET Model)
- Copyright (C) 2010 Hiroshima University & STARC
+ Copyright (C) 2011 Hiroshima University & STARC
 
  MODEL NAME : HiSIM_HV 
- ( VERSION : 1  SUBVERSION : 2  REVISION : 1 )
- Model Parameter VERSION : 1.21
+ ( VERSION : 1  SUBVERSION : 2  REVISION : 2 )
+ Model Parameter VERSION : 1.22
  FILE : hsmhvnoi.c
 
- DATE : 2010.11.02
+ DATE : 2011.6.29
 
  released by 
                 Hiroshima University &
@@ -16,8 +16,6 @@
 ***********************************************************************/
 
 #include <ngspice/ngspice.h>
-#include <stdio.h>
-#include <math.h>
 #include "hsmhvdef.h"
 #include <ngspice/cktdefs.h>
 /* #include "fteconst.h" */
@@ -82,36 +80,33 @@ int HSMHVnoise (
 	    for ( i = 0; i < HSMHVNSRCS; i++ ) { 
 	      (void) sprintf(name, "onoise.%s%s", 
 			     (char *)here->HSMHVname, HSMHVnNames[i]);
-	      data->namelist = 
-		TREALLOC(IFuid, data->namelist, data->numPlots + 1);
+	      data->namelist = TREALLOC(IFuid, data->namelist, data->numPlots + 1);
 	      if (!data->namelist)
 		return(E_NOMEM);
-	      SPfrontEnd->IFnewUid
+	      (*(SPfrontEnd->IFnewUid)) 
 		(ckt, &(data->namelist[data->numPlots++]),
-		 NULL, name, UID_OTHER, NULL);
+		 (IFuid) NULL, name, UID_OTHER, NULL);
 	    }
 	    break;
 	  case INT_NOIZ:
 	    for ( i = 0; i < HSMHVNSRCS; i++ ) {
 	      (void) sprintf(name, "onoise_total.%s%s", 
 			     (char *)here->HSMHVname, HSMHVnNames[i]);
-	      data->namelist = 
-		TREALLOC(IFuid, data->namelist, data->numPlots + 1);
+	      data->namelist = TREALLOC(IFuid, data->namelist, data->numPlots + 1);
 	      if (!data->namelist)
 		return(E_NOMEM);
-	      SPfrontEnd->IFnewUid
+	      (*(SPfrontEnd->IFnewUid)) 
 		(ckt, &(data->namelist[data->numPlots++]),
-		 NULL, name, UID_OTHER, NULL);
+		 (IFuid) NULL, name, UID_OTHER, NULL);
 	      
 	      (void) sprintf(name, "inoise_total.%s%s", 
 			     (char *)here->HSMHVname, HSMHVnNames[i]);
-	      data->namelist = 
-		TREALLOC(IFuid, data->namelist, data->numPlots + 1);
+	      data->namelist = TREALLOC(IFuid, data->namelist, data->numPlots + 1);
 	      if (!data->namelist)
 		return(E_NOMEM);
-	      SPfrontEnd->IFnewUid
+	      (*(SPfrontEnd->IFnewUid)) 
 		(ckt, &(data->namelist[data->numPlots++]),
-		 NULL, name, UID_OTHER, NULL);
+		 (IFuid) NULL, name, UID_OTHER, NULL);
 	    }
 	    break;
 	  }
@@ -271,3 +266,7 @@ int HSMHVnoise (
 
 
 
+#include <stdlib.h>
+#include <stdio.h>
+#include <math.h>
+#include <float.h>

@@ -1,14 +1,14 @@
 /***********************************************************************
 
  HiSIM (Hiroshima University STARC IGFET Model)
- Copyright (C) 2010 Hiroshima University & STARC
+ Copyright (C) 2011 Hiroshima University & STARC
 
  MODEL NAME : HiSIM_HV 
- ( VERSION : 1  SUBVERSION : 2  REVISION : 1 )
- Model Parameter VERSION : 1.21
+ ( VERSION : 1  SUBVERSION : 2  REVISION : 2 )
+ Model Parameter VERSION : 1.22
  FILE : hisimhv.h
 
- DATE : 2010.11.02
+ DATE : 2011.6.29
 
  released by
                 Hiroshima University &
@@ -52,6 +52,10 @@
 
 #define HiSIM_FALSE     0
 #define HiSIM_TRUE      1
+
+#ifndef return_if_error
+#define return_if_error(s) { int error = s; if(error) return(error); }
+#endif
 
 extern int HSMHVevaluate
 (

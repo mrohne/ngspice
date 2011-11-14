@@ -2,7 +2,7 @@
 
    This file is part of Numparam, see:  readme.txt
    Free software under the terms of the GNU Lesser General Public License
-   $Id: xpressn.c,v 1.74 2011/08/20 17:27:11 rlar Exp $
+   $Id: xpressn.c,v 1.75 2011/10/31 10:53:51 rlar Exp $
  */
 
 #include <stdio.h>                /* for function message() only. */
@@ -2139,10 +2139,10 @@ nupa_subcktcall (tdico * dico, char *s, char *x, bool err)
                     j++;
                     if (t_p[k] > ' ')
                     {
-                        spice_dstring_append(&vstr, "Subckt call, symbol ",-1) ;
+                        spice_dstring_append(&vstr, "Subckt call, symbol ", -1);
                         cadd (&vstr, t_p[k]);
                         sadd (&vstr, " not understood");
-                        message (dico, spice_dstring_value(&vstr) ) ;
+                        message (dico, "%s", spice_dstring_value(&vstr));
                     }
                 }
 

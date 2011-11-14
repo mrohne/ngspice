@@ -1,7 +1,7 @@
 /**********
 Copyright 1990 Regents of the University of California.  All rights reserved.
 Author: 1985 Wayne A. Christopher, U. C. Berkeley CAD Group
-$Id: resource.c,v 1.43 2011/08/20 17:27:11 rlar Exp $
+$Id: resource.c,v 1.44 2011/10/31 10:53:51 rlar Exp $
 **********/
 
 /*
@@ -171,9 +171,6 @@ ft_ckspace(void)
     
     hi=sbrk(0);
     usage = (size_t) (hi - enddata);
-
-    if (limit < 0)
-	return;	/* what else do you do? */
 
     if (usage <= old_usage)
 	return;
