@@ -36,6 +36,7 @@ help()
     echo "$PROJECT autogen.sh help"
     echo
     echo "--adms     -a: enables adms feature"
+    echo "--adms3      : enables adms3 feature"
     echo "--help     -h: print this file"
     echo "--version  -v: print version"
     echo
@@ -142,6 +143,11 @@ case "$1" in
         check_adms
         check_adms_va
         ADMS=1
+        ;;
+
+    "--adms3" )
+        check_adms
+        ADMS=3
         ;;
 
     "--help" | "-h")
