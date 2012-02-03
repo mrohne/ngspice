@@ -4,20 +4,20 @@ Author: 1985 Thomas L. Quarles
 Modified: 2000 AlansFixes
 **********/
 
-#include <ngspice/ngspice.h>
-#include <ngspice/cktdefs.h>
-#include <ngspice/sperror.h>
-#include <ngspice/trandefs.h>
+#include "ngspice/ngspice.h"
+#include "ngspice/cktdefs.h"
+#include "ngspice/sperror.h"
+#include "ngspice/trandefs.h"
 
 #include "analysis.h"
 
 #ifdef XSPICE
 /* gtri - add - wbk - 11/26/90 - add include for MIF and EVT global data */
-#include <ngspice/mif.h>
-#include <ngspice/evtproto.h>
+#include "ngspice/mif.h"
+#include "ngspice/evtproto.h"
 /* gtri - end - wbk - 11/26/90 */
 /* gtri - add - 12/12/90 - wbk - include ipc stuff */
-#include <ngspice/ipctiein.h>
+#include "ngspice/ipctiein.h"
 /* gtri - end - 12/12/90 */
 #endif
 
@@ -125,6 +125,9 @@ CKTdoJob(CKTcircuit *ckt, int reset, TSKtask *task)
 	    FREE(ckt->CKTsenInfo);
 #endif
 
+        /* make sure this is either up do date or NULL */
+        ckt->CKTcurJob = NULL;
+
 	/* normal reset */
 	if (!error)
 	    error = CKTunsetup(ckt);
@@ -196,6 +199,7 @@ CKTdoJob(CKTcircuit *ckt, int reset, TSKtask *task)
 		    error = CKTic(ckt);
 		if (!error){
 #ifdef XSPICE
+            if(reset) {
                   /* gtri - begin - 6/10/91 - wbk - Setup event-driven data */
                   error = EVTsetup(ckt);
                   if(error) {
@@ -204,6 +208,7 @@ CKTdoJob(CKTcircuit *ckt, int reset, TSKtask *task)
                     return(error);
                   }
                   /* gtri - end - 6/10/91 - wbk - Setup event-driven data */
+            }
 #endif
 		    error = analInfo[i]->an_func (ckt, reset);
 			/* txl, cpl addition */

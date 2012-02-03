@@ -1,7 +1,6 @@
 /*************
  * Header file for runcoms.c
  * 1999 E. Rouat
- * $Id: runcoms.h,v 1.4 2011/08/04 16:16:47 rlar Exp $
  ************/
 
 #ifndef RUNCOMS_H_INCLUDED

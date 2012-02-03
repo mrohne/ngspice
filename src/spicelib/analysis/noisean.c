@@ -9,12 +9,12 @@ Author: 1987 Gary W. Ng
 Modified: 2001 AlansFixes
 **********/
 
-#include <ngspice/ngspice.h>
-#include <ngspice/acdefs.h>
-#include <ngspice/cktdefs.h>
-#include <ngspice/iferrmsg.h>
-#include <ngspice/noisedef.h>
-#include <ngspice/sperror.h>
+#include "ngspice/ngspice.h"
+#include "ngspice/acdefs.h"
+#include "ngspice/cktdefs.h"
+#include "ngspice/iferrmsg.h"
+#include "ngspice/noisedef.h"
+#include "ngspice/sperror.h"
 #include "vsrc/vsrcdefs.h"
 #include "isrc/isrcdefs.h"
 #include "../maths/ni/niniter.h" /* va, NInzIter */
@@ -38,7 +38,7 @@ NOISEan (CKTcircuit *ckt, int restart)
     GENinstance *inst;  
     double freqTol; /* tolerence parameter for finding final frequency; hack */
 
-    NOISEAN *job = (NOISEAN*) (ckt->CKTcurJob);
+    NOISEAN *job = (NOISEAN *) ckt->CKTcurJob;
     static char *noacinput =    "noise input source has no AC value";
 
     posOutNode = (job->output) -> number;
@@ -132,10 +132,11 @@ NOISEan (CKTcircuit *ckt, int restart)
 	 * plot
 	 */
 
-	error = SPfrontEnd->OUTpBeginPlot (ckt, ckt->CKTcurJob,
-	   "Noise Spectral Density Curves - (V^2 or A^2)/Hz",
-	   freqUid,IF_REAL,data->numPlots,data->namelist,IF_REAL,
-	   &(data->NplotPtr));
+        error = SPfrontEnd->OUTpBeginPlot (
+            ckt, ckt->CKTcurJob,
+            "Noise Spectral Density Curves - (V^2 or A^2)/Hz",
+            freqUid, IF_REAL,
+            data->numPlots, data->namelist, IF_REAL, &(data->NplotPtr));
 	if (error) return(error);
 
         if (job->NstpType != LINEAR) {
@@ -166,8 +167,11 @@ NOISEan (CKTcircuit *ckt, int restart)
 	data->outNoiz = job->NsavOnoise;
 	data->inNoise = job->NsavInoise;
 	/* saj resume rawfile fix*/
-	error = SPfrontEnd->OUTpBeginPlot
-	    (NULL, NULL, NULL, NULL, 0, 666, NULL, 666, &(data->NplotPtr));
+        error = SPfrontEnd->OUTpBeginPlot (
+            NULL, NULL,
+            NULL,
+            NULL, 0,
+            666, NULL, 666, &(data->NplotPtr));
 	/*saj*/
     }
 
@@ -275,10 +279,11 @@ NOISEan (CKTcircuit *ckt, int restart)
 
 	if (error) return(error);
 
-	SPfrontEnd->OUTpBeginPlot (ckt, ckt->CKTcurJob,
-	       "Integrated Noise - V^2 or A^2",
-	       NULL, 0, data->numPlots, data->namelist, IF_REAL,
-	       &(data->NplotPtr));
+        SPfrontEnd->OUTpBeginPlot (
+            ckt, ckt->CKTcurJob,
+            "Integrated Noise - V^2 or A^2",
+            NULL, 0,
+            data->numPlots, data->namelist, IF_REAL, &(data->NplotPtr));
 
 	error = CKTnoise(ckt,INT_NOIZ,N_CALC,data);
 	if (error) return(error);

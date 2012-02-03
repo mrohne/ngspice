@@ -3,11 +3,11 @@ Copyright 1990 Regents of the University of California.  All rights reserved.
 Author: 1985 Thomas L. Quarles
 **********/
 
-#include <ngspice/ngspice.h>
-#include <ngspice/ifsim.h>
-#include <ngspice/iferrmsg.h>
-#include <ngspice/acdefs.h>
-#include <ngspice/cktdefs.h>
+#include "ngspice/ngspice.h"
+#include "ngspice/ifsim.h"
+#include "ngspice/iferrmsg.h"
+#include "ngspice/acdefs.h"
+#include "ngspice/cktdefs.h"
 
 #include "analysis.h"
 
@@ -15,6 +15,8 @@ Author: 1985 Thomas L. Quarles
 int 
 ACsetParm(CKTcircuit *ckt, JOB *anal, int which, IFvalue *value)
 {
+    ACAN *job = (ACAN *) anal;
+
     NG_IGNORE(ckt);
 
     switch(which) {
@@ -22,53 +24,53 @@ ACsetParm(CKTcircuit *ckt, JOB *anal, int which, IFvalue *value)
     case AC_START:
 	if (value->rValue <= 0.0) {
 	    errMsg = copy("Frequency of 0 is invalid for AC start");
-            ((ACAN*)anal)->ACstartFreq = 1.0;
+            job->ACstartFreq = 1.0;
 	    return(E_PARMVAL);
 	}
 
-        ((ACAN*)anal)->ACstartFreq = value->rValue;
+        job->ACstartFreq = value->rValue;
         break;
 
     case AC_STOP:
 	if (value->rValue <= 0.0) {
 	    errMsg = copy("Frequency of 0 is invalid for AC stop");
-            ((ACAN*)anal)->ACstartFreq = 1.0;
+            job->ACstartFreq = 1.0;
 	    return(E_PARMVAL);
 	}
 
-        ((ACAN*)anal)->ACstopFreq = value->rValue;
+        job->ACstopFreq = value->rValue;
         break;
 
     case AC_STEPS:
-        ((ACAN*)anal)->ACnumberSteps = value->iValue;
+        job->ACnumberSteps = value->iValue;
         break;
 
     case AC_DEC:
         if(value->iValue) {
-            ((ACAN*)anal)->ACstepType = DECADE;
+            job->ACstepType = DECADE;
         } else {
-            if( ((ACAN*)anal)->ACstepType == DECADE) {
-                ((ACAN*)anal)->ACstepType = 0;
+            if (job->ACstepType == DECADE) {
+                job->ACstepType = 0;
             }
         }
         break;
 
     case AC_OCT:
         if(value->iValue) {
-                ((ACAN*)anal)->ACstepType = OCTAVE;
+                job->ACstepType = OCTAVE;
         } else {
-            if( ((ACAN*)anal)->ACstepType == OCTAVE) {
-                ((ACAN*)anal)->ACstepType = 0;
+            if (job->ACstepType == OCTAVE) {
+                job->ACstepType = 0;
             }
         }
         break;
 
     case AC_LIN:
         if(value->iValue) {
-            ((ACAN*)anal)->ACstepType = LINEAR;
+            job->ACstepType = LINEAR;
         } else {
-            if( ((ACAN*)anal)->ACstepType == LINEAR) {
-                ((ACAN*)anal)->ACstepType = 0;
+            if (job->ACstepType == LINEAR) {
+                job->ACstepType = 0;
             }
         }
         break;

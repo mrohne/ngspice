@@ -9,13 +9,13 @@
  * Modified by Paolo Nenzi 2002 and Dietmar Warning 2003
  **********/
 
-#include <ngspice/ngspice.h>
-#include <ngspice/smpdefs.h>
-#include <ngspice/cktdefs.h>
+#include "ngspice/ngspice.h"
+#include "ngspice/smpdefs.h"
+#include "ngspice/cktdefs.h"
 #include "bsim3v32def.h"
-#include <ngspice/const.h>
-#include <ngspice/sperror.h>
-#include <ngspice/suffix.h>
+#include "ngspice/const.h"
+#include "ngspice/sperror.h"
+#include "ngspice/suffix.h"
 
 #define Kb 1.3806226e-23
 #define KboQ 8.617087e-5  /* Kb / q  where q = 1.60219e-19 */
@@ -33,7 +33,7 @@ BSIM3v32temp (GENmodel *inModel, CKTcircuit *ckt)
 {
 BSIM3v32model *model = (BSIM3v32model*) inModel;
 BSIM3v32instance *here;
-struct bsim3SizeDependParam *pSizeDependParamKnot, *pLastKnot, *pParam=NULL;
+struct bsim3v32SizeDependParam *pSizeDependParamKnot, *pLastKnot, *pParam=NULL;
 double tmp, tmp1, tmp2, tmp3, Eg, Eg0, ni, T0, T1, T2, T3, T4, T5, Ldrn, Wdrn;
 double delTemp, Temp, TRatio, Inv_L, Inv_W, Inv_LW, Vtm0, Tnom;
 double Nvtm, SourceSatCurrent, DrainSatCurrent;
@@ -231,7 +231,7 @@ int Size_Not_Found;
               }
 
 	      if (Size_Not_Found)
-	      {   pParam = TMALLOC(struct bsim3SizeDependParam, 1);
+	      {   pParam = TMALLOC(struct bsim3v32SizeDependParam, 1);
                   if (pLastKnot == NULL)
                     model->pSizeDependParamKnot = pParam;
                   else

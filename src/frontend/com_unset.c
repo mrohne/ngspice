@@ -1,13 +1,12 @@
 /*************
 * com_unset.c
-* $Id: com_unset.c,v 1.4 2011/08/20 17:27:11 rlar Exp $
 ************/
 
-#include <config.h>
-#include <ngspice/ngspice.h>
+#include "ngspice/config.h"
+#include "ngspice/ngspice.h"
 
-#include <ngspice/macros.h>
-#include <ngspice/bool.h>
+#include "ngspice/macros.h"
+#include "ngspice/bool.h"
 
 #include "com_unset.h"
 #include "variable.h"

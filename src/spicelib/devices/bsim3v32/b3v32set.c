@@ -8,13 +8,13 @@
  * Author: 2001  Xuemei Xi
  **********/
 
-#include <ngspice/ngspice.h>
-#include <ngspice/smpdefs.h>
-#include <ngspice/cktdefs.h>
+#include "ngspice/ngspice.h"
+#include "ngspice/smpdefs.h"
+#include "ngspice/cktdefs.h"
 #include "bsim3v32def.h"
-#include <ngspice/const.h>
-#include <ngspice/sperror.h>
-#include <ngspice/suffix.h>
+#include "ngspice/const.h"
+#include "ngspice/sperror.h"
+#include "ngspice/suffix.h"
 
 #define MAX_EXP 5.834617425e14
 #define MIN_EXP 1.713908431e-15
@@ -1000,10 +1000,12 @@ IFuid tmpName;
 
  /* internal charge node */
 
-            if ((here->BSIM3v32nqsMod) && (here->BSIM3v32qNode == 0))
+            if (here->BSIM3v32nqsMod)
+            {   if(here->BSIM3v32qNode == 0)
             {   error = CKTmkVolt(ckt,&tmp,here->BSIM3v32name,"charge");
                 if(error) return(error);
                 here->BSIM3v32qNode = tmp->number;
+            }
             }
             else
             {   here->BSIM3v32qNode = 0;

@@ -1,15 +1,14 @@
 /*************
 * com_shell.c
-* $Id: com_shell.c,v 1.6 2011/08/20 17:27:11 rlar Exp $
 ************/
 
-#include <config.h>
-#include <ngspice/ngspice.h>
-#include <ngspice/wordlist.h>
+#include "ngspice/config.h"
+#include "ngspice/ngspice.h"
+#include "ngspice/wordlist.h"
 
 #include "com_shell.h"
 #include "streams.h"
-#include <ngspice/cpextern.h>
+#include "ngspice/cpextern.h"
 
 /* Fork a shell. */
 

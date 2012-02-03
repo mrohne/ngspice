@@ -1,7 +1,11 @@
 ## Process this file with automake to produce Makefile.in
-## $Id: Makefile.am,v 1.1 2011/08/20 17:43:07 rlar Exp $
 
-noinst_HEADERS =	\
+includedir = $(pkgdatadir)/include/ngspice
+
+nodist_include_HEADERS = \
+	config.h
+
+include_HEADERS = \
 	tclspice.h	\
 	acdefs.h	\
 	bdrydefs.h	\
@@ -103,6 +107,7 @@ noinst_HEADERS =	\
 	smpdefs.h	\
 	sperror.h	\
 	spmatrix.h	\
+	stringutil.h	\
 	suffix.h	\
 	swec.h		\
 	tfdefs.h	\

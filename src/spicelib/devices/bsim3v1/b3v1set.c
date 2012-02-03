@@ -10,13 +10,13 @@
  * BSIM3v1v3.1,   Released by yuhua  96/12/08
  */
 
-#include <ngspice/ngspice.h>
-#include <ngspice/smpdefs.h>
-#include <ngspice/cktdefs.h>
+#include "ngspice/ngspice.h"
+#include "ngspice/smpdefs.h"
+#include "ngspice/cktdefs.h"
 #include "bsim3v1def.h"
-#include <ngspice/const.h>
-#include <ngspice/sperror.h>
-#include <ngspice/suffix.h>
+#include "ngspice/const.h"
+#include "ngspice/sperror.h"
+#include "ngspice/suffix.h"
 
 #define MAX_EXP 5.834617425e14
 #define MIN_EXP 1.713908431e-15
@@ -850,8 +850,8 @@ IFuid tmpName;
 
             /* process drain series resistance */
             if ((model->BSIM3v1sheetResistance > 0.0) &&
-                (here->BSIM3v1drainSquares > 0.0 ) &&
-                (here->BSIM3v1dNodePrime == 0))
+                (here->BSIM3v1drainSquares > 0.0 ))
+            {   if(here->BSIM3v1dNodePrime == 0)
             {   error = CKTmkVolt(ckt,&tmp,here->BSIM3v1name,"drain");
                 if(error) return(error);
                 here->BSIM3v1dNodePrime = tmp->number;
@@ -866,14 +866,15 @@ IFuid tmpName;
                 }
 
             }
+            }
             else
             {   here->BSIM3v1dNodePrime = here->BSIM3v1dNode;
             }
 
             /* process source series resistance */
             if ((model->BSIM3v1sheetResistance > 0.0) &&
-                (here->BSIM3v1sourceSquares > 0.0 ) &&
-                (here->BSIM3v1sNodePrime == 0))
+                (here->BSIM3v1sourceSquares > 0.0 ))
+            {   if(here->BSIM3v1sNodePrime == 0)
             {   error = CKTmkVolt(ckt,&tmp,here->BSIM3v1name,"source");
                 if(error) return(error);
                 here->BSIM3v1sNodePrime = tmp->number;
@@ -886,6 +887,7 @@ IFuid tmpName;
                      }
                   }
                 }
+            }
 
             }
             else
@@ -894,10 +896,12 @@ IFuid tmpName;
 
  /* internal charge node */
 
-            if ((here->BSIM3v1nqsMod) && (here->BSIM3v1qNode == 0))
+            if ((here->BSIM3v1nqsMod))
+            {   if(here->BSIM3v1qNode == 0)
             {   error = CKTmkVolt(ckt,&tmp,here->BSIM3v1name,"charge");
                 if(error) return(error);
                 here->BSIM3v1qNode = tmp->number;
+            }
             }
             else
             {   here->BSIM3v1qNode = 0;

@@ -11,11 +11,11 @@ Author: 1985 Thomas L. Quarles
      * given circuit 
      */
 
-#include <ngspice/ngspice.h>
-#include <ngspice/cktdefs.h>
-#include <ngspice/devdefs.h>
-#include <ngspice/ifsim.h>
-#include <ngspice/sperror.h>
+#include "ngspice/ngspice.h"
+#include "ngspice/cktdefs.h"
+#include "ngspice/devdefs.h"
+#include "ngspice/ifsim.h"
+#include "ngspice/sperror.h"
 
 
 int
@@ -43,8 +43,11 @@ CKTdestroy(CKTcircuit *ckt)
     for(i=0;i<=ckt->CKTmaxOrder+1;i++){
         FREE(ckt->CKTstates[i]);
     }
-    if(ckt->CKTmatrix)      SMPdestroy(ckt->CKTmatrix);
-    if(ckt->CKTbreaks)      FREE(ckt->CKTbreaks);
+    if(ckt->CKTmatrix) {
+        SMPdestroy(ckt->CKTmatrix);
+        ckt->CKTmatrix = NULL;
+    }
+    FREE(ckt->CKTbreaks);
     for(node = ckt->CKTnodes; node; ) {
         nnode = node->next;
         FREE(node);
@@ -52,6 +55,23 @@ CKTdestroy(CKTcircuit *ckt)
     }
     ckt->CKTnodes = NULL;
     ckt->CKTlastNode = NULL;
+
+    FREE(ckt->CKTrhs);
+    FREE(ckt->CKTrhsOld);
+    FREE(ckt->CKTrhsSpare);
+    FREE(ckt->CKTirhs);
+    FREE(ckt->CKTirhsOld);
+    FREE(ckt->CKTirhsSpare);
+
+    FREE(ckt->CKTstat->STATdevNum);
+    FREE(ckt->CKTstat);
+    FREE(ckt->CKThead);
+
+#ifdef XSPICE
+    FREE(ckt->enh);
+    FREE(ckt->evt);
+#endif
+
     FREE(ckt);
     return(OK);
 }

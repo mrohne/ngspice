@@ -5,8 +5,6 @@
 # package.
 #
 #
-# $Id: autogen.sh,v 1.28 2011/07/23 13:06:58 rlar Exp $
-#
 # temp-adms.ac: modified configure.ac if --adms is selected
 # for temporary use by autoconf, will be deleted automatically
 # configure.ac stays untouched
@@ -71,7 +69,7 @@ check_autoconf()
 	DIE=1
     }
 
-    (glibtoolize --version) < /dev/null > /dev/null 2>&1 || {
+    (libtoolize --version) < /dev/null > /dev/null 2>&1 || {
 	echo
 	echo "You must have libtool installed to compile $PROJECT."
 	echo "See http://www.gnu.org/software/libtool/"
@@ -180,10 +178,10 @@ $znew
                         cd $ADMSDIR/$adms_dir
                         if [ "$ADMS" -eq 3 ]; then
                             $ADMSXML \
-                                -I admsva \
+                                -I adms3va \
                                 --create_makefile_am \
                                 -e ../admst/ngspice.xml \
-                                `ls admsva/*.va`
+                                `ls adms3va/*.va`
                         else
                             $ADMSXML `ls admsva/*.va` -Iadmsva -xv \
                                 -e ../admst/ngspiceVersion.xml \
@@ -201,9 +199,9 @@ echo "Running aclocal $ACLOCAL_FLAGS"
 aclocal $ACLOCAL_FLAGS \
     || error_and_exit "aclocal failed"
 
-echo "Running glibtoolize"
-glibtoolize --copy --force \
-    || error_and_exit "glibtoolize failed"
+echo "Running libtoolize"
+libtoolize --copy --force \
+    || error_and_exit "libtoolize failed"
 
 # optional feature: autoheader
 (autoheader --version) < /dev/null > /dev/null 2>&1

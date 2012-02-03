@@ -13,9 +13,9 @@ Modified: 1999 Paolo Nenzi
  * filename completion.
  */
 
-#include <config.h>
-#include <ngspice/ngspice.h>
-#include <ngspice/cpdefs.h>
+#include "ngspice/config.h"
+#include "ngspice/ngspice.h"
+#include "ngspice/cpdefs.h"
 #include "complete.h"
 
 

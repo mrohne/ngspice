@@ -1,22 +1,21 @@
 /**********
 Copyright 1992 Regents of the University of California.  All rights reserved.
 Author:	1992 David A. Gates, U. C. Berkeley CAD Group
-$Id: oneread.c,v 1.3 2011/08/20 17:27:10 rlar Exp $
 **********/
 
 /*
  * Functions needed to read solutions for 1D devices.
  */
  
-#include <ngspice/ngspice.h>
-#include <ngspice/numglobs.h>
-#include <ngspice/numenum.h>
-#include <ngspice/onedev.h>
-#include <ngspice/onemesh.h>
-#include <ngspice/plot.h>
+#include "ngspice/ngspice.h"
+#include "ngspice/numglobs.h"
+#include "ngspice/numenum.h"
+#include "ngspice/onedev.h"
+#include "ngspice/onemesh.h"
+#include "ngspice/plot.h"
 #include "onedext.h"
 #include "oneddefs.h"
-#include <ngspice/cidersupt.h>
+#include "ngspice/cidersupt.h"
 
 int
 ONEreadState(ONEdevice *pDevice, char *fileName, int numVolts, 

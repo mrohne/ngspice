@@ -1,7 +1,6 @@
 /**********
 Copyright 1990 Regents of the University of California.  All rights reserved.
 Author: 1988 Jeffrey M. Hsu
-$Id: graf.c,v 1.39 2011/08/20 17:27:11 rlar Exp $
 **********/
 
 /*
@@ -10,21 +9,21 @@ $Id: graf.c,v 1.39 2011/08/20 17:27:11 rlar Exp $
  *
  */
 
-#include <ngspice/ngspice.h>
-#include <ngspice/cpdefs.h>		/* for CP_ */
-#include <ngspice/cpextern.h>
-#include <ngspice/plot.h>
-#include <ngspice/ftedebug.h>		/* for iplot */
-#include <ngspice/dvec.h>		/* for struct dvec */
-#include <ngspice/ftedefs.h>		/* for FTEextern.h and IPOINT{MIN,MAX} */
-#include <ngspice/fteinput.h>
-#include <ngspice/graph.h>
-#include <ngspice/ftedbgra.h>
-#include <ngspice/ftedev.h>
+#include "ngspice/ngspice.h"
+#include "ngspice/cpdefs.h"		/* for CP_ */
+#include "ngspice/cpextern.h"
+#include "ngspice/plot.h"
+#include "ngspice/ftedebug.h"		/* for iplot */
+#include "ngspice/dvec.h"		/* for struct dvec */
+#include "ngspice/ftedefs.h"		/* for FTEextern.h and IPOINT{MIN,MAX} */
+#include "ngspice/fteinput.h"
+#include "ngspice/graph.h"
+#include "ngspice/ftedbgra.h"
+#include "ngspice/ftedev.h"
 #include <terminal.h>
 #include "graf.h"
 #include "graphdb.h"
-#include <ngspice/grid.h>
+#include "ngspice/grid.h"
 #include "../terminal.h"
 #include "../breakp2.h"
 #include "../error.h"

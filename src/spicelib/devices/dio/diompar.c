@@ -6,12 +6,12 @@ Modified by Dietmar Warning 2003 and Paolo Nenzi 2003
 /*
  */
 
-#include <ngspice/ngspice.h>
-#include <ngspice/const.h>
-#include <ngspice/ifsim.h>
+#include "ngspice/ngspice.h"
+#include "ngspice/const.h"
+#include "ngspice/ifsim.h"
 #include "diodefs.h"
-#include <ngspice/sperror.h>
-#include <ngspice/suffix.h>
+#include "ngspice/sperror.h"
+#include "ngspice/suffix.h"
 
 
 int
@@ -124,6 +124,14 @@ DIOmParam(int param, IFvalue *value, GENmodel *inModel)
         case DIO_MOD_CTP:
             model->DIOctp = value->rValue;
             model->DIOctpGiven = TRUE;
+            break;
+        case DIO_MOD_TBP:
+            model->DIOtbp = value->rValue;
+            model->DIOtbpGiven = TRUE;
+            break;
+        case DIO_MOD_TPHP:
+            model->DIOtphp = value->rValue;
+            model->DIOtphpGiven = TRUE;
             break;
         case DIO_MOD_FC:
             model->DIOdepletionCapCoeff = value->rValue;

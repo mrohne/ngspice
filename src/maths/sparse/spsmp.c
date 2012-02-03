@@ -94,13 +94,13 @@
  *     Spice3's matrix macro definitions.
  */
 
-#include <config.h>
+#include "ngspice/config.h"
 #include <assert.h>
 #include <stdio.h>
 #include <math.h>
-#include <ngspice/spmatrix.h>
+#include "ngspice/spmatrix.h"
 #include "spdefs.h"
-#include <ngspice/smpdefs.h>
+#include "ngspice/smpdefs.h"
 
 #if defined (_MSC_VER)
 extern double scalbn(double, int);

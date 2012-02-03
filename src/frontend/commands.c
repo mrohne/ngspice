@@ -1,5 +1,4 @@
 /* NG-SPICE -- An electrical circuit simulator
- * $Id: commands.c,v 1.28 2011/08/20 17:27:11 rlar Exp $
  *
  * Copyright (c) 1990 University of California
  * Copyright (c) 2000 Arno W. Peters
@@ -31,9 +30,9 @@
 /* Table of available commands.  Note that they're sorted so that the
  * commands that appear in the spiceinit file are at the top.  */
 
-#include <ngspice/ngspice.h>
-#include <ngspice/ftedefs.h>
-#include <ngspice/cpdefs.h>
+#include "ngspice/ngspice.h"
+#include "ngspice/ftedefs.h"
+#include "ngspice/cpdefs.h"
 
 #include "ftehelp.h"
 #include "commands.h"
@@ -96,7 +95,7 @@
 
 #ifdef XSPICE
 /* gtri - begin - wbk - add include files */
-#include <ngspice/evtproto.h>
+#include "ngspice/evtproto.h"
 /* gtri - end - wbk - add include files */
 #endif
 
@@ -277,12 +276,14 @@ struct comm spcp_coms[] = {
       { 0, 0, 0, 0 }, E_DEFHMASK, 0, LOTS,
       NULL,
       "[.tran line args] : Do a transient analysis." } ,
+#ifdef WITH_PSS
 /* SP: Steady State Analysis */
     { "pss", com_pss, TRUE, TRUE,
       { 0, 0, 0, 0 }, E_DEFHMASK, 0, LOTS,
       NULL,
       "[.pss line args] : Do a periodic state analysis." } ,
 /* SP */
+#endif
     { "ac", com_ac, TRUE, TRUE,
       { 0, 0, 0, 0 }, E_DEFHMASK, 0, LOTS,
       NULL,
@@ -698,12 +699,14 @@ struct comm nutcp_coms[] = {
       { 0, 0, 0, 0 }, E_DEFHMASK, 0, LOTS,
       NULL,
       "[.tran line args] : Do a transient analysis." } ,
+#ifdef WITH_PSS
 /* SP: Steady State Analysis */
     { "pss", NULL, TRUE, TRUE,
       { 0, 0, 0, 0 }, E_DEFHMASK, 0, LOTS,
       NULL,
       "[.pss line args] : Do a periodic steady state analysis." } ,
 /* SP */
+#endif
     { "ac", NULL, TRUE, TRUE,
       { 0, 0, 0, 0 }, E_DEFHMASK, 0, LOTS,
       NULL,

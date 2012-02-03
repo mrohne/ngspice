@@ -1,7 +1,6 @@
 /*************
  * Header file for x11.c
  * 1999 E. Rouat
- * $Id: x11.h,v 1.4 2011/04/28 10:52:26 rlar Exp $
  ************/
 
 #ifndef X11_H_INCLUDED

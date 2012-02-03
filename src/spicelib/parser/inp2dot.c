@@ -4,15 +4,15 @@ Author: 1988 Thomas L. Quarles
 Modified: 2000 AlansFixes
 **********/
 
-#include <ngspice/ngspice.h>
+#include "ngspice/ngspice.h"
 #include <stdio.h>
-#include <ngspice/ifsim.h>
-#include <ngspice/inpdefs.h>
-#include <ngspice/inpmacs.h>
-#include <ngspice/fteext.h>
+#include "ngspice/ifsim.h"
+#include "ngspice/inpdefs.h"
+#include "ngspice/inpmacs.h"
+#include "ngspice/fteext.h"
 #include "inp.h"
-#include <ngspice/cpdefs.h>
-#include <ngspice/tskdefs.h>
+#include "ngspice/cpdefs.h"
+#include "ngspice/tskdefs.h"
 
 static int
 dot_noise(char *line, CKTcircuit *ckt, INPtables *tab, card *current,
@@ -627,6 +627,7 @@ dot_sens2(char *line, CKTcircuit *ckt, INPtables *tab, card *current,
 }
 #endif
 
+#ifdef WITH_PSS
 /*SP: Steady State Analyis */
 static int
 dot_pss(char *line, void *ckt, INPtables *tab, card *current,
@@ -692,6 +693,7 @@ dot_pss(char *line, void *ckt, INPtables *tab, card *current,
 	return (0);
 }
 /* SP */
+#endif
 
 static int
 dot_options(char *line, CKTcircuit *ckt, INPtables *tab, card *current,
@@ -772,11 +774,13 @@ INP2dot(CKTcircuit *ckt, INPtables *tab, card *current, TSKtask *task, CKTnode *
 	} else if ((strcmp(token, ".tran") == 0)) {
 		rtn = dot_tran(line, ckt, tab, current, task, gnode, foo);
 		goto quit;
+#ifdef WITH_PSS
 		/* SP: Steady State Analysis */
 	} else if ((strcmp(token, ".pss") == 0)) {
 		rtn = dot_pss(line, ckt, tab, current, task, gnode, foo);
 		goto quit;
 		/* SP */
+#endif
 	} else if ((strcmp(token, ".subckt") == 0) ||
 	           (strcmp(token, ".ends") == 0)) {
 		/* not yet implemented - warn & ignore */

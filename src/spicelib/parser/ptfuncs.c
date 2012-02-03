@@ -8,12 +8,12 @@ Author: 1987 Wayne A. Christopher, U. C. Berkeley CAD Group
  * if their argument is out of range.
  */
 
-#include <config.h>
-#include <ngspice/ngspice.h>
+#include "ngspice/config.h"
+#include "ngspice/ngspice.h"
 #include <stdio.h>
-#include <ngspice/fteext.h>
-#include <ngspice/ifsim.h>
-#include <ngspice/inpptree.h>
+#include "ngspice/fteext.h"
+#include "ngspice/ifsim.h"
+#include "ngspice/inpptree.h"
 #include "inp.h"
 
 /* XXX These should be in math.h */
@@ -340,3 +340,16 @@ PTpwl_derivative(double arg, void *data)
 
   return y;
 }
+
+double
+PTceil(double arg1)
+{
+    return (ceil(arg1));
+}
+
+double
+PTfloor(double arg1)
+{
+    return (floor(arg1));
+}
+

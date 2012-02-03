@@ -1,6 +1,5 @@
 /*************
 * Header file for hpgl.c
-* $Id: hpgl.h,v 1.3 2010/06/30 16:50:09 rlar Exp $
 ************/
 
 #ifndef HPGH_H

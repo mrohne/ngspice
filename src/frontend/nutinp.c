@@ -1,18 +1,17 @@
 /**********
 Copyright 1990 Regents of the University of California.  All rights reserved.
 Author: 1985 Wayne A. Christopher
-$Id: nutinp.c,v 1.21 2011/08/20 17:27:11 rlar Exp $
 **********/
 
 /*
  * For dealing with nutmeg input decks and command scripts
  */
 
-#include <ngspice/ngspice.h>
-#include <ngspice/cpdefs.h>
-#include <ngspice/ftedefs.h>
-#include <ngspice/dvec.h>
-#include <ngspice/fteinp.h>
+#include "ngspice/ngspice.h"
+#include "ngspice/cpdefs.h"
+#include "ngspice/ftedefs.h"
+#include "ngspice/dvec.h"
+#include "ngspice/fteinp.h"
 #include "nutinp.h"
 #include "variable.h"
 #include "../misc/mktemp.h"

@@ -1,18 +1,17 @@
 /**********
 Copyright 1990 Regents of the University of California.  All rights reserved.
 Author: 1985 Thomas L. Quarles
-$Id: ifeval.c,v 1.10 2011/08/20 17:27:16 rlar Exp $
 **********/
 
-#include <ngspice/ngspice.h>
+#include "ngspice/ngspice.h"
 #include <stdio.h>
-#include <ngspice/ifsim.h>
-#include <ngspice/inpmacs.h>
-#include <ngspice/fteext.h>
-#include <ngspice/iferrmsg.h>
-#include <ngspice/inpptree.h>
+#include "ngspice/ifsim.h"
+#include "ngspice/inpmacs.h"
+#include "ngspice/fteext.h"
+#include "ngspice/iferrmsg.h"
+#include "ngspice/inpptree.h"
 #include "inp.h"
-#include <ngspice/cktdefs.h>
+#include "ngspice/cktdefs.h"
 
 /* Uncomment to allow tracing */
 /*#define TRACE*/

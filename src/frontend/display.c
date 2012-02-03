@@ -1,18 +1,17 @@
 /**********
 Copyright 1990 Regents of the University of California.  All rights reserved.
-$Id: display.c,v 1.34 2011/08/20 17:27:11 rlar Exp $
 **********/
 
 
-#include <ngspice/ngspice.h>
-#include <ngspice/graph.h>
-#include <ngspice/ftedev.h>
-#include <ngspice/fteinput.h>
-#include <ngspice/cpdefs.h>     /* for CP_STRING */
-#include <ngspice/ftedefs.h>        /* for mylog() */
+#include "ngspice/ngspice.h"
+#include "ngspice/graph.h"
+#include "ngspice/ftedev.h"
+#include "ngspice/fteinput.h"
+#include "ngspice/cpdefs.h"     /* for CP_STRING */
+#include "ngspice/ftedefs.h"        /* for mylog() */
 
 #ifdef TCL_MODULE
-#include <ngspice/tclspice.h>
+#include "ngspice/tclspice.h"
 #endif
 
 #include "display.h"

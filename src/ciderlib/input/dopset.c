@@ -2,21 +2,20 @@
 Copyright 1991 Regents of the University of California.  All rights reserved.
 Author:	1991 David A. Gates, U. C. Berkeley CAD Group
 Modifed: 2001 Paolo Nenzi
-$Id: dopset.c,v 1.5 2011/08/20 17:27:10 rlar Exp $
 **********/
 
-#include <ngspice/ngspice.h>
-#include <ngspice/cktdefs.h>
-#include <ngspice/numenum.h>
-#include <ngspice/dopdefs.h>
-#include <ngspice/meshext.h>
-#include <ngspice/profile.h>
-#include <ngspice/gendev.h>
-#include <ngspice/sperror.h>
-#include <ngspice/suffix.h>
-#include <ngspice/cidersupt.h>
-#include <ngspice/carddefs.h>
-#include <ngspice/ciderinp.h>
+#include "ngspice/ngspice.h"
+#include "ngspice/cktdefs.h"
+#include "ngspice/numenum.h"
+#include "ngspice/dopdefs.h"
+#include "ngspice/meshext.h"
+#include "ngspice/profile.h"
+#include "ngspice/gendev.h"
+#include "ngspice/sperror.h"
+#include "ngspice/suffix.h"
+#include "ngspice/cidersupt.h"
+#include "ngspice/carddefs.h"
+#include "ngspice/ciderinp.h"
 
 extern int DOPnewCard(void**,void*);
 extern int DOPparam(int,IFvalue*,void*);

@@ -12,7 +12,7 @@ dnl Initialisation
 dnl ---------------
 
 dnl Initialisation of configure
-AC_INIT(ngspice,23,http://ngspice.sourceforge.net/bugrep.html)
+AC_INIT(ngspice,24,http://ngspice.sourceforge.net/bugrep.html)
 
 dnl Unique file in the source directory
 AC_CONFIG_SRCDIR([src/ngspice.c])
@@ -23,13 +23,15 @@ dnl problem to the user.  (2.52 is a guess and might need some adjustment)
 AC_PREREQ(2.59)
 
 dnl Revison stamp the generated ./configure script
-AC_REVISION($Revision: 1.32 $)
+AC_REVISION($Revision: 1.38 $)
 
 dnl Create a configuration header
-AC_CONFIG_HEADER([config.h])
+AC_CONFIG_HEADER([src/include/ngspice/config.h])
 
 dnl Initialise automake stuff
-AM_INIT_AUTOMAKE
+AM_INIT_AUTOMAKE([-Wall -Werror nostdinc])
+
+AC_SUBST([AM_CPPFLAGS],['-I. -I$(srcdir) -I$(top_builddir)/src/include'])
 
 AC_CONFIG_MACRO_DIR([m4])
 
@@ -130,23 +132,31 @@ AC_ARG_ENABLE(expdevices,
 
 dnl --enable-xspice: define XSPICE in the code. This is for xspice support
 AC_ARG_ENABLE(xspice,
-    AS_HELP_STRING([--enable-xspice],[Enable XSpice enhancements, (experimental) ]))
+    AS_HELP_STRING([--enable-xspice],[Enable XSpice enhancements, (experimental)]))
 
 dnl --enable-cider: define CIDER in the code. This is for CIDER support
 AC_ARG_ENABLE(cider,
-    AS_HELP_STRING([--enable-cider],[Enable CIDER enhancements, (experimental) ]))
+    AS_HELP_STRING([--enable-cider],[Enable CIDER enhancements, (experimental)]))
 
 dnl --enable-adms: define ADMS in the code. This is for the adms Verilog-A compiler support
 AC_ARG_ENABLE(adms,
-    AS_HELP_STRING([--enable-adms],[Enable ADMS code models, (experimental) ]))
+    AS_HELP_STRING([--enable-adms],[Enable ADMS code models, (experimental)]))
+
+dnl --enable-adms3: define ADMS in the code. This is for the adms Verilog-A compiler support
+AC_ARG_ENABLE(adms3,
+    AS_HELP_STRING([--enable-adms3],[Enable ADMS code models, (experimental) (adms3)]))
+
+dnl --enable-xspice: define XSPICE in the code. This is for xspice support
+AC_ARG_ENABLE(pss,
+    AS_HELP_STRING([--enable-pss],[Enable PSS analysis, (very experimental)]))
 
 dnl --enable-ndev: define NDEV in the code. An interface for external device i.e. numerical device
 AC_ARG_ENABLE(ndev,
-    AS_HELP_STRING([--enable-ndev],[Enable NDEV interface, (experimental) ]))
+    AS_HELP_STRING([--enable-ndev],[Enable NDEV interface, (experimental)]))
 
 dnl --enable-cluster: define CLUSTER in the code. This is for cluster support
 AC_ARG_ENABLE(cluster,
-    AS_HELP_STRING([--enable-cluster],[Enable cluster support, (experimental) ]))
+    AS_HELP_STRING([--enable-cluster],[Enable cluster support, (experimental)]))
 
 dnl --enable-help: try to force --ansi option to the compiler
 AC_ARG_ENABLE(help,
@@ -776,6 +786,9 @@ if test "$enable_pzdebug" = "yes"; then
     AC_DEFINE(PZDEBUG,[],[Define if you want to debug pole-zero analysis])
     AC_MSG_RESULT(WARNING: Pole/Zero analysis debug is enabled)
 fi
+if test "$enable_pss" = "yes"; then
+    AC_DEFINE(WITH_PSS,[],[Define if you want PSS analysis])
+fi
 if test "$enable_blktmsdebug" = "yes"; then
     AC_DEFINE(D_DBG_BLOCKTIMES,[],[Define if we want debug distortion analysis (BLOCKTIMES)])
     AC_MSG_RESULT(WARNING: Distortion analysis debug *D_DBG_BLOCKTIMES* is enabled)
@@ -801,7 +814,7 @@ AC_CHECK_PROGS(YACC, 'bison -y' byacc yacc)
 
 #################  XSPICE ##################################################
 dnl Add new code models to the build by pointing to them here.
-libname="lib"
+
 if test "$enable_xspice" = "yes"; then
     if test -z "${YACC}" ; then
         AC_MSG_ERROR([XSPICE build requires bison, byacc or yacc parser generator])
@@ -833,14 +846,6 @@ dnl Define variables for LEX
     XSPICEINIT=""
     AC_CHECK_FUNCS([modf])
     AC_CHECK_HEADERS([libintl.h malloc.h])
-dnl Find the library directory (lib or lib64) for XSPICE libs
-    if test -n $libdir ; then
-        libtest=`expr $libdir : '.*\/lib64$'`
-        if test $libtest -gt 5 ; then
-            libname="lib64"
-        fi
-        echo XSPICE libraries in directory $libname
-    fi
 else
     XSPICEINIT="*"
 
@@ -850,7 +855,6 @@ else
 fi
 AC_SUBST(XSPICEINIT)
 AC_SUBST(XSPICEDLLIBS)
-AC_SUBST(libname)
 
 AM_CONDITIONAL([XSPICE_WANTED], [test "$enable_xspice" = "yes"])
 
@@ -865,9 +869,10 @@ AM_CONDITIONAL([CIDER_WANTED],  [test "$enable_cider" = "yes"])
 AM_CONDITIONAL([NUMDEV_WANTED], [test "$enable_cider" = "yes"])
 
 
+AM_CONDITIONAL([PSS_WANTED], [test "$enable_pss" = "yes"])
 
 dnl adms option
-if test "$enable_adms" = "yes"; then
+if test "$enable_adms" = "yes" -o "$enable_adms3" = "yes" ; then
    AC_MSG_RESULT(**********************************
 * ADMS  support is  experimental *
 **********************************)
@@ -876,7 +881,11 @@ if test "$enable_adms" = "yes"; then
    if test "$ADMSXML" = "no"; then
       AC_MSG_ERROR(If you want Verilog-A models you should install admsXml)
    fi
-   AC_DEFINE(ADMS,[1],[Support for Verilog-A models])
+   if test "$enable_adms3" = "yes" ; then
+      AC_DEFINE(ADMS,[3],[Support for Verilog-A models (adms3)])
+   else
+      AC_DEFINE(ADMS,[1],[Support for Verilog-A models])
+   fi
 
    VLADEVDIR=" adms/ekv \
                adms/hicum0 \
@@ -998,8 +1007,6 @@ AC_CONFIG_FILES([Makefile
                  man/Makefile
                  man/man1/Makefile
                  src/Makefile
-                 src/spinit
-                 src/tclspinit
                  src/spicelib/Makefile
                  src/spicelib/analysis/Makefile
                  src/spicelib/devices/Makefile

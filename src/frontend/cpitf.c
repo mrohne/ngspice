@@ -2,22 +2,21 @@
 Copyright 1990 Regents of the University of California.  All rights reserved.
 Author: 1985 Wayne A. Christopher, U. C. Berkeley CAD Group
 ***********
-$Id: cpitf.c,v 1.31 2011/08/20 17:27:11 rlar Exp $
 */
 
 
-#include <ngspice/ngspice.h>
-#include <ngspice/cpdefs.h>
-#include <ngspice/ftedefs.h>
-#include <ngspice/dvec.h>
-#include <ngspice/fteparse.h>
+#include "ngspice/ngspice.h"
+#include "ngspice/cpdefs.h"
+#include "ngspice/ftedefs.h"
+#include "ngspice/dvec.h"
+#include "ngspice/fteparse.h"
 #include "cpitf.h"
 #include "com_let.h"
 #include "com_set.h"
 #include "define.h"
 #include "misccoms.h"
 
-#include <terminal.h>
+#include "terminal.h"
 
 #include "completion.h"
 #include "variable.h"

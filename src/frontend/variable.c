@@ -2,25 +2,25 @@
 Copyright 1990 Regents of the University of California.  All rights reserved.
 Author: 1985 Wayne A. Christopher, U. C. Berkeley CAD Group
 **********/
-#include <config.h>
+#include "ngspice/config.h"
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
 
-#include <ngspice/ngspice.h>
-#include <ngspice/bool.h>
-#include <ngspice/wordlist.h>
-#include <ngspice/defines.h>
-#include <ngspice/macros.h>
-#include <ngspice/cpdefs.h>
-#include <ngspice/memory.h>
-#include <ngspice/inpdefs.h>
-#include <ngspice/fteext.h>
+#include "ngspice/ngspice.h"
+#include "ngspice/bool.h"
+#include "ngspice/wordlist.h"
+#include "ngspice/defines.h"
+#include "ngspice/macros.h"
+#include "ngspice/cpdefs.h"
+#include "ngspice/memory.h"
+#include "ngspice/inpdefs.h"
+#include "ngspice/fteext.h"
 
 #include "circuits.h"
 #include "com_history.h"
 #include "quote.h"
-#include <ngspice/cpextern.h>
+#include "ngspice/cpextern.h"
 #include "variable.h"
 
 

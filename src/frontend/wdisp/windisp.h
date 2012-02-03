@@ -1,6 +1,5 @@
 /*************
 * Header file for windisp.c
-* $Id: windisp.h,v 1.4 2011/05/21 12:44:28 h_vogt Exp $
 ************/
 
 #ifndef WINDISP_H

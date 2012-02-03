@@ -1,7 +1,6 @@
 /**********
 Copyright 1990 Regents of the University of California.  All rights reserved.
 Author: 1985 Wayne A. Christopher
-$Id: inpcom.c,v 1.152 2011/11/13 14:44:00 h_vogt Exp $
 **********/
 
 /*
@@ -10,25 +9,25 @@ $Id: inpcom.c,v 1.152 2011/11/13 14:44:00 h_vogt Exp $
    Central function is inp_readall()
  */
 
-#include <ngspice/ngspice.h>
+#include "ngspice/ngspice.h"
 
-#include <ngspice/cpdefs.h>
-#include <ngspice/ftedefs.h>
-#include <ngspice/fteext.h>
-#include <ngspice/dvec.h>
-#include <ngspice/fteinp.h>
-#include <ngspice/compatmode.h>
+#include "ngspice/cpdefs.h"
+#include "ngspice/ftedefs.h"
+#include "ngspice/fteext.h"
+#include "ngspice/dvec.h"
+#include "ngspice/fteinp.h"
+#include "ngspice/compatmode.h"
 
 #include "inpcom.h"
 #include "variable.h"
 #include "../misc/util.h" /* ngdirname() */
-#include "../misc/stringutil.h"
-#include <ngspice/wordlist.h>
+#include "ngspice/stringutil.h"
+#include "ngspice/wordlist.h"
 
 #ifdef XSPICE
 /* gtri - add - 12/12/90 - wbk - include new stuff */
-#include <ngspice/ipctiein.h>
-#include <ngspice/enh.h>
+#include "ngspice/ipctiein.h"
+#include "ngspice/enh.h"
 /* gtri - end - 12/12/90 */
 #endif
 
@@ -136,7 +135,7 @@ inp_readall(FILE *fp, struct line **data, int call_depth, char *dir_name, bool c
 */
 {
     struct line *end = NULL, *cc = NULL, *prev = NULL, *working, *newcard, *start_lib, *global_card, *tmp_ptr = NULL, *tmp_ptr2 = NULL;
-    char *buffer = NULL, *s, *t, *y, *z, c;
+    char *buffer = NULL, *s, *t, c;
     /* segfault fix */
 #ifdef XSPICE
     char big_buff[5000];
@@ -145,24 +144,18 @@ inp_readall(FILE *fp, struct line **data, int call_depth, char *dir_name, bool c
     char            ipc_buffer[1025];  /* Had better be big enough */
     int             ipc_len;
 #endif
-    char *copys=NULL, big_buff2[5000];
     char *new_title = NULL;
-    char keep_char;
     int line_number = 1; /* sjb - renamed to avoid confusion with struct line */
     int line_number_orig = 1, line_number_lib = 1, line_number_inc = 1;
     unsigned int no_braces = 0; /* number of '{' */
 
     size_t max_line_length; /* max. line length in input deck */
 
-    FILE *newfp;
     FILE *fdo;
     struct line *tmp_ptr1 = NULL;
 
     int i, j;
-    bool found_library, found_lib_name, found_end = FALSE, shell_eol_continuation = FALSE;
-    bool dir_name_flag = FALSE;
-
-    char *s_ptr, *s_lower;
+    bool found_lib_name, found_end = FALSE, shell_eol_continuation = FALSE;
 
     if ( call_depth == 0 ) {
         num_subckt_w_params = 0;
@@ -170,6 +163,7 @@ inp_readall(FILE *fp, struct line **data, int call_depth, char *dir_name, bool c
         num_functions       = 0;
         global              = NULL;
         found_end           = FALSE;
+        inp_compat_mode = ngspice_compat_mode() ;
     }
 
     /*   gtri - modify - 12/12/90 - wbk - read from mailbox if ipc enabled   */
@@ -251,135 +245,173 @@ inp_readall(FILE *fp, struct line **data, int call_depth, char *dir_name, bool c
 
         /* now handle .lib statements */
         if (ciprefix(".lib", buffer)) {
+
+            char *y, *z;
+
+            inp_stripcomments_line(buffer);
             for ( s = buffer; *s && !isspace(*s); s++ )            /* skip over .lib           */
                 ;
             while ( isspace(*s) || isquote(*s) ) s++;              /* advance past space chars              */
             if    ( !*s ) {                                        /* if at end of line, error              */
                 fprintf(cp_err, "Error: .lib filename missing\n");
                 tfree(buffer);		                           /* was allocated by readline()           */
-                continue;
+                controlled_exit(EXIT_FAILURE);
             }                                                      /* Now s points to first char after .lib */
             for ( t = s; *t && !isspace(*t) && !isquote(*t); t++ )         /* skip to end of word      */
                 ;
             y = t;
             while ( isspace(*y) || isquote(*y) ) y++;              /* advance past space chars */
-            // check if rest of line commented out
-            if    ( *y && *y != '$' ) {                            /* .lib <file name> <lib name> */
+            
+            if ( *y && ((inp_compat_mode == COMPATMODE_ALL) || (inp_compat_mode == COMPATMODE_HS) 
+                || (inp_compat_mode == COMPATMODE_NATIVE))) {     
+                /* .lib <file name> <lib name> */
+                char *copys = NULL;
+                char keep_char;
+
                 for ( z = y; *z && !isspace(*z) && !isquote(*z); z++ )
                     ;
-                c  = *t;
+                keep_char  = *t;
                 *t = '\0';
                 *z = '\0';
 
                 if ( *s == '~' ) {
                     copys = cp_tildexpand(s); /* allocates memory, but can also return NULL */
-                    if( copys != NULL ) {
+                    if ( copys )
                         s = copys;		  /* reuse s, but remember, buffer still points to allocated memory */
-                    }
                 }
-                /* lower case the file name for later string compares */
-                s_lower = strdup(s);
-                for(s_ptr = s_lower; *s_ptr && (*s_ptr != '\n'); s_ptr++)
-                    *s_ptr = (char) tolower(*s_ptr);
 
-                found_library = FALSE;
-                for ( i = 0; i < num_libraries; i++ ) {
-                    if ( strcmp( library_file[i], s_lower ) == 0 ) {
-                        found_library = TRUE;
+                for ( i = 0; i < num_libraries; i++ )
+                    if ( cieq( library_file[i], s ) )
                         break;
-                    }
-                }
-                if ( found_library ) {
-                    if(copys) tfree(copys);   /* allocated by the cp_tildexpand() above */
-                } else {
-                    if ( dir_name != NULL ) sprintf( big_buff2, "%s/%s", dir_name, s );
-                    else                    sprintf( big_buff2, "./%s", s );
-                    dir_name_flag = FALSE;
-                    if ((newfp = inp_pathopen( s, "r" )) == NULL) {
-                        dir_name_flag = TRUE;
-                        if ((newfp = inp_pathopen( big_buff2, "r" )) == NULL ) {
-                            perror(s);
-                            if(copys) tfree(copys);   /* allocated by the cp_tildexpand() above */
-                            tfree(buffer);	    /* allocated by readline() above */
-                            continue;
-                        }
-                    }
-                    if(copys) tfree(copys);     /* allocated by the cp_tildexpand() above */
 
-                    library_file[num_libraries++] = strdup(s_lower);
+                if ( i >= num_libraries ) {
+
+                    bool dir_name_flag = FALSE;
+                    FILE *newfp = inp_pathopen( s, "r" );
+
+                    if ( !newfp ) {
+                        char big_buff2[5000];
+
+                        if ( dir_name )
+                            sprintf( big_buff2, "%s/%s", dir_name, s );
+                        else
+                            sprintf( big_buff2, "./%s", s );
+
+                        newfp = inp_pathopen( big_buff2, "r" );
+                        if ( !newfp ) {
+                            if ( copys )
+                                tfree(copys);   /* allocated by the cp_tildexpand() above */
+                            fprintf(cp_err, "Error: Could not find library file %s\n", s);
+                            tfree(buffer);
+                            controlled_exit(EXIT_FAILURE);
+                        }
+
+                        dir_name_flag = TRUE;
+                    }
+
+                    library_file[num_libraries++] = strdup(s);
 
                     if ( dir_name_flag == FALSE ) {
                         char *s_dup = strdup(s);
                         inp_readall(newfp, &libraries[num_libraries-1], call_depth+1, ngdirname(s_dup), FALSE);
                         tfree(s_dup);
-                    } else
+                    } else {
                         inp_readall(newfp, &libraries[num_libraries-1], call_depth+1, dir_name, FALSE);
+                    }
 
                     fclose(newfp);
                 }
-                *t = c;
-                tfree(s_lower);
+
+                *t = keep_char;
+
+                if ( copys )
+                    tfree(copys);   /* allocated by the cp_tildexpand() above */
 
                 /* Make the .lib a comment */
                 *buffer = '*';
+            } else if (inp_compat_mode == COMPATMODE_PS) {   
+                /* .lib <file name> (no lib name given ) */
+                fprintf(cp_err, "Warning: library name missing in line\n  %s", buffer);
+                fprintf(cp_err, "  File included as:   .inc %s\n", s);
+                memcpy(buffer, ".inc",4);
             }
+
         }   /*  end of .lib handling  */
 
         /* now handle .include statements */
         if (ciprefix(".include", buffer) || ciprefix(".inc", buffer)) {
+
+            char *copys = NULL;
+
+            inp_stripcomments_line(buffer);
             for (s = buffer; *s && !isspace(*s); s++) /* advance past non-space chars */
                 ;
-            while (isspace(*s) || isquote(*s))        /* now advance past space chars */
+            while (isspace(*s)) /* now advance past space chars */
                 s++;
-            if (!*s) {                                /* if at end of line, error */
+
+            if(isquote(*s)) {
+                for (t = ++s; *t && !isquote(*t); t++)
+                    ;
+                if(!*t)         /* teriminator quote not found */
+                    t = s;
+            } else {
+                for (t = s; *t && !isspace(*t); t++)
+                    ;
+            }
+
+            if(t == s) {
                 fprintf(cp_err,  "Error: .include filename missing\n");
                 tfree(buffer);		/* was allocated by readline() */
                 controlled_exit(EXIT_FAILURE);
             }
-            /* Now s points to first char after .include */
-            inp_stripcomments_line(s);
-            /* stop at trailing \n\r or quote */
-            for (t = s; *t && !(*t=='\n') && !(*t=='\r') && !isquote(*t); t++)
-                ;
 
             *t = '\0';                         /* place \0 and end of file name in buffer */
 
             if (*s == '~') {
                 copys = cp_tildexpand(s); /* allocates memory, but can also return NULL */
-                if(copys != NULL) {
+                if ( copys )
                     s = copys;		/* reuse s, but remember, buffer still points to allocated memory */
-                }
             }
 
-            /* open file specified by  .include statement */
-            if ( dir_name != NULL ) sprintf( big_buff2, "%s/%s", dir_name, s );
-            else                    sprintf( big_buff2, "./%s", s );
-            dir_name_flag = FALSE;
-            if ((newfp = inp_pathopen(s, "r")) == NULL) {
-                dir_name_flag = TRUE;
-                if ((newfp = inp_pathopen( big_buff2, "r" )) == NULL ) {
-                    perror(s);
-                    if(copys) {
-                        tfree(copys);	/* allocated by the cp_tildexpand() above */
+            {
+                bool dir_name_flag = FALSE;
+                FILE *newfp = inp_pathopen(s, "r");
+
+                if ( !newfp ) {
+                    char big_buff2[5000];
+
+                    /* open file specified by  .include statement */
+                    if ( dir_name )
+                        sprintf( big_buff2, "%s/%s", dir_name, s );
+                    else
+                        sprintf( big_buff2, "./%s", s );
+
+                    newfp = inp_pathopen( big_buff2, "r" );
+                    if ( !newfp ) {
+                        perror(s);
+                        if ( copys )
+                            tfree(copys);       /* allocated by the cp_tildexpand() above */
+                        fprintf(cp_err,  "Error: .include statement failed.\n");
+                        tfree(buffer);          /* allocated by readline() above */
+                        controlled_exit(EXIT_FAILURE);
                     }
-                    fprintf(cp_err,  "Error: .include statement failed.\n");
-                    tfree(buffer);		/* allocated by readline() above */
-                    controlled_exit(EXIT_FAILURE);
+
+                    dir_name_flag = TRUE;
                 }
+
+                if ( dir_name_flag == FALSE ) {
+                    char *s_dup = strdup(s);
+                    inp_readall(newfp, &newcard, call_depth+1, ngdirname(s_dup), FALSE);  /* read stuff in include file into netlist */
+                    tfree(s_dup);
+                } else {
+                    inp_readall(newfp, &newcard, call_depth+1, dir_name, FALSE);  /* read stuff in include file into netlist */
+                }
+
+                (void) fclose(newfp);
             }
 
-            if(copys) {
+            if ( copys )
                 tfree(copys);		/* allocated by the cp_tildexpand() above */
-            }
-
-            if ( dir_name_flag == FALSE ) {
-                char *s_dup = strdup(s);
-                inp_readall(newfp, &newcard, call_depth+1, ngdirname(s_dup), FALSE);  /* read stuff in include file into netlist */
-                tfree(s_dup);
-            } else
-                inp_readall(newfp, &newcard, call_depth+1, dir_name, FALSE);  /* read stuff in include file into netlist */
-
-            (void) fclose(newfp);
 
             /* Make the .include a comment */
             *buffer = '*';
@@ -520,6 +552,9 @@ inp_readall(FILE *fp, struct line **data, int call_depth, char *dir_name, bool c
                 }   /* for ... */
 
                 if ( ciprefix(".lib", buffer) ) {
+
+                    char keep_char;
+
                     if ( found_lib_name == TRUE ) {
                         fprintf( stderr, "ERROR: .lib is missing .endl!\n" );
                         controlled_exit(EXIT_FAILURE);
@@ -675,6 +710,7 @@ inp_readall(FILE *fp, struct line **data, int call_depth, char *dir_name, bool c
     inp_remove_excess_ws(working);
 
     if ( call_depth == 0 ) {
+
         comment_out_unused_subckt_models(working, line_number);
 
         line_number = inp_split_multi_param_lines(working, line_number);
@@ -700,8 +736,8 @@ inp_readall(FILE *fp, struct line **data, int call_depth, char *dir_name, bool c
 
         if (cp_getvar("addcontrol", CP_BOOL, NULL))
             inp_add_control_section(working, &line_number);
-        inp_compat_mode = ngspice_compat_mode() ;
-        if (inp_compat_mode == COMPATMODE_ALL) {
+
+        if (inp_compat_mode != COMPATMODE_SPICE3) {
             /* Do all the compatibility stuff here */
             working = cc->li_next;
             /* E, G, L, R, C compatibility transformations */
@@ -1139,10 +1175,11 @@ chk_for_line_continuation( char *line )
 //
 // change .macro --> .subckt
 //        .eom   --> .ends
+//        .subckt name 1 2 3 params: w=9u l=180n --> .subckt name 1 2 3 w=9u l=180n
 //        .subckt name (1 2 3) --> .subckt name 1 2 3
 //        x1 (1 2 3)      --> x1 1 2 3
 //        .param func1(x,y) = {x*y} --> .func func1(x,y) {x*y}
-//
+
 static void
 inp_fix_macro_param_func_paren_io( struct line *begin_card )
 {
@@ -1169,7 +1206,9 @@ inp_fix_macro_param_func_paren_io( struct line *begin_card )
             tfree( card->li_line );
             card->li_line = new_str;
         }
+
         if ( ciprefix( ".subckt", card->li_line ) || ciprefix( "x", card->li_line ) ) {
+            /* remove ( ) */
             str_ptr = card->li_line;
             while( !isspace(*str_ptr) ) str_ptr++;  // skip over .subckt, instance name
             while( isspace(*str_ptr)  ) str_ptr++;
@@ -1541,7 +1580,11 @@ comment_out_unused_subckt_models( struct line *start_card , int no_of_lines)
             found_model = FALSE;
             for ( i = 0; i < num_used_model_names; i++ )
                 if ( strcmp( used_model_names[i], model_name ) == 0 || model_bin_match( used_model_names[i], model_name ) ) found_model = TRUE;
+#if ADMS >= 3
+            /* ngspice strategy to detect unused models fails with dynamic models - reason: # of terms unknown during parsing */
+#else
             if ( !found_model ) *line = '*';
+#endif
             tfree(model_name);
         }
     }
@@ -2032,13 +2075,17 @@ inp_remove_ws( char *s )
 
 /*
   change quotes from '' to {}
-  modify .subckt lines by calling inp_fix_subckt()
-*/
+  .subckt name 1 2 3 params: l=1 w=2 --> .subckt name 1 2 3 l=1 w=2
+   x1 1 2 3 params: l=1 w=2 --> x1 1 2 3 l=1 w=2 
+   modify .subckt lines by calling inp_fix_subckt()
+*/ 
 static void
 inp_fix_for_numparam(struct line *deck)
 {
     bool found_control = FALSE;
     struct line *c=deck;
+    char *str_ptr;
+
     while( c!=NULL) {
         if ( ciprefix( ".modif", c->li_line ) ) *c->li_line = '*';
         if ( ciprefix( "*lib", c->li_line ) ) {
@@ -2057,6 +2104,16 @@ inp_fix_for_numparam(struct line *deck)
 
         if ( !ciprefix( "*lib", c->li_line ) && !ciprefix( "*inc", c->li_line ) )
             inp_change_quotes(c->li_line);
+
+        if ((inp_compat_mode == COMPATMODE_ALL) || (inp_compat_mode == COMPATMODE_PS)) {
+            if ( ciprefix( ".subckt", c->li_line ) || ciprefix( "x", c->li_line ) ) {
+               /* remove params: */
+                str_ptr = strstr(c->li_line, "params:");
+                if (str_ptr) {
+                    memcpy(str_ptr, "       ", 7);
+                }
+            }
+        }
 
         if ( ciprefix( ".subckt", c->li_line ) ) {
             c->li_line = inp_fix_subckt(c->li_line);
@@ -2093,7 +2150,7 @@ static void
 inp_determine_libraries( struct line *deck, char *lib_name )
 {
     struct line *c = deck;
-    char *line, *s, *t, *y, *z, *copys, keep_char1, keep_char2;
+    char *line, *s, *t, *y, *z, keep_char1, keep_char2;
     int i, j;
     bool found_lib_name = FALSE;
     bool read_line = FALSE;
@@ -2124,6 +2181,9 @@ inp_determine_libraries( struct line *deck, char *lib_name )
             }
             /* .lib <file name> <lib name> */
             else if ( read_line == TRUE ) {
+
+                char *copys = NULL;
+
                 for ( z = y; *z && !isspace(*z) && !isquote(*z); z++ )
                     ;
                 keep_char1 = *t;
@@ -2133,12 +2193,11 @@ inp_determine_libraries( struct line *deck, char *lib_name )
 
                 if ( *s == '~' ) {
                     copys = cp_tildexpand(s);
-                    if ( copys != NULL ) {
+                    if ( copys )
                         s = copys;
-                    }
                 }
                 for ( i = 0; i < num_libraries; i++ )
-                    if ( strcmp( library_file[i], s ) == 0 ) {
+                    if ( cieq( library_file[i], s ) ) {
                         found_lib_name = FALSE;
                         for ( j = 0; j < num_lib_names[i] && found_lib_name == FALSE; j++ )
                             if ( strcmp( library_name[i][j], y ) == 0 ) found_lib_name = TRUE;
@@ -2153,6 +2212,7 @@ inp_determine_libraries( struct line *deck, char *lib_name )
                 *line = '*';  /* comment out .lib line */
                 *t = keep_char1;
                 *z = keep_char2;
+                /* FIXME, copys not freed ?! */
             }
         }
         c = c->li_next;
@@ -3540,61 +3600,127 @@ inp_add_params_to_subckt( struct line *subckt_card )
     }
 }
 
-static void
-inp_reorder_params( struct line *deck, struct line *list_head, struct line *end )
+/*
+ * process a sequence of decks
+ *   starting from a         `.suckt' deck
+ *   upto the corresponding  `.ends'  deck
+ * return a pointer to the terminating `.ends' deck
+ *
+ * recursivly descend
+ *   when another `.subckt' is found
+ *
+ * parameters are removed from the main list
+ *   and collected into a local list `first_param_card'
+ * then processed and reinserted into the main list
+ *
+ */
+
+static struct line *
+inp_reorder_params_subckt(struct line *subckt_card)
 {
-    struct line *c = deck, *subckt_card = NULL, *param_card = NULL, *prev_card = list_head;
-    struct line *subckt_param_card = NULL, *first_param_card = NULL, *first_subckt_param_card = NULL;
-    char *curr_line;
-    bool processing_subckt = FALSE;
+    struct line *first_param_card = NULL;
+    struct line *last_param_card = NULL;
+
+    struct line *prev_card = subckt_card;
+    struct line *c         = subckt_card->li_next;
 
     /* move .param lines to beginning of deck */
     while ( c != NULL ) {
-        curr_line = c->li_line;
+
+        char *curr_line = c->li_line;
+
         if ( *curr_line == '*' ) {
             c = c->li_next;
             continue;
         }
+
         if ( ciprefix( ".subckt", curr_line ) ) {
-            processing_subckt       = TRUE;
-            subckt_card             = c;
-            first_subckt_param_card = NULL;
+            prev_card = inp_reorder_params_subckt(c);
+            c         = prev_card->li_next;
+            continue;
         }
-        if ( ciprefix( ".ends", curr_line ) && processing_subckt ) {
-            processing_subckt          = FALSE;
-            if ( first_subckt_param_card != NULL ) {
-                inp_sort_params( first_subckt_param_card, subckt_param_card, subckt_card, subckt_card, c );
+
+        if ( ciprefix( ".ends", curr_line ) ) {
+            if ( first_param_card ) {
+                inp_sort_params( first_param_card, last_param_card, subckt_card, subckt_card, c );
                 inp_add_params_to_subckt( subckt_card );
             }
+            return c;
         }
 
         if ( ciprefix( ".param", curr_line ) ) {
-            if ( !processing_subckt ) {
-                if ( first_param_card == NULL ) {
-                    first_param_card    = c;
-                } else {
-                    param_card->li_next = c;
-                }
-                param_card          = c;
-                prev_card->li_next  = c->li_next;
-                param_card->li_next = NULL;
-                c                   = prev_card;
-            } else {
-                if ( first_subckt_param_card == NULL ) {
-                    first_subckt_param_card    = c;
-                } else {
-                    subckt_param_card->li_next = c;
-                }
-                subckt_param_card          = c;
-                prev_card->li_next         = c->li_next;
-                c                          = prev_card;
-                subckt_param_card->li_next = NULL;
-            }
+            if ( first_param_card )
+                last_param_card->li_next = c;
+            else
+                first_param_card = c;
+
+            last_param_card    = c;
+            prev_card->li_next = c->li_next;
+            c                  = c->li_next;
+
+            last_param_card->li_next = NULL;
+            continue;
         }
+
         prev_card = c;
         c         = c->li_next;
     }
-    inp_sort_params( first_param_card, param_card, list_head, deck, end );
+
+    /* the terminating `.ends' deck wasn't found */
+    controlled_exit(EXIT_FAILURE);
+    return NULL;
+}
+
+static void
+inp_reorder_params( struct line *deck, struct line *list_head, struct line *end )
+{
+    struct line *first_param_card = NULL;
+    struct line *last_param_card = NULL;
+
+    struct line *prev_card = list_head;
+    struct line *c = deck;
+
+    /* move .param lines to beginning of deck */
+    while ( c != NULL ) {
+
+        char *curr_line = c->li_line;
+
+        if ( *curr_line == '*' ) {
+            c = c->li_next;
+            continue;
+        }
+
+        if ( ciprefix( ".subckt", curr_line ) ) {
+            prev_card = inp_reorder_params_subckt(c);
+            c         = prev_card->li_next;
+            continue;
+        }
+
+        /* check for an unexpected extra `.ends' deck */
+        if ( ciprefix( ".ends", curr_line ) ) {
+            fprintf(stderr, "Error: Unexpected extra .ends in line:\n  %s.\n", curr_line);         
+            controlled_exit(EXIT_FAILURE);
+        }
+
+        if ( ciprefix( ".param", curr_line ) ) {
+            if ( first_param_card )
+                last_param_card->li_next = c;
+            else
+                first_param_card = c;
+
+            last_param_card    = c;
+            prev_card->li_next = c->li_next;
+            c                  = c->li_next;
+
+            last_param_card->li_next = NULL;
+            continue;
+        }
+
+        prev_card = c;
+        c         = c->li_next;
+    }
+
+    inp_sort_params( first_param_card, last_param_card, list_head, deck, end );
 }
 
 // iterate through deck and find lines with multiply defined parameters
@@ -3711,52 +3837,11 @@ inp_split_multi_param_lines( struct line *deck, int line_num )
     return line_num;
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 /* ps compatibility:
-   ECOMP 3 0 TABLE {V(1,2)} = (-1MV 0V) (1MV, 10V)
+   ECOMP 3 0 TABLE {V(1,2)} = (-1 0V) (1, 10V)
    -->
    ECOMP 3 0 int3 int0 1
-   BECOMP int3 int0 V = pwl(V(1,2), -1MV, 0 , 1MV, 10V)
+   BECOMP int3 int0 V = pwl(V(1,2), -2, 0, -1, 0 , 1, 10V, 2, 10V)
 
    GD16 16 1 TABLE {V(16,1)} ((-100V,-1pV)(0,0)(1m,1u)(2m,1m))
    -->
@@ -3846,6 +3931,122 @@ static void inp_compat(struct line *deck)
                 *(str_ptr + 3) = ' ';
             }
 
+            /* Exxx n1 n2 value={equation}
+               -->
+               Exxx n1 n2   vol={equation} */
+            if ((str_ptr = strstr( curr_line, "value=" )) != NULL) {
+                *str_ptr = ' ';
+                *(str_ptr + 1) = ' ';
+                *(str_ptr + 2) = 'v';
+                *(str_ptr + 3) = 'o';
+                *(str_ptr + 4) = 'l';
+            }
+            /* Exxx n1 n2 TABLE {expression} = (x0, y0) (x1, y1) (x2, y2)
+               -->
+               Exxx n1 n2 int1 0 1
+               BExxx int1 0 V = pwl (expression, x0-(x2-x0)/2, y0, x0, y0, x1, y1, x2, y2, x2+(x2-x0)/2, y2)
+             */
+            if ((str_ptr = strstr( curr_line, "table" )) != NULL) {
+                char *expression, *firstno, *ffirstno, *secondno, *midline, *lastno, *lastlastno;
+                double fnumber, lnumber, delta;
+                int nerror;
+                cut_line = curr_line;
+                /* title and nodes */
+                title_tok = gettok(&cut_line);
+                node1 =  gettok(&cut_line);
+                node2 =  gettok(&cut_line);
+                // Exxx  n1 n2 int1 0 1
+                xlen = 2*strlen(title_tok) + strlen(node1) + strlen(node2)
+                       + 20 - 4*2 + 1;
+                ckt_array[0] = TMALLOC(char, xlen);
+                sprintf(ckt_array[0], "%s %s %s %s_int1 0 1",
+                        title_tok, node1, node2, title_tok);
+                // get the expression
+                str_ptr = gettok(&cut_line); /* ignore 'table' */
+                tfree(str_ptr);
+                expression = gettok_char(&cut_line, '}', TRUE); /* expression */
+                if (!expression) {
+                    fprintf(stderr, "Error: bad sytax in line %d\n  %s\n", 
+                        card->li_linenum_orig, card->li_line);
+                    controlled_exit(EXIT_BAD);
+                }
+                /* remove '{' and '}' from expression */
+                if ((str_ptr = strstr( expression, "{" )) != NULL)
+                    *str_ptr = ' ';
+                if ((str_ptr = strstr( expression, "}" )) != NULL)
+                    *str_ptr = ' ';
+                /* cut_line may now have a '=', if yes, it will have '{' and '}'
+                   (braces around token after '=') */
+                if ((str_ptr = strstr( cut_line, "=" )) != NULL)
+                    *str_ptr = ' ';
+                if ((str_ptr = strstr( cut_line, "{" )) != NULL)
+                    *str_ptr = ' ';
+                if ((str_ptr = strstr( cut_line, "}" )) != NULL)
+                    *str_ptr = ' ';
+                /* get first two numbers to establish extrapolation */
+                str_ptr = cut_line;
+                ffirstno = gettok_node(&cut_line);
+                firstno = copy(ffirstno);
+                fnumber = INPevaluate(&ffirstno, &nerror, TRUE);
+                secondno = gettok_node(&cut_line);
+                midline = cut_line;
+                cut_line = strrchr(str_ptr, '(');
+                /* replace '(' with ',' and ')' with ' ' */
+                for ( ; *str_ptr; str_ptr++)
+                    if (*str_ptr == '(')
+                        *str_ptr = ',';
+                    else if (*str_ptr == ')')
+                        *str_ptr = ' ';
+                /* scan for last two numbers */
+                lastno = gettok_node(&cut_line);
+                lnumber = INPevaluate(&lastno, &nerror, FALSE); 
+                /* check for max-min and take half the difference for delta */
+                delta = (lnumber-fnumber)/2.;
+                lastlastno = gettok_node(&cut_line);
+                if (!secondno || (*midline == 0) || (delta <= 0.) || !lastlastno) {
+                    fprintf(stderr, "Error: bad sytax in line %d\n  %s\n", 
+                        card->li_linenum_orig, card->li_line);
+                    controlled_exit(EXIT_BAD);
+                }
+                xlen = 2*strlen(title_tok) + strlen(expression) + 14 + strlen(firstno) +
+                    2*strlen(secondno) + strlen(midline) + 14 +
+                    strlen(lastlastno) + 50;
+                ckt_array[1] = TMALLOC(char, xlen);
+                sprintf(ckt_array[1], "b%s %s_int1 0 v = pwl(%s, %e, %s, %s, %s, %s, %e, %s)",
+                        title_tok, title_tok, expression, fnumber-delta, secondno,  firstno, secondno,
+                        midline, lnumber + delta, lastlastno);
+
+                // insert new B source line immediately after current line
+                tmp_ptr = card->li_next;
+                for ( i = 0; i < 2; i++ ) {
+                    if ( param_end ) {
+                        param_end->li_next = alloc(struct line);
+                        param_end          = param_end->li_next;
+                    } else {
+                        param_end = param_beg = alloc(struct line);
+                    }
+                    param_end->li_next    = NULL;
+                    param_end->li_error   = NULL;
+                    param_end->li_actual  = NULL;
+                    param_end->li_line    = ckt_array[i];
+                    param_end->li_linenum = 0;
+                }
+                // comment out current variable e line
+                *(card->li_line)   = '*';
+                // insert new param lines immediately after current line
+                tmp_ptr            = card->li_next;
+                card->li_next      = param_beg;
+                param_end->li_next = tmp_ptr;
+                // point 'card' pointer to last in scalar list
+                card               = param_end;
+
+                param_beg = param_end = NULL;
+                tfree(firstno);
+                tfree(lastlastno);
+                tfree(title_tok);
+                tfree(node1);
+                tfree(node2);
+            }
             /* Exxx n1 n2 VOL = {equation}
                -->
                Exxx n1 n2 int1 0 1
@@ -3913,6 +4114,124 @@ static void inp_compat(struct line *deck)
                 *(str_ptr + 3) = ' ';
             }
 
+            /* Gxxx n1 n2 value={equation}
+               -->
+               Gxxx n1 n2   cur={equation} */
+            if ((str_ptr = strstr( curr_line, "value=" )) != NULL) {
+                *str_ptr = ' ';
+                *(str_ptr + 1) = ' ';
+                *(str_ptr + 2) = 'c';
+                *(str_ptr + 3) = 'u';
+                *(str_ptr + 4) = 'r';
+            }
+
+            /* Gxxx n1 n2 TABLE {expression} = (x0, y0) (x1, y1) (x2, y2)
+               -->
+               Gxxx n1 n2 int1 0 1
+               BGxxx int1 0 V = pwl (expression, x0-(x2-x0)/2, y0, x0, y0, x1, y1, x2, y2, x2+(x2-x0)/2, y2) 
+             */
+            if ((str_ptr = strstr( curr_line, "table" )) != NULL) {
+                char *expression, *firstno, *ffirstno, *secondno, *midline, *lastno, *lastlastno;
+                double fnumber, lnumber, delta;
+                int nerror;
+                cut_line = curr_line;
+                /* title and nodes */
+                title_tok = gettok(&cut_line);
+                node1 =  gettok(&cut_line);
+                node2 =  gettok(&cut_line);
+                // Gxxx  n1 n2 int1 0 1
+                xlen = 2*strlen(title_tok) + strlen(node1) + strlen(node2)
+                       + 20 - 4*2 + 1;
+                ckt_array[0] = TMALLOC(char, xlen);
+                sprintf(ckt_array[0], "%s %s %s %s_int1 0 1",
+                        title_tok, node1, node2, title_tok);
+                // get the expression
+                str_ptr = gettok(&cut_line); /* ignore 'table' */
+                tfree(str_ptr);
+                expression = gettok_char(&cut_line, '}', TRUE); /* expression */
+                if (!expression) {
+                    fprintf(stderr, "Error: bad sytax in line %d\n  %s\n", 
+                        card->li_linenum_orig, card->li_line);
+                    controlled_exit(EXIT_BAD);
+                }
+                /* remove '{' and '}' from expression */
+                if ((str_ptr = strstr( expression, "{" )) != NULL)
+                    *str_ptr = ' ';
+                if ((str_ptr = strstr( expression, "}" )) != NULL)
+                    *str_ptr = ' ';
+                /* cut_line may now have a '=', if yes, it will have '{' and '}'
+                   (braces around token after '=') */
+                if ((str_ptr = strstr( cut_line, "=" )) != NULL)
+                    *str_ptr = ' ';
+                if ((str_ptr = strstr( cut_line, "{" )) != NULL)
+                    *str_ptr = ' ';
+                if ((str_ptr = strstr( cut_line, "}" )) != NULL)
+                    *str_ptr = ' ';
+                /* get first two numbers to establish extrapolation */
+                str_ptr = cut_line;
+                ffirstno = gettok_node(&cut_line);
+                firstno = copy(ffirstno);
+                fnumber = INPevaluate(&ffirstno, &nerror, TRUE);
+                secondno = gettok_node(&cut_line);
+                midline = cut_line;
+                cut_line = strrchr(str_ptr, '(');
+                /* replace '(' with ',' and ')' with ' ' */
+                for ( ; *str_ptr; str_ptr++)
+                    if (*str_ptr == '(')
+                        *str_ptr = ',';
+                    else if (*str_ptr == ')')
+                        *str_ptr = ' ';
+                /* scan for last two numbers */
+                lastno = gettok_node(&cut_line);
+                lnumber = INPevaluate(&lastno, &nerror, FALSE); 
+                /* check for max-min and take half the difference for delta */
+                delta = (lnumber-fnumber)/2.;
+                lastlastno = gettok_node(&cut_line);
+                if (!secondno || (*midline == 0) || (delta <= 0.) || !lastlastno) {
+                    fprintf(stderr, "Error: bad sytax in line %d\n  %s\n", 
+                        card->li_linenum_orig, card->li_line);
+                    controlled_exit(EXIT_BAD);
+                }
+                /* BGxxx int1 0 V = pwl (expression, x0-(x2-x0)/2, y0, x0, y0, x1, y1, x2, y2, x2+(x2-x0)/2, y2) */
+                xlen = 2*strlen(title_tok) + strlen(expression) + 14 + strlen(firstno) +
+                    2*strlen(secondno) + strlen(midline) + 14 +
+                    strlen(lastlastno) + 50;
+                ckt_array[1] = TMALLOC(char, xlen);
+                sprintf(ckt_array[1], "b%s %s_int1 0 v = pwl(%s, %e, %s, %s, %s, %s, %e, %s)",
+                        title_tok, title_tok, expression, fnumber-delta, secondno,  firstno, secondno,
+                        midline, lnumber + delta, lastlastno);
+
+                // insert new B source line immediately after current line
+                tmp_ptr = card->li_next;
+                for ( i = 0; i < 2; i++ ) {
+                    if ( param_end ) {
+                        param_end->li_next = alloc(struct line);
+                        param_end          = param_end->li_next;
+                    } else {
+                        param_end = param_beg = alloc(struct line);
+                    }
+                    param_end->li_next    = NULL;
+                    param_end->li_error   = NULL;
+                    param_end->li_actual  = NULL;
+                    param_end->li_line    = ckt_array[i];
+                    param_end->li_linenum = 0;
+                }
+                // comment out current variable e line
+                *(card->li_line)   = '*';
+                // insert new param lines immediately after current line
+                tmp_ptr            = card->li_next;
+                card->li_next      = param_beg;
+                param_end->li_next = tmp_ptr;
+                // point 'card' pointer to last in scalar list
+                card               = param_end;
+
+                param_beg = param_end = NULL;
+                tfree(firstno);
+                tfree(lastlastno);
+                tfree(title_tok);
+                tfree(node1);
+                tfree(node2);
+            }
             /*
                Gxxx n1 n2 CUR = {equation}
                -->

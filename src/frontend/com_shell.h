@@ -1,6 +1,5 @@
 /*************
 * Header file for com_shell.c
-* $Id: com_shell.h,v 1.1 2005/05/30 20:28:30 sjborley Exp $
 ************/
 
 #ifndef COM_SHELL_H

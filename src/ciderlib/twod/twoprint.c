@@ -2,18 +2,17 @@
 Copyright 1992 Regents of the University of California.  All rights reserved.
 Author:	1987 Kartikeya Mayaram, U. C. Berkeley CAD Group
 Author:	1992 David A. Gates, U. C. Berkeley CAD Group
-$Id: twoprint.c,v 1.9 2011/08/20 17:27:10 rlar Exp $
 **********/
 
-#include <ngspice/ngspice.h>
-#include <ngspice/numglobs.h>
-#include <ngspice/numconst.h>
-#include <ngspice/numenum.h>
-#include <ngspice/twomesh.h>
-#include <ngspice/twodev.h>
-#include <ngspice/carddefs.h>
-#include <ngspice/spmatrix.h>
-#include <ngspice/bool.h>
+#include "ngspice/ngspice.h"
+#include "ngspice/numglobs.h"
+#include "ngspice/numconst.h"
+#include "ngspice/numenum.h"
+#include "ngspice/twomesh.h"
+#include "ngspice/twodev.h"
+#include "ngspice/carddefs.h"
+#include "ngspice/spmatrix.h"
+#include "ngspice/bool.h"
 #include "twoddefs.h"
 #include "twodext.h"
 

@@ -1,15 +1,14 @@
 /**********
 Copyright 1991 Regents of the University of California.  All rights reserved.
 Author:	1990 David A. Gates, U. C. Berkeley CAD Group
-$Id: twomobfn.c,v 1.5 2011/08/20 17:27:10 rlar Exp $
 **********/
 
-#include <ngspice/ngspice.h>
-#include <ngspice/numglobs.h>
-#include <ngspice/numconst.h>
-#include <ngspice/numenum.h>
-#include <ngspice/twomesh.h>
-#include <ngspice/material.h>
+#include "ngspice/ngspice.h"
+#include "ngspice/numglobs.h"
+#include "ngspice/numconst.h"
+#include "ngspice/numenum.h"
+#include "ngspice/twomesh.h"
+#include "ngspice/material.h"
 #include "twoddefs.h"
 #include "twodext.h"
 

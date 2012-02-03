@@ -1,7 +1,6 @@
 /**********
 Copyright 1990 Regents of the University of California.  All rights reserved.
 Author: 1985 Wayne A. Christopher, U. C. Berkeley CAD Group
-$Id: parse.c,v 1.38 2011/08/20 17:27:11 rlar Exp $
 **********/
 
 /*
@@ -9,11 +8,11 @@ $Id: parse.c,v 1.38 2011/08/20 17:27:11 rlar Exp $
  * This also handles relational and logical expressions.
  */
 
-#include <ngspice/ngspice.h>
-#include <ngspice/bool.h>
-#include <ngspice/fteparse.h>
-#include <ngspice/fteext.h>
-#include <ngspice/sim.h>
+#include "ngspice/ngspice.h"
+#include "ngspice/bool.h"
+#include "ngspice/fteparse.h"
+#include "ngspice/fteext.h"
+#include "ngspice/sim.h"
 
 #include "evaluate.h"
 #include "parse.h"
@@ -171,6 +170,8 @@ struct func ft_funcs[] = {
         { "exponential", cx_exponential } ,
         { "sgauss", cx_sgauss } ,
         { "pos",    cx_pos } ,
+        { "floor",  cx_floor } ,
+        { "ceil",   cx_ceil } ,
         { "mean",   cx_mean } ,
         { "avg",    cx_avg } ,               /* A.Roldan 03/06/05 incremental average new function */
         { "group_delay", (cx_function_t*) cx_group_delay } , /* A.Roldan 10/06/05 group delay new function */

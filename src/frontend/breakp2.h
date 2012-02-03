@@ -1,7 +1,6 @@
 /*************
  * Header file for breakp2.c
  * 1999 E. Rouat
- * $Id: breakp2.h,v 1.3 2010/10/16 15:58:14 rlar Exp $
  ************/
 
 #ifndef BREAKP2_H_INCLUDED

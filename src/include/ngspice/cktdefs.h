@@ -2,18 +2,17 @@
  * Copyright (c) 1985 Thomas L. Quarles
  * Modified 1999 Paolo Nenzi - Removed non STDC definitions
  * Modified 2000 AlansFixes
- * $Id: cktdefs.h,v 1.1 2011/08/20 17:43:07 rlar Exp $
  */
-#ifndef CKT
-#define CKT "CKTdefs.h $Revision: 1.1 $  on $Date: 2011/08/20 17:43:07 $ "
+#ifndef CKT_H
+#define CKT_H
 
-#include <ngspice/typedefs.h>
+#include "ngspice/typedefs.h"
 
 
 /* gtri - evt - wbk - 5/20/91 - add event-driven and enhancements data */
 #ifdef XSPICE
-#include <ngspice/evt.h>
-#include <ngspice/enh.h>
+#include "ngspice/evt.h"
+#include "ngspice/enh.h"
 #endif
 /* gtri - evt - wbk - 5/20/91 - add event-driven and enhancements data */
 
@@ -22,15 +21,15 @@
 #define MAXNUMDEVNODES 4        /* Max No. of nodes per device */
                          /* Need to change for SOI devs ? */
 
-#include <ngspice/smpdefs.h>
-#include <ngspice/ifsim.h>
-#include <ngspice/acdefs.h>
-#include <ngspice/gendefs.h>
-#include <ngspice/trcvdefs.h>
-#include <ngspice/optdefs.h>
-#include <ngspice/sen2defs.h>
-#include <ngspice/pzdefs.h>
-#include <ngspice/noisedef.h>
+#include "ngspice/smpdefs.h"
+#include "ngspice/ifsim.h"
+#include "ngspice/acdefs.h"
+#include "ngspice/gendefs.h"
+#include "ngspice/trcvdefs.h"
+#include "ngspice/optdefs.h"
+#include "ngspice/sen2defs.h"
+#include "ngspice/pzdefs.h"
+#include "ngspice/noisedef.h"
 
 
 
@@ -265,6 +264,7 @@ struct CKTcircuit {
     Enh_Ckt_Data_t *enh;        /* data used by general enhancements */
 #endif
 /* gtri - evt - wbk - 5/20/91 - add event-driven and enhancements data */
+#ifdef WITH_PSS
 /* SP: Steady State Analysis - 100609 */
     double CKTstabTime;		/* PSS stab time */
     double CKTguessedFreq;	/* PSS guessed frequency */
@@ -274,6 +274,7 @@ struct CKTcircuit {
     double CKTsteady_coeff;
     int CKTsc_iter;
 /* SP: 100609 */
+#endif
 
 };
 
@@ -415,4 +416,4 @@ extern void NInzIter(CKTcircuit *, int, int);
 
 extern IFfrontEnd *SPfrontEnd;
 
-#endif /*CKT*/
+#endif

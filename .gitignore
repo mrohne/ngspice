@@ -3,6 +3,7 @@
 *.lo
 *.la
 *~
+.#*
 Makefile
 CVS
 .deps

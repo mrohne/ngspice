@@ -2,23 +2,22 @@
 Copyright 1990 Regents of the University of California.  All rights reserved.
 Author: 1985 Thomas L. Quarles, 1991 David A. Gates
 Modified: 2001 Paolo Nenzi (Cider Integration)
-$Id: inpgmod.c,v 1.27 2011/08/20 17:27:16 rlar Exp $
 **********/
 
-#include <ngspice/ngspice.h>
-#include <ngspice/inpdefs.h>
-#include <ngspice/ifsim.h>
-#include <ngspice/cpstd.h>
-#include <ngspice/fteext.h>
+#include "ngspice/ngspice.h"
+#include "ngspice/inpdefs.h"
+#include "ngspice/ifsim.h"
+#include "ngspice/cpstd.h"
+#include "ngspice/fteext.h"
 #include "inp.h"
 #include <errno.h>
 
 #ifdef CIDER
 /* begin Cider Integration */
-#include <ngspice/numcards.h>
-#include <ngspice/carddefs.h>
-#include <ngspice/numgen.h>
-#include <ngspice/suffix.h>
+#include "ngspice/numcards.h"
+#include "ngspice/carddefs.h"
+#include "ngspice/numgen.h"
+#include "ngspice/suffix.h"
 
 extern IFcardInfo *INPcardTab[];
 extern int INPnumCards;

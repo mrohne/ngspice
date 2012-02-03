@@ -26,9 +26,6 @@
  *  California make no representations as to the suitability of this
  *  software for any purpose.  It is provided `as is', without express
  *  or implied warranty.
- *
- *  $Date: 2011/08/20 17:27:12 $
- *  $Revision: 1.20 $
  */
 
 
@@ -387,7 +384,7 @@ extern void * trealloc(void *, size_t);
 }
 #endif
 
-#include <ngspice/defines.h>
+#include "ngspice/defines.h"
 
 
 /*

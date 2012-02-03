@@ -2,7 +2,6 @@
  *
  *  This file is part of Numparam, see:  readme.txt  
  *  Free software under the terms of the GNU Lesser General Public License 
- *  $Id: nupatest.c,v 1.7 2011/02/19 15:08:20 rlar Exp $
  */
 
 /****   test executable for the numparam library  ****/

@@ -2,7 +2,6 @@
 Copyright 1990 Regents of the University of California.  All rights reserved.
 Author: 1988 Wayne A. Christopher, U. C. Berkeley CAD Group 
 Modified: 2000 AlansFixes
-$Id: outitf.c,v 1.54 2011/08/21 17:33:48 rlar Exp $
 **********/
 
 /*
@@ -12,22 +11,22 @@ $Id: outitf.c,v 1.54 2011/08/21 17:33:48 rlar Exp $
  * of nutmeg doesn't deal with OUT at all.
  */
 
-#include <ngspice/ngspice.h>
-#include <ngspice/cpdefs.h>
-#include <ngspice/ftedefs.h>
-#include <ngspice/dvec.h>
-#include <ngspice/plot.h>
-#include <ngspice/sim.h>
-#include <ngspice/inpdefs.h>        /* for INPtables */
-#include <ngspice/ifsim.h>
-#include <ngspice/jobdefs.h>
-#include <ngspice/iferrmsg.h>
+#include "ngspice/ngspice.h"
+#include "ngspice/cpdefs.h"
+#include "ngspice/ftedefs.h"
+#include "ngspice/dvec.h"
+#include "ngspice/plot.h"
+#include "ngspice/sim.h"
+#include "ngspice/inpdefs.h"        /* for INPtables */
+#include "ngspice/ifsim.h"
+#include "ngspice/jobdefs.h"
+#include "ngspice/iferrmsg.h"
 #include "circuits.h"
 #include "outitf.h"
 #include "variable.h"
 #include <fcntl.h>
-#include <ngspice/cktdefs.h>
-#include <ngspice/inpdefs.h>
+#include "ngspice/cktdefs.h"
+#include "ngspice/inpdefs.h"
 #include "breakp2.h"
 #include "runcoms.h"
 #include "plotting/graf.h"
@@ -61,7 +60,7 @@ static void freeRun(runDesc *run);
 
 /*Output data to spice module saj*/
 #ifdef TCL_MODULE
-#include <ngspice/tclspice.h>
+#include "ngspice/tclspice.h"
 #endif
 /*saj*/
 
@@ -88,7 +87,10 @@ static bool shouldstop = FALSE; /* Tell simulator to stop next time it asks. */
 /* The two "begin plot" routines share all their internals... */
 
 int
-OUTpBeginPlot(CKTcircuit *circuitPtr, JOB *analysisPtr, IFuid analName, IFuid refName, int refType, int numNames, IFuid *dataNames, int dataType, void **plotPtr)
+OUTpBeginPlot(CKTcircuit *circuitPtr, JOB *analysisPtr,
+              IFuid analName,
+              IFuid refName, int refType,
+              int numNames, IFuid *dataNames, int dataType, void **plotPtr)
 {
   char *name;   
 
@@ -109,7 +111,10 @@ if (ARCHme != 0) return(OK);
 }
 
 int
-OUTwBeginPlot(CKTcircuit *circuitPtr, JOB *analysisPtr, IFuid analName, IFuid refName, int refType, int numNames, IFuid *dataNames, int dataType, void **plotPtr)
+OUTwBeginPlot(CKTcircuit *circuitPtr, JOB *analysisPtr,
+              IFuid analName,
+              IFuid refName, int refType,
+              int numNames, IFuid *dataNames, int dataType, void **plotPtr)
 {
 #ifdef PARALLEL_ARCH
     if (ARCHme != 0) return(OK);
@@ -172,7 +177,7 @@ beginPlot(JOB *analysisPtr, CKTcircuit *circuitPtr, char *cktName, char *analNam
         savesused = TMALLOC(bool, numsaves);
         saveall = FALSE;
         for (i = 0; i < numsaves; i++) {
-            if (saves[i].analysis && !cieq((char *)saves[i].analysis, an_name)) {
+            if (saves[i].analysis && !cieq(saves[i].analysis, an_name)) {
 		/* ignore this one this time around */
 		savesused[i] = TRUE; 
 		continue;

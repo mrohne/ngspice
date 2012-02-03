@@ -1,12 +1,12 @@
-#ifndef PZDEFS
-#define PZDEFS "PZdefs.h $Revision: 1.1 $  on $Date: 2011/08/20 17:43:07 $ "
+#ifndef PZDEFS_H
+#define PZDEFS_H
 
     /* structure used to describe an PZ analysis to be performed */
 
-#include <ngspice/jobdefs.h>
+#include "ngspice/jobdefs.h"
 #include <math.h>
-#include <ngspice/complex.h>
-#include <ngspice/typedefs.h>
+#include "ngspice/complex.h"
+#include "ngspice/typedefs.h"
 
 struct PZtrial {
     SPcomplex	s, f_raw, f_def;
@@ -54,4 +54,4 @@ struct PZAN {
 #define PZ_ZER 8
 #define PZ_PZ 9
 
-#endif /*PZDEFS*/
+#endif

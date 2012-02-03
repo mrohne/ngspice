@@ -4,13 +4,13 @@ Author: 1985 Thomas L. Quarlesù
 Modified: 2000 AlansFixes
 **********/
 
-#include <ngspice/ngspice.h>
-#include <ngspice/smpdefs.h>
-#include <ngspice/cktdefs.h>
+#include "ngspice/ngspice.h"
+#include "ngspice/smpdefs.h"
+#include "ngspice/cktdefs.h"
 #include "mos3defs.h"
-#include <ngspice/const.h>
-#include <ngspice/sperror.h>
-#include <ngspice/suffix.h>
+#include "ngspice/const.h"
+#include "ngspice/sperror.h"
+#include "ngspice/suffix.h"
 
 /* assuming silicon - make definition for epsilon of silicon */
 #define EPSSIL (11.7 * 8.854214871e-12)
@@ -189,8 +189,8 @@ MOS3setup(SMPmatrix *matrix, GENmodel *inModel, CKTcircuit *ckt, int *states)
 
             if((model->MOS3drainResistance != 0 ||
                     (model->MOS3sheetResistance != 0 &&
-                     here->MOS3drainSquares != 0      ) )  && 
-                    here->MOS3dNodePrime==0) {
+                     here->MOS3drainSquares != 0      ) )) {
+                if (here->MOS3dNodePrime == 0) {
                 error = CKTmkVolt(ckt,&tmp,here->MOS3name,"internal#drain");
                 if(error) return(error);
                 here->MOS3dNodePrime = tmp->number;
@@ -202,14 +202,15 @@ MOS3setup(SMPmatrix *matrix, GENmodel *inModel, CKTcircuit *ckt, int *states)
                      }
                   }
                 }
+                }
             } else {
                 here->MOS3dNodePrime = here->MOS3dNode;
             }
 
             if((model->MOS3sourceResistance != 0 ||
                     (model->MOS3sheetResistance != 0 && 
-                     here->MOS3sourceSquares != 0     ) ) &&
-                    here->MOS3sNodePrime==0) {
+                     here->MOS3sourceSquares != 0     ) )) {
+                if (here->MOS3sNodePrime == 0) {
                 error = CKTmkVolt(ckt,&tmp,here->MOS3name,"internal#source");
                 if(error) return(error);
                 here->MOS3sNodePrime = tmp->number;
@@ -220,6 +221,7 @@ MOS3setup(SMPmatrix *matrix, GENmodel *inModel, CKTcircuit *ckt, int *states)
                        tmp->nsGiven=tmpNode->nsGiven; 
                      }
                   }
+                }
                 }
             } else {
                 here->MOS3sNodePrime = here->MOS3sNode;

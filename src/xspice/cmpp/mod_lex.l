@@ -1,7 +1,7 @@
 %option prefix="mod_yy"
 %option yylineno
 %option noyywrap
-%{ /* $Id: mod_lex.l,v 1.10 2011/08/07 10:04:35 rlar Exp $ */
+%{
 
 /*============================================================================
 FILE  mod_lex.l

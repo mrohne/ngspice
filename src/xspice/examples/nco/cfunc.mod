@@ -1,4 +1,3 @@
-/* $Id: cfunc.mod,v 1.4 2010/05/26 05:51:04 h_vogt Exp $ */
 
 void *malloc(unsigned);
 

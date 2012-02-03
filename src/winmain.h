@@ -1,6 +1,5 @@
 /* Forwards and external function declarations
    for winmain.c
-   $Id: winmain.h,v 1.1 2011/05/29 11:13:04 h_vogt Exp $
 */
 
 /* Forward definition of main() */

@@ -1,7 +1,6 @@
 /**********
 Copyright 1990 Regents of the University of California.  All rights reserved.
 Author: 1985 Wayne A. Christopher, U. C. Berkeley CAD Group
-$Id: cshpar.c,v 1.4 2011/08/20 17:27:11 rlar Exp $
 **********/
 
 /*
@@ -9,8 +8,8 @@ $Id: cshpar.c,v 1.4 2011/08/20 17:27:11 rlar Exp $
  */
 
 
-#include <ngspice/ngspice.h>
-#include <ngspice/cpdefs.h>
+#include "ngspice/ngspice.h"
+#include "ngspice/cpdefs.h"
 #include <signal.h>
 #include "cshpar.h"
 

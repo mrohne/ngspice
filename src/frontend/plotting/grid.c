@@ -1,7 +1,6 @@
 /**********
 Copyright 1990 Regents of the University of California.  All rights reserved.
 Modified: 2001 AlansFixes
-$Id: grid.c,v 1.24 2011/09/11 12:55:30 h_vogt Exp $
 **********/
 
 /*
@@ -9,12 +8,12 @@ $Id: grid.c,v 1.24 2011/09/11 12:55:30 h_vogt Exp $
     Routines to draw the various sorts of grids -- linear, log, polar.
 */
 
-#include <ngspice/ngspice.h>
-#include <ngspice/graph.h>
-#include <ngspice/cpdefs.h>
-#include <ngspice/ftedefs.h>
+#include "ngspice/ngspice.h"
+#include "ngspice/graph.h"
+#include "ngspice/cpdefs.h"
+#include "ngspice/ftedefs.h"
 
-#include <ngspice/grid.h>
+#include "ngspice/grid.h"
 #include "../display.h"
 
 #define RAD_TO_DEG	(180.0 / M_PI)

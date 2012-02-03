@@ -1,7 +1,6 @@
 /*************
  * Header file for plot5.c
  * 1999 E. Rouat
- * $Id: plot5.h,v 1.3 2010/06/30 16:50:09 rlar Exp $
  ************/
 
 #ifndef PLOT5_H_INCLUDED

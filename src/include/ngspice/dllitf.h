@@ -1,14 +1,13 @@
 /* 
    DLL load interface
    (c)2000 Arpad Buermen
-   $Id: dllitf.h,v 1.1 2011/08/20 17:43:07 rlar Exp $
 */
 
 #ifndef __DLLITF_H
 #define __DLLITF_H
 
-#include <ngspice/mifproto.h>
-#include <ngspice/cmproto.h>
+#include "ngspice/mifproto.h"
+#include "ngspice/cmproto.h"
 
 
 /* This structure contains pointers to core SPICE OPUS functions used in CMs and UDNs.

@@ -5,13 +5,12 @@
 
    Authors: Holger Vogt,  Hendrik Vogt
    
-   $Id: com_sysinfo.c,v 1.24 2011/08/20 17:27:11 rlar Exp $
  */
  
-#include "config.h"
-#include <ngspice/ngspice.h> 
-#include <ngspice/cpdefs.h>
-#include <ngspice/fteext.h>
+#include "ngspice/config.h"
+#include "ngspice/ngspice.h" 
+#include "ngspice/cpdefs.h"
+#include "ngspice/fteext.h"
 #include "com_commands.h"
 
 /* We might compile for Windows, but only as a console application (e.g. tcl) */

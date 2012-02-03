@@ -1,15 +1,14 @@
 /**********
 Copyright 1990 Regents of the University of California.  All rights reserved.
-$Id: plot5.c,v 1.13 2011/08/20 17:27:11 rlar Exp $
 **********/
 
-#include <ngspice/ngspice.h>
-#include <ngspice/graph.h>
-#include <ngspice/ftedev.h>
+#include "ngspice/ngspice.h"
+#include "ngspice/graph.h"
+#include "ngspice/ftedev.h"
 
 #include "plot5.h"
 #include "graf.h"
-#include <ngspice/fteext.h>
+#include "ngspice/fteext.h"
 
 static FILE *plotfile;
 

@@ -4,21 +4,21 @@ Authors: 1987 Karti Mayaram, 1991 David Gates
 **********/
 
 #ifndef NBJT2_H
-#define NBJT2_H "NBJT2defs.h $Revision: 1.2 $ on $Date: 2011/08/20 17:27:15 $ "
+#define NBJT2_H
 
 /* structures to describe 2d Numerical Bipolar Junction Transistors */
 
 /* circuit level includes */
-#include <ngspice/ifsim.h>
-#include <ngspice/cktdefs.h>
-#include <ngspice/gendefs.h>
+#include "ngspice/ifsim.h"
+#include "ngspice/cktdefs.h"
+#include "ngspice/gendefs.h"
 
 /* device level includes */
-#include <ngspice/twomesh.h>
-#include <ngspice/twodev.h>
-#include <ngspice/profile.h>
-#include <ngspice/numglobs.h>
-#include <ngspice/carddefs.h>
+#include "ngspice/twomesh.h"
+#include "ngspice/twodev.h"
+#include "ngspice/profile.h"
+#include "ngspice/numglobs.h"
+#include "ngspice/carddefs.h"
 
 /* information needed per instance */
 typedef struct sNBJT2instance {

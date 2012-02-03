@@ -1,13 +1,12 @@
-/* $Id: plotit.c,v 1.28 2011/08/20 17:27:11 rlar Exp $ */
-#include <ngspice/ngspice.h>
-#include <config.h>
-#include <ngspice/bool.h>
-#include <ngspice/wordlist.h>
-#include <ngspice/graph.h>
-#include <ngspice/cpdefs.h>
-#include <ngspice/pnode.h>
-#include <ngspice/sim.h>
-#include <ngspice/fteext.h>
+#include "ngspice/ngspice.h"
+#include "ngspice/config.h"
+#include "ngspice/bool.h"
+#include "ngspice/wordlist.h"
+#include "ngspice/graph.h"
+#include "ngspice/cpdefs.h"
+#include "ngspice/pnode.h"
+#include "ngspice/sim.h"
+#include "ngspice/fteext.h"
 
 #include <circuits.h>
 
@@ -21,7 +20,7 @@ static wordlist *wl_root;
 static bool sameflag;
 
 #ifdef TCL_MODULE
-#include <ngspice/tclspice.h>
+#include "ngspice/tclspice.h"
 #endif
 
 /* This routine gets parameters from the command line, which are of

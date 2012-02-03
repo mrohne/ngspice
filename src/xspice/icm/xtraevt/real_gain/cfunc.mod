@@ -1,4 +1,3 @@
-/* $Id: cfunc.mod,v 1.3 2010/07/16 15:47:05 rlar Exp $ */
 
 void ucm_real_gain (ARGS)
 {

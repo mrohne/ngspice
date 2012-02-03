@@ -1,7 +1,6 @@
 /**********
 Copyright 1990 Regents of the University of California.  All rights reserved.
 Author: 1985 Wayne A. Christopher, U. C. Berkeley CAD Group
-$Id: define.c,v 1.15 2011/08/20 17:27:11 rlar Exp $
 **********/
 
 /*
@@ -15,11 +14,11 @@ $Id: define.c,v 1.15 2011/08/20 17:27:11 rlar Exp $
  * with the same name and different arities.
  */
 
-#include <ngspice/ngspice.h>
-#include <ngspice/cpdefs.h>
-#include <ngspice/ftedefs.h>
-#include <ngspice/dvec.h>
-#include <ngspice/fteparse.h>
+#include "ngspice/ngspice.h"
+#include "ngspice/cpdefs.h"
+#include "ngspice/ftedefs.h"
+#include "ngspice/dvec.h"
+#include "ngspice/fteparse.h"
 #include "define.h"
 
 #include "completion.h"

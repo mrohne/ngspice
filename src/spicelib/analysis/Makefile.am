@@ -72,7 +72,6 @@ libckt_la_SOURCES = \
 		dcoaskq.c	\
 		dcop.c		\
 		dcosetp.c	\
-		dcpss.c		\
 		dctaskq.c	\
 		dctran.c	\
 		dctrcurv.c	\
@@ -86,9 +85,6 @@ libckt_la_SOURCES = \
 		ninteg.c	\
 		noisean.c	\
 		nsetparm.c	\
-		pssaskq.c	\
-		pssinit.c	\
-		psssetp.c	\
 		pzan.c		\
 		pzaskq.c	\
 		pzsetp.c	\
@@ -103,5 +99,14 @@ libckt_la_SOURCES = \
 		cluster.c
 
 
-AM_CPPFLAGS =  -I$(top_srcdir)/src/include -I$(top_srcdir)/src/spicelib/devices
+if PSS_WANTED
+libckt_la_SOURCES += \
+		dcpss.c		\
+		pssaskq.c	\
+		pssinit.c	\
+		psssetp.c
+endif
+
+
+AM_CPPFLAGS = @AM_CPPFLAGS@  -I$(top_srcdir)/src/include -I$(top_srcdir)/src/spicelib/devices
 MAINTAINERCLEANFILES = Makefile.in

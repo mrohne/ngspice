@@ -4,11 +4,11 @@ Author: 1985 Thomas L. Quarles
 **********/
 
 
-#include <ngspice/ngspice.h>
-#include <ngspice/ifsim.h>
-#include <ngspice/iferrmsg.h>
-#include <ngspice/pzdefs.h>
-#include <ngspice/cktdefs.h>
+#include "ngspice/ngspice.h"
+#include "ngspice/ifsim.h"
+#include "ngspice/iferrmsg.h"
+#include "ngspice/pzdefs.h"
+#include "ngspice/cktdefs.h"
 
 #include "analysis.h"
 
@@ -16,53 +16,55 @@ Author: 1985 Thomas L. Quarles
 int 
 PZsetParm(CKTcircuit *ckt, JOB *anal, int which, IFvalue *value)
 {
+    PZAN *job = (PZAN *) anal;
+
     NG_IGNORE(ckt);
 
     switch(which) {
 
     case PZ_NODEI:
-        ((PZAN*)anal)->PZin_pos = (value->nValue)->number;
+        job->PZin_pos = value->nValue->number;
         break;
 
     case PZ_NODEG:
-        ((PZAN*)anal)->PZin_neg = (value->nValue)->number;
+        job->PZin_neg = value->nValue->number;
         break;
 
     case PZ_NODEJ:
-        ((PZAN*)anal)->PZout_pos = (value->nValue)->number;
+        job->PZout_pos = value->nValue->number;
         break;
 
     case PZ_NODEK:
-        ((PZAN*)anal)->PZout_neg = (value->nValue)->number;
+        job->PZout_neg = value->nValue->number;
         break;
 
     case PZ_V:
         if(value->iValue) {
-            ((PZAN*)anal)->PZinput_type = PZ_IN_VOL;
+            job->PZinput_type = PZ_IN_VOL;
         }
         break;
 
     case PZ_I:
         if(value->iValue) {
-            ((PZAN*)anal)->PZinput_type = PZ_IN_CUR;
+            job->PZinput_type = PZ_IN_CUR;
         }
         break;
 
     case PZ_POL:
         if(value->iValue) {
-            ((PZAN*)anal)->PZwhich = PZ_DO_POLES;
+            job->PZwhich = PZ_DO_POLES;
         }
         break;
 
     case PZ_ZER:
         if(value->iValue) {
-            ((PZAN*)anal)->PZwhich = PZ_DO_ZEROS;
+            job->PZwhich = PZ_DO_ZEROS;
         }
         break;
 
     case PZ_PZ:
         if(value->iValue) {
-            ((PZAN*)anal)->PZwhich = PZ_DO_POLES | PZ_DO_ZEROS;
+            job->PZwhich = PZ_DO_POLES | PZ_DO_ZEROS;
         }
         break;
 

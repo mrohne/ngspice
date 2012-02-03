@@ -1,14 +1,13 @@
 /**********
 Copyright 1990 Regents of the University of California.  All rights reserved.
 Author: 1988 Jeffrey M. Hsu
-$Id: x11.c,v 1.50 2011/08/20 17:27:11 rlar Exp $
 **********/
 
 /*
     X11 drivers.
 */
 
-#include <ngspice/ngspice.h>
+#include "ngspice/ngspice.h"
 
 #ifndef X_DISPLAY_MISSING
 
@@ -16,12 +15,12 @@ $Id: x11.c,v 1.50 2011/08/20 17:27:11 rlar Exp $
 #  include <sys/types.h>  /* PN */
 #  include <unistd.h>     /* PN */
 
-#  include <ngspice/graph.h>
-#  include <ngspice/ftedbgra.h>
-#  include <ngspice/ftedev.h>
-#  include <ngspice/fteinput.h>
-#  include <ngspice/cpdefs.h>
-#  include <ngspice/ftedefs.h>
+#  include "ngspice/graph.h"
+#  include "ngspice/ftedbgra.h"
+#  include "ngspice/ftedev.h"
+#  include "ngspice/fteinput.h"
+#  include "ngspice/cpdefs.h"
+#  include "ngspice/ftedefs.h"
 #  include <variable.h>
 #  include "../com_hardcopy.h"
 

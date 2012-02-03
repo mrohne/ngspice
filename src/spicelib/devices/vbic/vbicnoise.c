@@ -5,12 +5,12 @@ Model Author: 1995 Colin McAndrew Motorola
 Spice3 Implementation: 2003 Dietmar Warning DAnalyse GmbH
 **********/
 
-#include <ngspice/ngspice.h>
+#include "ngspice/ngspice.h"
 #include "vbicdefs.h"
-#include <ngspice/cktdefs.h>
-#include <ngspice/iferrmsg.h>
-#include <ngspice/noisedef.h>
-#include <ngspice/suffix.h>
+#include "ngspice/cktdefs.h"
+#include "ngspice/iferrmsg.h"
+#include "ngspice/noisedef.h"
+#include "ngspice/suffix.h"
 
 /*
  * VBICnoise (mode, operation, firstModel, ckt, data, OnDens)
@@ -26,6 +26,8 @@ Spice3 Implementation: 2003 Dietmar Warning DAnalyse GmbH
 int
 VBICnoise (int mode, int operation, GENmodel *genmodel, CKTcircuit *ckt, Ndata *data, double *OnDens)
 {
+    NOISEAN *job = (NOISEAN *) ckt->CKTcurJob;
+
     VBICmodel *firstModel = (VBICmodel *) genmodel;
     VBICmodel *model;
     VBICinstance *inst;
@@ -70,7 +72,7 @@ VBICnoise (int mode, int operation, GENmodel *genmodel, CKTcircuit *ckt, Ndata *
                 /* see if we have to to produce a summary report */
                 /* if so, name all the noise generators */
 
-                if (((NOISEAN*)ckt->CKTcurJob)->NStpsSm != 0) {
+                if (job->NStpsSm != 0) {
                     switch (mode) {
 
                     case N_DENS:
@@ -214,7 +216,7 @@ if (!data->namelist) return(E_NOMEM);
 
                         /* clear out our integration variables if it's the first pass */
 
-                        if (data->freq == ((NOISEAN*)ckt->CKTcurJob)->NstartFreq) {
+                        if (data->freq == job->NstartFreq) {
                             for (i=0; i < VBICNSRCS; i++) {
                                 inst->VBICnVar[OUTNOIZ][i] = 0.0;
                                 inst->VBICnVar[INNOIZ][i] = 0.0;
@@ -235,7 +237,7 @@ if (!data->namelist) return(E_NOMEM);
                                 inst->VBICnVar[LNLSTDENS][i] = lnNdens[i];
                                 data->outNoiz += tempOnoise;
                                 data->inNoise += tempInoise;
-                                if (((NOISEAN*)ckt->CKTcurJob)->NStpsSm != 0) {
+                                if (job->NStpsSm != 0) {
                                     inst->VBICnVar[OUTNOIZ][i] += tempOnoise;
                                     inst->VBICnVar[OUTNOIZ][VBICTOTNOIZ] += tempOnoise;
                                     inst->VBICnVar[INNOIZ][i] += tempInoise;
@@ -252,7 +254,7 @@ if (!data->namelist) return(E_NOMEM);
                     break;
 
                 case INT_NOIZ:        /* already calculated, just output */
-                    if (((NOISEAN*)ckt->CKTcurJob)->NStpsSm != 0) {
+                    if (job->NStpsSm != 0) {
                         for (i=0; i < VBICNSRCS; i++) {
                             data->outpVector[data->outNumber++] = inst->VBICnVar[OUTNOIZ][i];
                             data->outpVector[data->outNumber++] = inst->VBICnVar[INNOIZ][i];

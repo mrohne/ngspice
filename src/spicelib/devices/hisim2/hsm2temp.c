@@ -13,14 +13,14 @@
                 Semiconductor Technology Academic Research Center (STARC)
 ***********************************************************************/
 
-#include <ngspice/ngspice.h>
-#include <ngspice/smpdefs.h>
-#include <ngspice/cktdefs.h>
+#include "ngspice/ngspice.h"
+#include "ngspice/smpdefs.h"
+#include "ngspice/cktdefs.h"
 #include "hsm2def.h"
 #include "hsm2evalenv.h"
-#include <ngspice/const.h>
-#include <ngspice/sperror.h>
-#include <ngspice/suffix.h>
+#include "ngspice/const.h"
+#include "ngspice/sperror.h"
+#include "ngspice/suffix.h"
 
 #define BINNING(param) pParam->HSM2_##param = model->HSM2_##param \
   + model->HSM2_l##param / Lbin + model->HSM2_w##param / Wbin \
@@ -41,6 +41,8 @@
 #define Fn_SZtemp( y , x , delta ) { \
     T1 = sqrt ( ( x ) *  ( x ) + 4.0 * ( delta ) * ( delta) ) ; \
     y = 0.5 * ( ( x ) + T1 ) ; \
+    if (y < 0) \
+        y = 0 ; \
   }
 
 #define Fn_SUtemp( y , x , xmax , delta ) { \

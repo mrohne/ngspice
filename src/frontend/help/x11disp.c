@@ -2,16 +2,15 @@
 Copyright 1990 Regents of the University of California.  All rights reserved.
 Author: Jeffrey M. Hsu
 Modified 1999 Emmanuel Rouat
-$Id: x11disp.c,v 1.13 2011/08/20 17:27:11 rlar Exp $
 **********/
 
-#include <config.h>
-#include <ngspice/ngspice.h>
+#include "ngspice/config.h"
+#include "ngspice/ngspice.h"
 
 #ifndef X_DISPLAY_MISSING
 
-#include <ngspice/cpstd.h>
-#include <ngspice/hlpdefs.h>
+#include "ngspice/cpstd.h"
+#include "ngspice/hlpdefs.h"
 #include <X11/Xaw/AsciiText.h>
 #include <X11/StringDefs.h>
 #include <X11/Xaw/Paned.h>

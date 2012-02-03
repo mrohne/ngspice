@@ -1,18 +1,17 @@
 /**********
 Copyright 1990 Regents of the University of California.  All rights reserved.
 Author: 1985 Wayne A. Christopher, U. C. Berkeley CAD Group
-$Id: breakp2.c,v 1.9 2011/08/20 17:27:10 rlar Exp $
 **********/
 
 /*
  * Code to deal with breakpoints and tracing.
  */
 
-#include <ngspice/ngspice.h>
-#include <ngspice/cpdefs.h>
-#include <ngspice/ftedefs.h>
-#include <ngspice/dvec.h>
-#include <ngspice/ftedebug.h>
+#include "ngspice/ngspice.h"
+#include "ngspice/cpdefs.h"
+#include "ngspice/ftedefs.h"
+#include "ngspice/dvec.h"
+#include "ngspice/ftedebug.h"
 #include "quote.h"
 #include "breakp2.h"
 
@@ -118,7 +117,7 @@ ft_getSaves(struct save_info **savesp)
         if (d->db_type == DB_SAVE) {
             array[i].used = 0;
 	    if (d->db_analysis)
-		array[i].analysis = (IFuid *) copy(d->db_analysis);
+		array[i].analysis = copy(d->db_analysis);
 	    else
 		array[i].analysis = NULL;
             array[i++].name = copy(d->db_nodename1);

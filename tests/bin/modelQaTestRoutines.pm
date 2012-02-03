@@ -198,11 +198,7 @@ sub processTestSpec {
     @main::Outputs=();
     @main::ModelParameters=();
     undef(%main::BiasFor);
-    if (defined(%main::isGeneralFloatingPin)) {
-        %main::isFloatingPin=%main::isGeneralFloatingPin;
-    } else {
-        undef(%main::isFloatingPin);
-    }
+    %main::isFloatingPin=%main::isGeneralFloatingPin;
     undef(%isAnalysisPin);
     undef(@main::Temperature);
     foreach (@Spec) {
@@ -697,8 +693,7 @@ sub platform {
         open(UNAME,"uname -r|");chomp($osVer =<UNAME>);close(UNAME);
     }
     $platform = "${archName}_${osName}_${osVer}";
-    $platform =~ s/\(//;
-    $platform =~ s/\)//;
+    $platform =~ s|[()/]||g; 
     return($platform);
 }
 

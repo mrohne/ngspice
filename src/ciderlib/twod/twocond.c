@@ -1,18 +1,17 @@
 /**********
 Copyright 1991 Regents of the University of California.  All rights reserved.
 Author:	1987 Kartikeya Mayaram, U. C. Berkeley CAD Group
-$Id: twocond.c,v 1.6 2011/08/20 17:27:10 rlar Exp $
 **********/
 
 /* Functions to compute terminal conductances & currents. */
 
-#include <ngspice/ngspice.h>
-#include <ngspice/numglobs.h>
-#include <ngspice/numenum.h>
-#include <ngspice/twomesh.h>
-#include <ngspice/twodev.h>
-#include <ngspice/bool.h>
-#include <ngspice/spmatrix.h>
+#include "ngspice/ngspice.h"
+#include "ngspice/numglobs.h"
+#include "ngspice/numenum.h"
+#include "ngspice/twomesh.h"
+#include "ngspice/twodev.h"
+#include "ngspice/bool.h"
+#include "ngspice/spmatrix.h"
 #include "twoddefs.h"
 #include "twodext.h"
 

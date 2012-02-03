@@ -1,8 +1,8 @@
-#include <config.h>
-#include <ngspice/ngspice.h>
+#include "ngspice/config.h"
+#include "ngspice/ngspice.h"
 
-#include <ngspice/jobdefs.h>
-#include <ngspice/cktdefs.h>
+#include "ngspice/jobdefs.h"
+#include "ngspice/cktdefs.h"
 
 #include "analysis.h"
 
@@ -17,9 +17,12 @@ extern SPICEanalysis TFinfo;
 extern SPICEanalysis DISTOinfo;
 extern SPICEanalysis NOISEinfo;
 extern SPICEanalysis SENSinfo;
+
+#ifdef WITH_PSS
 /* SP: Periodic Steady State*/
 extern SPICEanalysis PSSinfo;
 /* SP */
+#endif
 
 SPICEanalysis *analInfo[] = {
     &OPTinfo,
@@ -32,7 +35,9 @@ SPICEanalysis *analInfo[] = {
     &DISTOinfo,
     &NOISEinfo,
     &SENSinfo,
+#ifdef WITH_PSS
     &PSSinfo,
+#endif
 };
 
 

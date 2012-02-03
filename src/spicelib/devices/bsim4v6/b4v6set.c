@@ -21,18 +21,18 @@
  * Modified by Wenwei Yang, 07/31/2008.
 **********/
 
-#include <ngspice/ngspice.h>
-#include <ngspice/jobdefs.h>
-#include <ngspice/ftedefs.h>
-#include <ngspice/smpdefs.h>
-#include <ngspice/cktdefs.h>
+#include "ngspice/ngspice.h"
+#include "ngspice/jobdefs.h"
+#include "ngspice/ftedefs.h"
+#include "ngspice/smpdefs.h"
+#include "ngspice/cktdefs.h"
 #include "bsim4v6def.h"
-#include <ngspice/const.h>
-#include <ngspice/sperror.h>
-#include <ngspice/suffix.h>
+#include "ngspice/const.h"
+#include "ngspice/sperror.h"
+#include "ngspice/suffix.h"
 
 #ifdef USE_OMP4
-#include <ngspice/cpextern.h>
+#include "ngspice/cpextern.h"
 int nthreads;
 #endif
 
@@ -2160,7 +2160,8 @@ int nthreads;
                              createNode = 1;
                      }
             }
-            if ( createNode != 0  && (here->BSIM4v6dNodePrime == 0))
+            if ( createNode != 0 )
+            {   if (here->BSIM4v6dNodePrime == 0)
             {   error = CKTmkVolt(ckt,&tmp,here->BSIM4v6name,"drain");
                 if(error) return(error);
                 here->BSIM4v6dNodePrime = tmp->number;
@@ -2174,6 +2175,7 @@ int nthreads;
                      }
                   }
                 }
+            }
             }
             else
             {   here->BSIM4v6dNodePrime = here->BSIM4v6dNode;
@@ -2202,7 +2204,8 @@ int nthreads;
                              createNode = 1;
                      }
             }
-            if ( createNode != 0  && here->BSIM4v6sNodePrime == 0)
+            if ( createNode != 0 )
+            {   if (here->BSIM4v6sNodePrime == 0)
             {   error = CKTmkVolt(ckt,&tmp,here->BSIM4v6name,"source");
                 if(error) return(error);
                 here->BSIM4v6sNodePrime = tmp->number;
@@ -2217,10 +2220,12 @@ int nthreads;
                   }
                 }
             }
+            }
             else
                 here->BSIM4v6sNodePrime = here->BSIM4v6sNode;
 
-            if ((here->BSIM4v6rgateMod > 0) && (here->BSIM4v6gNodePrime == 0))
+            if (here->BSIM4v6rgateMod > 0)
+            {   if (here->BSIM4v6gNodePrime == 0)
             {   error = CKTmkVolt(ckt,&tmp,here->BSIM4v6name,"gate");
                 if(error) return(error);
                    here->BSIM4v6gNodePrime = tmp->number;
@@ -2235,13 +2240,16 @@ int nthreads;
                   }
                 }
             }
+            }
             else
                 here->BSIM4v6gNodePrime = here->BSIM4v6gNodeExt;
 
-            if ((here->BSIM4v6rgateMod == 3) && (here->BSIM4v6gNodeMid == 0))
+            if (here->BSIM4v6rgateMod == 3)
+            {   if (here->BSIM4v6gNodeMid == 0)
             {   error = CKTmkVolt(ckt,&tmp,here->BSIM4v6name,"midgate");
                 if(error) return(error);
                    here->BSIM4v6gNodeMid = tmp->number;
+            }
             }
             else
                 here->BSIM4v6gNodeMid = here->BSIM4v6gNodeExt;
@@ -2280,10 +2288,12 @@ int nthreads;
 				  = here->BSIM4v6bNode;
 
             /* NQS node */
-            if ((here->BSIM4v6trnqsMod) && (here->BSIM4v6qNode == 0)) 
+            if (here->BSIM4v6trnqsMod)
+            {   if (here->BSIM4v6qNode == 0)
 	    {   error = CKTmkVolt(ckt,&tmp,here->BSIM4v6name,"charge");
                 if(error) return(error);
                 here->BSIM4v6qNode = tmp->number;
+            }
             }
 	    else 
 	        here->BSIM4v6qNode = 0;

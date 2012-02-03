@@ -11,16 +11,16 @@ Modified: 1999 Paolo Nenzi - 2000 AlansFixes
 #ifndef FTEext_h
 #define FTEext_h
 
-#include <config.h>
+#include "ngspice/config.h"
 
 /* needed to find out what the interface structures look like */
-#include <ngspice/typedefs.h>
-#include <ngspice/ifsim.h>
-#include <ngspice/dvec.h>
-#include <ngspice/plot.h>
-#include <ngspice/cpdefs.h>
-#include <ngspice/ftedefs.h>
-#include <ngspice/fteinp.h>
+#include "ngspice/typedefs.h"
+#include "ngspice/ifsim.h"
+#include "ngspice/dvec.h"
+#include "ngspice/plot.h"
+#include "ngspice/cpdefs.h"
+#include "ngspice/ftedefs.h"
+#include "ngspice/fteinp.h"
 
 /* aspice.c */
 
@@ -71,6 +71,8 @@ extern void *cx_cosh(void *, short int , int , int *, short int *);
 extern void *cx_tan(void *, short int , int , int *, short int *);
 extern void *cx_tanh(void *, short int , int , int *, short int *);
 extern void *cx_atan(void *, short int , int , int *, short int *);
+extern void *cx_floor(void *, short int , int , int *, short int *);
+extern void *cx_ceil(void *, short int , int , int *, short int *);
 
 /* cmath2.c */
 
@@ -240,6 +242,7 @@ extern char *ft_setkwords[];
 extern struct line *inp_getopts(struct line *deck);
 extern struct line *inp_getoptsc(char *in_line, struct line *com_options);
 extern bool ft_ngdebug;
+extern bool ft_stricterror;
 
 /* parse.c */
 

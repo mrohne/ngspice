@@ -4,11 +4,11 @@ Author: 1987 Wayne A. Christopher, U. C. Berkeley CAD Group
 **********/
 //#define TRACE
 
-#include <ngspice/ngspice.h>
-#include <ngspice/ifsim.h>
-#include <ngspice/iferrmsg.h>
-#include <ngspice/inpdefs.h>
-#include <ngspice/inpptree.h>
+#include "ngspice/ngspice.h"
+#include "ngspice/ifsim.h"
+#include "ngspice/iferrmsg.h"
+#include "ngspice/inpdefs.h"
+#include "ngspice/inpptree.h"
 #include "inp.h"
 
 static INPparseNode *mkcon(double value);
@@ -83,6 +83,8 @@ static struct func {
     { "tanh",   PTF_TANH,   (void(*)(void)) PTtanh } ,
     { "u",      PTF_USTEP,  (void(*)(void)) PTustep } ,
     { "uramp",  PTF_URAMP,  (void(*)(void)) PTuramp } ,
+    { "ceil",   PTF_CEIL,   (void(*)(void)) PTceil } ,
+    { "floor",  PTF_FLOOR,  (void(*)(void)) PTfloor } ,
     { "-",      PTF_UMINUS, (void(*)(void)) PTuminus },
     /* MW. cif function added */
     { "u2",     PTF_USTEP2, (void(*)(void)) PTustep2},
@@ -401,6 +403,15 @@ static INPparseNode *PTdifferentiate(INPparseNode * p, int varnum)
 	case PTF_URAMP:
 	    arg1 = mkf(PTF_USTEP, p->left);
 	    break;
+
+    case PTF_FLOOR:		/* floor(u) */
+        arg1 = mkf(PTF_FLOOR, p->left);
+        break;
+
+    case PTF_CEIL:		/* ceil(u) */
+        arg1 = mkf(PTF_CEIL, p->left);
+        break;
+
 
 	    /* MW. PTF_CIF for new cif function */
 	case PTF_USTEP2: /* ustep2=uramp(x)-uramp(x-1) ustep2'=ustep(x)-ustep(x-1) */

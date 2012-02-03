@@ -3,8 +3,8 @@
  * 1999 E. Rouat
  ************/
 
-#include "config.h"
-#include <ngspice/bool.h>
+#include "ngspice/config.h"
+#include "ngspice/bool.h"
 
 #ifndef STRING_H_INCLUDED
 #define STRING_H_INCLUDED
@@ -22,6 +22,7 @@ void strtoupper(char *str);
 char * stripWhiteSpacesInsideParens(char *str);
 char * gettok(char **s);
 char * gettok_instance(char **);
+char * gettok_char(char **s, char p, bool inc_p);
 
 
 #ifdef CIDER

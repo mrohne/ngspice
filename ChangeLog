@@ -1,9 +1,725 @@
+============================ ngspice-24 ==================================
+2012-01-30  Dietmar Warning
+ * src/spicelib/devices/dio/diotemp.c: Add temperature dependent
+   junction potentials also for tlevc=1 capacitor temperature model
+
+2012-01-28  Robert Larice
+ * src/include/ngspice/ngspice.h :
+  define NAN for non C99 environments
+
+2012-01-28  Holger Vogt
+ * configure.ac, compile_min.sh: prepare for release 24
+ * mifdelete.c: prevent crash upon 'reset', if codemodel is an array
+   FIXME: leads to small memory leak
+
+2012-01-27  Holger Vogt
+ * NEWS, INSTALL, tests\bin\ngspice.pm, /visualc/include/ngspice/config.h:
+   prepare for release 24
+
+2012-01-24  Dietmar Warning
+ * src/spicelib/devices/bjt/bjttemp.c: Add temperature dependent
+   junction potentials also for tlevc=1 capacitor temperature model
+
+2012-01-15  Robert Larice
+ * src/spicelib/devices/hisim2/hsm2eval.c ,
+ * src/spicelib/devices/hisim2/hsm2temp.c ,
+ * src/spicelib/devices/hisimhv/hsmhveval.c :
+  bug fix, a numerical problem in the hisim2 an hisimhv models
+
+  First seen when compiled with gcc-4.6.2 -g -O1
+
+  The macro `Fn_SZ' which boils down to
+    1/2 * (x + sqrt(x*x + c*c))
+  was used in a context where a negative result
+    blew up the following computations.
+  (used to compute `Egidl', which is used to
+   compute exp(-1 / (Egidl + small_constant)))
+
+  For large negative values of x the computation
+  boils down to
+    1/2 ( x + almost(|x|) )
+  where the summands almost cancel each other,
+  sometimes yielding a small negative result.
+
+  small_constant was too small to avoid a big
+    result for -1/(Egidl + small_constant)
+  yielding an `inf' during the exp() computation,
+  which was later multiplied with a `0'
+    yielding a NaN,
+  which was carried forward
+    during the rest of computations.
+
+  Because the error of the cancellation scales
+  with the magnitude of x, no larger `small_constant'
+  could have avoided the problem.
+
+  Presumably the problem was amplified
+    by a mixture of precisions (double versus extended float)
+    of intermediate values.
+  (the program wasn't compiled for sse)
+
+  ( x was -2.812500e+06,
+    c was  1.000000e-02,
+    Fn_SZ result was -1.853095e-11
+
+    thus the cancellation remainder
+    was of relative size
+      6.6e-18
+    which is approximately
+      2^-57
+    and thus more accurate
+     as a `double float' could have delivered
+  )
+
+2012-01-15  Robert Larice
+ * tests/bin/modelQaTestRoutines.pm ,
+ * tests/bin/runQaTests.pl :
+  perl, defined(%hash) is depreciated
+
+2012-01-15  Holger Vogt
+ * tests\bin\modelQaTestRoutines.pm: $platform
+   should not contain '/' , removed in line 700
+
+2012-01-13  Robert Larice
+ * src/spicelib/devices/hisimhv/.cvsignore :
+  add missing .cvsignore file
+
+2012-01-13  Robert Larice
+ * src/include/ngspice/missing_math.h :
+  revert last commit, simply insane
+    checking for being a macro is already done with HAVE_DECL_ISNAN
+
+2012-01-11  Robert Larice
+ * src/include/ngspice/missing_math.h :
+  wrap isnan declaration, isnan is a macro on modern systems
+
+2012-01-11  Robert Larice
+ * src/frontend/resource.c :
+  fix printf/scanf format strings to match `unsigned long long' arguments
+
+2012-01-09 Holger Vogt
+ * rawfile.c: error messages, bug during
+   loading ascii rawfile removed
+     plot i(vdd)
+   from a loaded rawfile is working now.
+
+2012-01-08  Robert Larice
+ * src/frontend/parse-bison.c ,
+ * src/frontend/parse-bison.h ,
+   update bison generated files
+
+2012-01-08  Robert Larice
+ * src/frontend/parse-bison.y :
+  bug fix, broken vdb() vph()
+
+  see
+    plot vdb(1) vr(2) vi(3) vm(4) vp(5) no works - ID: 3470791
+    http://sourceforge.net/tracker/?func=detail&atid=423915&group_id=38962&aid=3470791
+
+  revert:
+     2011-08-20  Robert Larice
+       the i() and v() function application have special semantics
+
+  which was meant to fix a problem, when loading a rawfile and trying
+    to access a vector with name "i(vdd)"
+  yet broke the internal user defined functions
+    vdb(x)  -->   db(v(x))
+    ...
+
+  in short
+     load file
+     plot i(vdd)
+  won't work. but
+     load file
+     plot "i(vdd)"
+  will work
+
+2012-01-08  Robert Larice
+ * src/frontend/numparam/xpressn.c ,
+ * src/maths/poly/polyfit.c :
+  bug fix, incorrect '%le' printf format specifier
+
+  responsible for failure on mingw. see
+    string parameters cause crash on win32 platform - ID: 3469699
+    http://sourceforge.net/tracker/?func=detail&atid=423915&group_id=38962&aid=3469699
+
+  I've sneaked this in with commit
+    "numparm, 17 digit placeholders --> numparm__XXXXXXXX dummy symbols"
+  from
+    2011-02-19  Robert Larice
+
+2012-01-07  Robert Larice
+ * src/spicelib/devices/bsim1/b1set.c ,
+ * src/spicelib/devices/bsim2/b2set.c ,
+ * src/spicelib/devices/bsim3/b3set.c ,
+ * src/spicelib/devices/bsim3v0/b3v0set.c ,
+ * src/spicelib/devices/bsim3v1/b3v1set.c ,
+ * src/spicelib/devices/bsim3v32/b3v32set.c ,
+ * src/spicelib/devices/bsim4/b4set.c ,
+ * src/spicelib/devices/bsim4v4/b4v4set.c ,
+ * src/spicelib/devices/bsim4v5/b4v5set.c ,
+ * src/spicelib/devices/bsim4v6/b4v6set.c ,
+ * src/spicelib/devices/hfet1/hfetsetup.c ,
+ * src/spicelib/devices/hfet2/hfet2setup.c ,
+ * src/spicelib/devices/jfet/jfetset.c ,
+ * src/spicelib/devices/jfet2/jfet2set.c ,
+ * src/spicelib/devices/mes/messetup.c ,
+ * src/spicelib/devices/mesa/mesasetup.c ,
+ * src/spicelib/devices/mos1/mos1set.c ,
+ * src/spicelib/devices/mos2/mos2set.c ,
+ * src/spicelib/devices/mos3/mos3set.c ,
+ * src/spicelib/devices/mos6/mos6set.c ,
+ * src/spicelib/devices/mos9/mos9set.c ,
+ * src/spicelib/devices/vbic/vbicsetup.c :
+  bug fix, fix the guard for device generated internal nodes (via CKTmkVolt())
+
+  There is a longstanding bug in spice,
+  responsible for wired behavior when two analyzes are not separated with
+    a `reset' command
+
+  The second invocation of CKTsetup() repeated the construction of
+    internal device nodes (CKTmkVolt and CKTmkCur)
+    yielding an incorrect device matrix with growing vector size.
+
+  Obviously the support for a second CKTsetup() invocation was
+    already included in spice, but not implemented correctly.
+  This patch fixes guards in many device models, which should have
+    prevented repeated invocation of CKTmkVolt() and CKTmkCur()
+
+  This patch fixes many but not all device models,
+    known exceptions are :
+       b4soiset b3soiddset soi3set
+
+  This fix is kept short, for better readability of the patch diff.
+  A large whitespace and indentation patch will follow.
+
+2012-01-07  Robert Larice
+  * src/frontend/inpcom.c :
+  cleanup, muffle compiler warning
+
+2012-01-07  Robert Larice
+ * src/spicelib/analysis/cktdojob.c :
+  bug fix, CKTcurJob, make sure this is either up do date or NULL
+  fix a valgrind report, access to allready freed memory during CKTtemp()
+
+2012-01-05  Holger Vogt
+ * inpdomod.c: bug in error message for bjt removed
+
+2012-01-03  Holger Vogt
+ * runcoms.c: undo change from 2012-01-01, conflict with 'alter', altermod'
+
+2012-01-02  Robert Larice
+  * src/frontend/inpcom.c :
+  cleanup, muffle compiler warning
+
+2012-01-02  Robert Larice
+ * src/spicelib/analysis/cktdojob.c :
+  xspice bug fix, invoke EVTsetup(ckt) only when `reset'
+
+   bug fix, tracker ID 3388916
+   Segfault when combining digital models and breakpoint control
+     https://sourceforge.net/tracker/?func=detail&aid=3388916&group_id=38962&atid=423915
+
+2012-01-02  Robert Larice
+ * src/frontend/error.c :
+  controlled_exit() shall not block waiting for a keyboard press
+
+  and advertise the exit message to external syntax coloring schemes,
+    emit "ERROR: " at the very beginning of a new line.
+
+2012-01-02  Robert Larice
+ * configure.ac ,
+ * src/frontend/commands.c ,
+ * src/frontend/runcoms.c ,
+ * src/frontend/shyu.c ,
+ * src/frontend/spiceif.c ,
+ * src/include/ngspice/cktdefs.h ,
+ * src/include/ngspice/pssdefs.h ,
+ * src/spicelib/analysis/Makefile.am ,
+ * src/spicelib/analysis/analysis.c ,
+ * src/spicelib/parser/inp2dot.c ,
+ * visualc/vngspice.vcproj :
+  conditionally compile PSS analysis
+  discouraging PSS as being `very experimental', to enable use:
+    configure --enable-pss
+
+2012-01-01  Robert Larice
+ * src/Makefile.am :
+  fix tarball, spinit.in was missing
+
+2012-01-01  Holger Vogt
+ * inpcom.c, main.c, compatmode.h, spinit.in:
+   .lib handling depends on input to compatmode
+ * runcoms.c: enforce 'reset' after tran, op, etc. before next
+   simulation is started
+
+2011-12-30  Holger Vogt
+ * b4v5dest.c, b4dest.c, b3dest, b3v32.dest : memory leaks reduced
+ * b3v32... : struct bsim3SizeDependParam --> struct bsim3v32SizeDependParam
+ * inpcom.c: undo commit from 2011-12-27, lib handling was defect!
+
+2011-12-30  Robert Larice
+ * inpcom.c :
+  cleanup, drop `s_lower'
+    FIXME case insensitive filename compare !!
+
+2011-12-30  Robert Larice
+ * inpcom.c :
+  cleanup scope of `y' and `z'
+
+2011-12-30  Robert Larice
+ * inpcom.c :
+  cleanup scope of `keep_char' and `s_lower', drop `s_ptr'
+
+2011-12-30  Robert Larice
+ * inpcom.c :
+  cleanup, drop variable `found_library'
+
+2011-12-30  Robert Larice
+ * inpcom.c :
+  cleanup scope of variable `newfp'
+
+2011-12-30  Robert Larice
+ * inpcom.c :
+  cleanup scope of variable `big_buff2'
+
+2011-12-30  Robert Larice
+ * inpcom.c :
+  cleanup scope of variable `dir_name_flag'
+
+2011-12-30  Robert Larice
+ * inpcom.c :
+  bug fix, copys not always valid
+    cleanup scope, emphasize live range
+    avoid things to be freed too early
+    avoid incorrect frees
+
+2011-12-30  Holger Vogt
+ * inpcom.c: remove a bug reading a file
+   (FIXME: .inc and .lib need some general overhauling!)
+
+2011-12-30  Robert Larice
+ * src/include/ngspice/cktdefs.h ,
+ * src/include/ngspice/pzdefs.h ,
+ * src/spicelib/devices/nbjt2/nbjt2def.h ,
+ * src/spicelib/devices/ndev/ndevexch.h ,
+ * src/spicelib/devices/numd2/numd2def.h ,
+ * src/spicelib/devices/numos/numosdef.h :
+  remove CVS `Id',`log' etc. keyword incantations
+
+2011-12-30  Holger Vogt
+ * inppas3.c, cktdest.c: reduce memory leaks
+ * inpsymt.c: beautify
+ * inp.c: .csparam allows to tranfer a param into a vector
+   for use in the .control section (yet experimental, not safe
+   against syntax errors)
+
+2011-12-29  Holger Vogt
+ * b4v6dest.c : improved removal of circuit installation,
+   bug no. 3229770. Memory leaks are quasi gone for
+   10 run - reset sequences of a 1000 transistor circuit
+
+2011-12-29  Robert Larice
+ * src/include/ngspice/Makefile.am :
+  install headers in $(pkdatadir)/include/ngspice
+
+  use them with a single
+     -I $(pkdatadir)/include
+  compiler directive
+
+  This is for user compilation of
+    XSPICE and adms codemodels
+  outside of the ngspice build directory
+
+  Beware of the "ngspice/config.h" file
+
+  Especially if you build twice,
+    (for tclspice and then for ngspice)
+  both will install this file,
+    with different contents.
+
+  These headers are a mess,
+    yet they are at least isolated
+
+  The -I directive
+    will allow them to be found only
+    on explicit demand with a
+    "ngspice/" namespace seperator
+  (use 	#include "ngspice/...")
+
+2011-12-29  Robert Larice
+ * src/Makefile.am :
+  cleanup src/Makefile.am
+    TCL_MODULE rules
+    CLEANFILES
+    edit pkgIndex.tcl at `make' time
+      to obey (info "(autoconf) Installation Directory Variables")
+
+2011-12-29  Robert Larice
+ * configure.ac :
+  remove @libname@
+    has been replaced by $(pkglibdir)
+
+2011-12-29  Robert Larice
+ * configure.ac ,
+ * src/Makefile.am ,
+ * src/spinit.in ,
+ * src/tclspinit.in :
+  generate spinit and tclspinit at `make' time
+    to obey (info "(autoconf) Installation Directory Variables")
+  and edit them for codemodels in $(pkglibdir)
+
+2011-12-29  Robert Larice
+ * src/xspice/icm/GNUmakefile.in ,
+ * src/xspice/icm/makedefs.in :
+  install codemodels in $(pkglibdir)
+    this was hardwired to $libdir/spice
+
+2011-12-28  Holger Vogt
+ * cktdest.c, inpsymt.c: reduce memory leaks for command 'reset'
+   bug no. 3229770
+
+2011-12-27  Robert Larice
+ * visualc/vngspice.vcproj ,
+ * visualc/include/config.h ,
+ * visualc/include/ngspice/config.h :
+  #6/6 config.h --> ngspice/config.h,  vngspice.vcproj
+
+2011-12-27  Robert Larice
+ * src/frontend/help/Makefile.am ,
+ * src/xspice/icm/makedefs.in :
+  #5/6 config.h --> ngspice/config.h,  some more -I include paths
+
+2011-12-27  Robert Larice
+ * **/Makefile.am ,
+  #4/6 config.h --> ngspice/config.h,  AM_CPPFLAGS
+
+2011-12-27  Robert Larice
+ * **/Makefile.am ,
+ * src/spicelib/devices/adms/admst/ngspice.xml ,
+ * src/spicelib/devices/adms/admst/ngspiceMakefile.am.xml :
+  #3/6 config.h --> ngspice/config.h,  AM_CPPFLAGS
+
+2011-12-27  Robert Larice
+ * **/* :
+  #2/6 config.h --> ngspice/config.h,  #include's
+
+2011-12-27  Robert Larice
+ * configure.ac ,
+ * .cvsignore ,
+ * src/include/ngspice/.cvsignore :
+  #1/6 config.h --> ngspice/config.h,  configure.ac
+
+2011-12-27  Robert Larice
+ * src/frontend/com_ghelp.c ,
+ * src/frontend/cpitf.c :
+  cleanup
+
+2011-12-27  Holger Vogt
+ * inpcom.c: warnings and error messages in .lib handling (bug no. 3111261)
+
+2011-12-26  Holger Vogt
+  * xpressn.c
+  * ptfuncs.c, inpptree.c, inpptree.h, spicelib/parser/inp.h
+  * cmath2.c, cmath2.h, fteext.h, parse.c
+  functions floor and ceil added to numparam, ASRC and scripting language
+
+2011-12-25  Holger Vogt
+  * src/frontend/inpcom.c : remove 'params:' from X or .SUBCKT lines
+    of input deck (in fcn inp_fix_for_numparam())
+
+2011-12-21  Holger Vogt
+  * src/misc/string.c ,
+    src/frontend/inpcom.c ,
+    src/include/ngspice/stringutil.h:
+    allow syntax Gxxx n1 n2 TABLE {expression} = (x0, y0) (x1, y1) (x2, y2)
+    or           Exxx n1 n2 TABLE {expression} = (x0, y0) (x1, y1) (x2, y2)
+
+2011-12-17  Robert Larice
+ * src/xspice/cmpp/ifs_lex.l ,
+ * src/xspice/cmpp/ifs_yacc.y ,
+ * src/xspice/cmpp/ifs_yacc_y.h ,
+ * src/xspice/cmpp/mod_lex.l ,
+ * src/xspice/cmpp/mod_yacc.y ,
+ * src/xspice/cmpp/mod_yacc_y.h :
+  remove CVS `Id',`log' etc. keyword incantations
+
+2011-12-17  Robert Larice
+ * src/winmain.c ,
+ * src/frontend/inpcom.c ,
+ * src/include/ngspice/Makefile.am ,
+ * src/include/ngspice/memory.h ,
+ * src/misc/Makefile.am ,
+ * src/misc/string.c ,
+ * visualc/vngspice.vcproj :
+
+ Added      src/include/ngspice/stringutil.h
+ Removed    src/misc/stringutil.h
+
+   move stringutil.h --> src/include/ngspice
+
+2011-12-17  Holger Vogt
+ * src/frontend/inpcom.c :
+  allow syntax Gxxx n1 n2 value={equation} or Exxx n1 n2 value={equation}
+
+2011-12-17  Robert Larice
+ * src/spicelib/devices/dev.c ,
+ * src/spicelib/devices/adms/admst/ngspice.xml :
+  adms3, use -ldl instead of -lltdl, fix include path
+
+2011-12-17  Robert Larice
+ * src/frontend/breakp2.c ,
+ * src/frontend/outitf.c ,
+ * src/include/ngspice/ftedefs.h ,
+ * src/spicelib/analysis/cktsens.c :
+  type fixes
+
+2011-12-17  Holger Vogt
+ * src/frontend/inp.c,
+   src/frontend/options.c
+   src/include/ngspice/fteext.h :
+   variable ft_stricterror to exit ngspice with exit code 1
+   if any error occurs during circuit parsing.
+   Usage maybe extended to other errors.
+   Tradditionally ngspice uses to continue, issue error messages,
+   deliver wrong results and exit with exit code 0.
+
+2011-12-16  Holger Vogt
+ * src/frontend/subckt.c: beautify code
+
+2011-12-15  Robert Larice
+ * configure.ac ,
+ * src/frontend/inpcom.c ,
+ * src/frontend/subckt.c ,
+ * src/include/ngspice/devdefs.h ,
+ * src/include/ngspice/ngspice.h ,
+ * src/spicelib/devices/dev.c ,
+ * src/spicelib/parser/inp2u.c ,
+ * src/spicelib/parser/inpdomod.c :
+  new: configure --enable-adms3
+
+  make Laurents changes truely --adms3 specific
+  trying to preserve --adms
+
+2011-12-15  Laurent Lemaitre
+ * src/frontend/inpcom.c ,
+ * src/frontend/subckt.c ,
+ * src/include/ngspice/devdefs.h ,
+ * src/spicelib/devices/adms/admst/ngspice.xml ,
+ * src/spicelib/devices/dev.c :
+  added SPICEadmsdev - a super structure of SPICEdev used to build dynamic device libraries
+
+2011-12-14  Laurent Lemaitre
+ * src/spicelib/parser/inp2u.c ,
+ * src/spicelib/parser/inpdomod.c ,
+ * src/spicelib/devices/dev.c ,
+ * src/include/ngspice/ngspice.h ,
+ * src/spicelib/devices/adms/admst/prengspice.xml ,
+ * src/spicelib/devices/adms/admst/ngspice.xml :
+  renamed premint.xml to prengspice.xml.
+  xml file that does preformating of verilog files.
+  add routine load_vadev to public definitions.
+  add routine load_vadev for dynamic loading of modules.
+  add dynamic loading of models. shared libs should be libNAME.so.
+  use u instance as dynamically defined models in --adms mode
+
+2011-12-13  Robert Larice
+ * **/* :
+  remove CVS `Id',`log' etc. keyword incantations
+
+2011-12-13  Robert Larice
+ * src/frontend/outitf.c ,
+ * src/frontend/outitf.h ,
+ * src/frontend/spiceif.c ,
+ * src/include/ngspice/ifsim.h ,
+ * src/spicelib/analysis/acan.c ,
+ * src/spicelib/analysis/cktsens.c ,
+ * src/spicelib/analysis/dcop.c ,
+ * src/spicelib/analysis/dcpss.c ,
+ * src/spicelib/analysis/dctran.c ,
+ * src/spicelib/analysis/dctrcurv.c ,
+ * src/spicelib/analysis/distoan.c ,
+ * src/spicelib/analysis/noisean.c ,
+ * src/spicelib/analysis/pzan.c ,
+ * src/spicelib/analysis/tfanal.c :
+  unify OUTpBeginPlot() invocation
+
+2011-12-13  Robert Larice
+ * src/spicelib/analysis/pzan.c :
+  unify OUTpBeginPlot() usage of ckt->CKTcurJob
+
+2011-12-13  Robert Larice
+ * src/spicelib/analysis/cktdisto.c ,
+ * src/spicelib/analysis/cktpzld.c ,
+ * src/spicelib/analysis/cktpzset.c ,
+ * src/spicelib/analysis/cktsens.c ,
+ * src/spicelib/analysis/dctrcurv.c ,
+ * src/spicelib/analysis/dctsetp.c ,
+ * src/spicelib/analysis/distoan.c ,
+ * src/spicelib/analysis/noisean.c ,
+ * src/spicelib/analysis/pzan.c ,
+ * src/spicelib/analysis/sensaskq.c ,
+ * src/spicelib/analysis/senssetp.c :
+  rename various analysis vars --> `job'
+
+2011-12-13  Robert Larice
+ * src/spicelib/analysis/acaskq.c ,
+ * src/spicelib/analysis/acsetp.c ,
+ * src/spicelib/analysis/daskq.c ,
+ * src/spicelib/analysis/dsetparm.c ,
+ * src/spicelib/analysis/naskq.c ,
+ * src/spicelib/analysis/nsetparm.c ,
+ * src/spicelib/analysis/pssaskq.c ,
+ * src/spicelib/analysis/pssinit.c ,
+ * src/spicelib/analysis/psssetp.c ,
+ * src/spicelib/analysis/pzaskq.c ,
+ * src/spicelib/analysis/pzsetp.c ,
+ * src/spicelib/analysis/tfsetp.c ,
+ * src/spicelib/analysis/tranaskq.c ,
+ * src/spicelib/analysis/traninit.c ,
+ * src/spicelib/analysis/transetp.c :
+  auxiliary define `job' --> local variable `job'
+
+2011-12-13  Robert Larice
+ * src/spicelib/analysis/acaskq.c ,
+ * src/spicelib/analysis/acsetp.c ,
+ * src/spicelib/analysis/daskq.c ,
+ * src/spicelib/analysis/dsetparm.c ,
+ * src/spicelib/analysis/naskq.c ,
+ * src/spicelib/analysis/nsetparm.c ,
+ * src/spicelib/analysis/pssaskq.c ,
+ * src/spicelib/analysis/pssinit.c ,
+ * src/spicelib/analysis/psssetp.c ,
+ * src/spicelib/analysis/pzaskq.c ,
+ * src/spicelib/analysis/pzsetp.c ,
+ * src/spicelib/analysis/tfsetp.c ,
+ * src/spicelib/analysis/tranaskq.c ,
+ * src/spicelib/analysis/traninit.c ,
+ * src/spicelib/analysis/transetp.c :
+  auxiliary define (ANALYSIS*) anal  -->  `job'
+
+2011-12-13  Robert Larice
+ * autogen.sh ,
+ * src/spicelib/devices/adms/admst/ngspice.xml :
+  switch --adms3 over to the new adms3va directories
+
+2011-12-13  Robert Larice
+ * src/spicelib/devices/adms/hicum0/admsva/hicum0.va ,
+ * src/spicelib/devices/adms/mextram/admsva/bjt504t.va ,
+ * src/spicelib/devices/adms/psp102/admsva/JUNCAP200_parlist.include ,
+ * src/spicelib/devices/adms/psp102/admsva/PSP102_module.include :
+  undo `2011-12-12  Laurent Lemaitre'  which broke --adms in favour of --adms3
+  adms3 shall now be worked upon in `adms3va' subdirectories
+
+2011-12-13  Robert Larice
+ * src/spicelib/devices/adms/*/adms3va/* :
+  copy old amds .va files to a new directory `adms3va'
+
+2011-12-12  Robert Larice
+ * src/spicelib/devices/adms/admst/ngspiceMODULE*.xml :
+  remove CVS `Id' and `log' keyword incantations
+
+    I did use '-->' in a commit message,
+      which was injected into the source files due to
+      CVS keyword expansion.
+
+    Please use `cvs log' if you really want to know the CVS log
+
+2011-12-12  Laurent Lemaitre
+ * src/spicelib/devices/adms/hicum0/admsva/hicum0.va ,
+ * src/spicelib/devices/adms/mextram/admsva/bjt504t.va ,
+ * src/spicelib/devices/adms/psp102/admsva/JUNCAP200_parlist.include ,
+ * src/spicelib/devices/adms/psp102/admsva/PSP102_module.include :
+   Make veriloga models compliant with Language Reference Manual. They will not compile with --adms flag.
+
+2011-12-12  Laurent Lemaitre
+ * src/spicelib/devices/adms/admst/ngspice.xml :
+   Set name of model C routines unique - make linker happy.
+
+2011-12-11  Robert Larice
+ * src/spicelib/devices/adms/admst/ngspice.xml :
+  #4/4 #include <ngspice/...>  -->  #include "ngspice/..."  for adms3
+
+2011-12-11  Robert Larice
+ * src/spicelib/devices/adms/admst/ngspiceMODULE*.xml :
+  #3/4 #include <ngspice/...>  -->  #include "ngspice/..."  for adms
+
+2011-12-11  Robert Larice
+ * src/xspice/cmpp/pp_mod.c ,
+ * src/xspice/cmpp/writ_ifs.c :
+  #2/4 #include <ngspice/...>  -->  #include "ngspice/..."
+
+  printf strings
+
+2011-12-11  Robert Larice
+ * **/* :
+  #1/4 #include <ngspice/...>  -->  #include "ngspice/..."
+
+  use "" instead of <> to better express project membership
+
+  <> includes might be skipped by dependency generator tools
+    assuming those being stable system include files
+
+2011-12-11  Robert Larice
+ * src/spicelib/analysis/acan.c ,
+ * src/spicelib/analysis/dcpss.c ,
+ * src/spicelib/analysis/dctran.c :
+  use a macro to update ckt->CKTstat->STAT..
+
+2011-12-11  Robert Larice
+ * src/spicelib/**/*.c :
+  auxiliary define `job' --> local variable `job'
+
+2011-12-11  Robert Larice
+ * src/spicelib/**/*.c :
+  auxiliary define (ANALYSIS*) ckt->CKTcurJob  -->  `job'
+
+2011-12-11  Robert Larice
+ * src/spicelib/analysis/cktdisto.c ,
+ * src/spicelib/analysis/cktpzld.c ,
+ * src/spicelib/analysis/cktsens.c ,
+ * src/spicelib/analysis/dctrcurv.c :
+  variable rename `sen_info' `cv' `pzan' `sen_info' --> `job'
+
+2011-12-11  Robert Larice
+ * src/spicelib/analysis/dcpss.c :
+  similiarity dctran.c versus dcpss.c
+
+2011-12-10  Laurent Lemaitre
+ * src/spicelib/devices/adms/admst/ngspice.xml :
+   add dynamic loading feature
+
+2011-12-03  Robert Larice
+ * src/spicelib/analysis/dcpss.c ,
+ * src/spicelib/analysis/dctran.c :
+  cleanup, aiming for higher similarity of dctran.c and dcpss.c
+  this cleanup was checked for identical object code (gcc on linux)
+
+2011-12-03  Robert Larice
+ * src/frontend/numparam/xpressn.c :
+  bug fix, parameter assignment was broken for expressions containing one of '<=' '>=' or '!='
+
+2011-12-03  Robert Larice
+ * visualc/vngspice.vcproj :
+  remove some unused `vcproj' dependencies
+
+2011-11-30  Robert Larice
+ * src/frontend/inpcom.c :
+  bug fix, parameter processing was broken for nested .subckt
+
+2011-11-27  Holger Vogt
+ * /frontend/runcoms2.c: command 'remcirc' to remove a circuit.
+
+2011-11-26  Holger Vogt
+ * /frontend/plotting/gnuplot.c: appendwrite and complex
+   variable printing added.
+
 2011-11-13  Holger Vogt
  * inp.c: code beautify, indentations etc.
  * inpcom.c: reordering, fcn prototypes added, docu added
 
 2011-11-04  Holger Vogt
- * INSTALL: give more precise instructions 
+ * INSTALL: give more precise instructions
 
 2011-11-03  Robert Larice
  * src/xspice/icm/GNUmakefile.in :

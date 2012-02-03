@@ -8,20 +8,21 @@ Author: 1988 Jaijeet S Roychowdhury
  */
 
 
-#include <ngspice/ngspice.h>
-#include <ngspice/cktdefs.h>
-#include <ngspice/devdefs.h>
+#include "ngspice/ngspice.h"
+#include "ngspice/cktdefs.h"
+#include "ngspice/devdefs.h"
 #include "vsrc/vsrcdefs.h"
 #include "isrc/isrcdefs.h"
-#include <ngspice/iferrmsg.h>
-#include <ngspice/distodef.h>
-#include <ngspice/sperror.h>
+#include "ngspice/iferrmsg.h"
+#include "ngspice/distodef.h"
+#include "ngspice/sperror.h"
 
 
 int
 CKTdisto (CKTcircuit *ckt, int mode)
 {
-    DISTOAN* cv = (DISTOAN*) (ckt->CKTcurJob);
+    DISTOAN *job = (DISTOAN *) ckt->CKTcurJob;
+
     int i;
     int error=0;
     int size;
@@ -61,7 +62,7 @@ CKTdisto (CKTcircuit *ckt, int mode)
 
     case D_RHSF1:
 
- 	   cv->Df2given = 0; /* will change if any F2 source is found */
+ 	   job->Df2given = 0; /* will change if any F2 source is found */
 
     case D_RHSF2:
 
@@ -96,7 +97,7 @@ CKTdisto (CKTcircuit *ckt, int mode)
 /* check if the source has a distortion input*/
 
 if (here->VSRCdGiven) {
-  if (here->VSRCdF2given) cv->Df2given = 1;
+  if (here->VSRCdF2given) job->Df2given = 1;
   if ((here->VSRCdF1given) && (mode == D_RHSF1)) {
  
      mag = here->VSRCdF1mag;
@@ -132,7 +133,7 @@ if (((here->VSRCdF1given) && (mode == D_RHSF1)) ||
 /* check if the source has a distortion input*/
 
 if (here->ISRCdGiven) {
-  if (here->ISRCdF2given) cv->Df2given = 1;
+  if (here->ISRCdF2given) job->Df2given = 1;
   if ((here->ISRCdF1given) && (mode == D_RHSF1)) {
  
      mag = here->ISRCdF1mag;

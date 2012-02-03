@@ -2,20 +2,19 @@
 Copyright 1991 Regents of the University of California.  All rights reserved.
 Author:	1991 David A. Gates, U. C. Berkeley CAD Group
 Modified: 2001 Paolo Nenzi
-$Id: meshset.c,v 1.5 2011/08/20 17:27:10 rlar Exp $
 **********/
 /**********
 Mesh Setup & Query Routines.
 **********/
 
 /* Imports */
-#include <ngspice/ngspice.h>
-#include <ngspice/cktdefs.h>
-#include <ngspice/meshdefs.h>
-#include <ngspice/meshext.h>
-#include <ngspice/gendev.h>
-#include <ngspice/sperror.h>
-#include <ngspice/suffix.h>
+#include "ngspice/ngspice.h"
+#include "ngspice/cktdefs.h"
+#include "ngspice/meshdefs.h"
+#include "ngspice/meshext.h"
+#include "ngspice/gendev.h"
+#include "ngspice/sperror.h"
+#include "ngspice/suffix.h"
 
 /* Local Constants */
 #define CMP_TOL	1.0e-9		/* Tolerance on (double) comparisons */

@@ -10,15 +10,15 @@ Copyright 1990 Regents of the University of California.  All rights reserved.
  * e.g. "tran 1 10 20 uic"
  */
 
-#include <ngspice/ngspice.h>
-#include <ngspice/cpdefs.h>
-#include <ngspice/ftedefs.h>
-#include <ngspice/fteinp.h>
-#include <ngspice/sim.h>
-#include <ngspice/devdefs.h>
-#include <ngspice/inpdefs.h>
-#include <ngspice/iferrmsg.h>
-#include <ngspice/ifsim.h>
+#include "ngspice/ngspice.h"
+#include "ngspice/cpdefs.h"
+#include "ngspice/ftedefs.h"
+#include "ngspice/fteinp.h"
+#include "ngspice/sim.h"
+#include "ngspice/devdefs.h"
+#include "ngspice/inpdefs.h"
+#include "ngspice/iferrmsg.h"
+#include "ngspice/ifsim.h"
 
 #include "circuits.h"
 #include "shyu.h"
@@ -283,6 +283,7 @@ uic:
         }
     }
 
+#ifdef WITH_PSS
     /* *********************** */
     /* PSS - Spertica - 100910 */
     /* *********************** */
@@ -327,6 +328,7 @@ uic:
         if(error) current->error = INPerrCat(current->error,
 	INPerror(error));	
     }
+#endif
 
 next:          
     while(*line) { /* read the entire line */

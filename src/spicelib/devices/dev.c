@@ -3,8 +3,6 @@
  * Copyright (c) 1990 University of California
  * Copyright (c) 2000 Arno W. Peters
  *
- * $Id: dev.c,v 1.65 2011/08/24 19:27:51 dwarning Exp $
- *
  * Permission to use, copy, modify, and distribute this software and
  * its documentation without fee, and without a written agreement is
  * hereby granted, provided that the above copyright notice, this
@@ -29,15 +27,15 @@
  * HAVE NO OBLIGATIONS TO PROVIDE MAINTENANCE, SUPPORT, UPDATES,
  * ENHANCEMENTS, OR MODIFICATIONS. */
 
-#include <ngspice/ngspice.h>
-#include "config.h"
+#include "ngspice/ngspice.h"
+#include "ngspice/config.h"
 #include "assert.h"
 
-#include <ngspice/devdefs.h>
-#include <ngspice/ifsim.h>
+#include "ngspice/devdefs.h"
+#include "ngspice/ifsim.h"
 
 #include "dev.h"
-#include <ngspice/memory.h> /* to alloc, realloc devices*/
+#include "ngspice/memory.h" /* to alloc, realloc devices*/
 
 
 #ifdef XSPICE
@@ -50,7 +48,7 @@ typedef void *  funptr_t;
 #undef BOOLEAN
 #include <windows.h>
 #ifdef HAS_WINDOWS
-#include <ngspice/wstdio.h>
+#include "ngspice/wstdio.h"
 #endif
 typedef FARPROC funptr_t;
 void *dlopen (const char *, int);
@@ -62,8 +60,8 @@ char *dlerror (void);
 #define RTLD_GLOBAL	4	/* symbols in this dlopen'ed obj are visible to other dlopen'ed objs */
 static char errstr[128];
 #endif /* ifndef HAS_WINDOWS */
-#include <ngspice/dllitf.h> /* the coreInfo Structure*/
-#include <ngspice/evtudn.h> /*Use defined nodes */
+#include "ngspice/dllitf.h" /* the coreInfo Structure*/
+#include "ngspice/evtudn.h" /*Use defined nodes */
 
 Evt_Udn_Info_t  **g_evt_udn_info = NULL;
 int g_evt_num_udn_types = 0;
@@ -144,7 +142,7 @@ int add_udn(int,Evt_Udn_Info_t **);
 #endif
 
 /*saj in xspice the DEVices size can be varied so DEVNUM is an int*/
-#ifdef XSPICE
+#if defined XSPICE || ADMS >= 3
    static int DEVNUM = 63;
 #else
    #define DEVNUM 63
@@ -167,6 +165,73 @@ int DEVflag(int type){
 }
 #endif
 
+#if ADMS >= 3
+#include "ngspice/fteext.h"  /* for ft_sim */
+#include "ngspice/cktdefs.h" /* for DEVmaxnum */
+#include <dlfcn.h>
+static void varelink(CKTcircuit *ckt) {
+
+/*
+ * This replacement done by SDB on 6.11.2003
+ *
+ * ft_sim->numDevices = num_devices();
+ * DEVmaxnum = num_devices();
+ */
+  ft_sim->numDevices = DEVNUM;
+  DEVmaxnum = DEVNUM;
+
+  ckt->CKThead = TREALLOC(GENmodel *, ckt->CKThead, DEVmaxnum);
+  ckt->CKThead[DEVmaxnum-1] = NULL;
+
+
+  ft_sim->devices = devices_ptr();
+  return;
+}
+int load_vadev(CKTcircuit *ckt, char *name)
+{
+  char *msg, libname[50];
+  void *lib;
+  SPICEadmsdev *device;
+  void* fetch;                  /* fixme funptr_t */
+
+  strcpy(libname, "lib");
+  strcat(libname,name);
+  strcat(libname,".so");
+
+  lib = dlopen(libname, RTLD_NOW);
+
+  if(!lib){
+    msg = dlerror();
+    printf("%s\n", msg);
+    return -1;
+  }
+
+  strcpy(libname, "get_");
+  strcat(libname,name);
+  strcat(libname,"_info");
+  fetch = dlsym(lib,libname);
+
+  if(fetch)
+      device = ((SPICEadmsdev * (*)(void)) fetch) ();
+  else
+      device = NULL;
+
+  if(!device) {
+    msg = dlerror();
+    printf("%s\n", msg);
+    return -1;
+  }
+
+  device->mkn = ((int (*)(GENmodel *, CKTcircuit *)) &CKTmkVolt);
+  device->mkj = ((int (*)(CKTcircuit *, GENmodel *, IFuid)) &SMPmakeElt);
+
+  DEVices = TREALLOC(SPICEdev *, DEVices, DEVNUM + 1);
+  printf("Added device: %s from dynamic library %s\n", ((SPICEdev *)device)->DEVpublic.name, libname);
+  DEVices[DEVNUM++] = (SPICEdev *)device;
+  varelink(ckt);
+  return DEVNUM-1;
+}
+#endif
 
 void
 spice_init_devices(void)
@@ -247,11 +312,11 @@ spice_init_devices(void)
 #endif
           
 #ifdef ADMS
-    DEVices[54] = get_hicum0_info();
-    DEVices[55] = get_hicum2_info();
-    DEVices[56] = get_bjt504t_info();
-    DEVices[57] = get_ekv_info();
-    DEVices[58] = get_psp102_info();
+    DEVices[54] = (SPICEdev*)get_hicum0_info();
+    DEVices[55] = (SPICEdev*)get_hicum2_info();
+    DEVices[56] = (SPICEdev*)get_bjt504t_info();
+    DEVices[57] = (SPICEdev*)get_ekv_info();
+    DEVices[58] = (SPICEdev*)get_psp102_info();
 #else
     DEVices[54] = NULL;
     DEVices[55] = NULL;
@@ -267,6 +332,8 @@ spice_init_devices(void)
 #endif
    DEVices[60] = NULL;
    DEVices[61] = NULL;
+
+
    return;
 }
 
@@ -317,7 +384,7 @@ int load_dev(char *name) {
     printf("%s\n", msg);
     return 1;
   }
-  
+
   strcpy(libname, "get_");
   strcat(libname,name);
   strcat(libname,"_info");
@@ -345,11 +412,11 @@ void load_alldevs(void){
 
 /*--------------------   XSPICE additions below  ----------------------*/
 #ifdef XSPICE
-#include <ngspice/mif.h>
-#include <ngspice/cm.h>
-#include <ngspice/cpextern.h>
-#include <ngspice/fteext.h>  /* for ft_sim */
-#include <ngspice/cktdefs.h> /* for DEVmaxnum */
+#include "ngspice/mif.h"
+#include "ngspice/cm.h"
+#include "ngspice/cpextern.h"
+#include "ngspice/fteext.h"  /* for ft_sim */
+#include "ngspice/cktdefs.h" /* for DEVmaxnum */
 
 static void relink(void) {
 

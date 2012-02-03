@@ -3,9 +3,8 @@
     Stand: 28.10.97
     Autor: Holger Vogt
     Stand: 17.10.2009
- $Id: winmain.c,v 1.32 2011/08/20 17:27:10 rlar Exp $
 */
-#include "config.h"
+#include "ngspice/config.h"
 #ifdef HAS_WINDOWS
 
 #define STRICT              // strict type checking
@@ -16,7 +15,7 @@
 #include <stdlib.h>         // exit codes
 #include <stdarg.h>         // var. arguments
 #include <assert.h>         // assert macro
-#include "misc/stringutil.h" // copy
+#include "ngspice/stringutil.h" // copy
 #include <io.h>             // _read
 
 #include <errno.h>
@@ -25,7 +24,7 @@
 #include <ctype.h>
 #include <sys/types.h>
 #include <sys/timeb.h>
-#include <ngspice/bool.h>           /* bool defined as unsigned char */
+#include "ngspice/bool.h"           /* bool defined as unsigned char */
 #include "misc/misc_time.h" /* timediff */
 
 /* Constants */

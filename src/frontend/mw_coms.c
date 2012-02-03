@@ -1,13 +1,12 @@
 /* Michael Widlok 		2 Jun 1999 */
-/* $Id: mw_coms.c,v 1.13 2011/08/20 17:27:11 rlar Exp $ */
 /* New commands for unloading circuits */
 
-#include <ngspice/ngspice.h>
-#include <ngspice/cpdefs.h>
-#include <ngspice/ftedefs.h>
-#include <ngspice/ftedev.h>
-#include <ngspice/ftedebug.h>
-#include <ngspice/dvec.h>
+#include "ngspice/ngspice.h"
+#include "ngspice/cpdefs.h"
+#include "ngspice/ftedefs.h"
+#include "ngspice/ftedev.h"
+#include "ngspice/ftedebug.h"
+#include "ngspice/dvec.h"
 
 #include "circuits.h"
 #include "mw_coms.h"

@@ -8,12 +8,12 @@ Author: 1985 Thomas L. Quarles
  * Create a device of the specified type, with the given name, using
  * the specified model in the named circuit.  */
 
-#include <config.h>
-#include <ngspice/devdefs.h>
-#include <ngspice/sperror.h>
+#include "ngspice/config.h"
+#include "ngspice/devdefs.h"
+#include "ngspice/sperror.h"
 
 #include "dev.h"
-#include <ngspice/memory.h>
+#include "ngspice/memory.h"
 
 int
 CKTcrtElt(CKTcircuit *ckt, GENmodel *modPtr, GENinstance **inInstPtr, IFuid name)

@@ -1,13 +1,11 @@
 /*
  * vbicinit.c
- *
- * $Id: vbicinit.c,v 1.4 2011/08/20 17:27:16 rlar Exp $
  */
 
 
-#include "config.h"
+#include "ngspice/config.h"
 
-#include <ngspice/devdefs.h>
+#include "ngspice/devdefs.h"
 
 #include "vbicitf.h"
 #include "vbicext.h"

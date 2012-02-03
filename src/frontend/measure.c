@@ -4,19 +4,17 @@
    
    In addition it contains the fcn com_meas(), which provide the 
    interactive 'meas' command.
-   
-   $Id: measure.c,v 1.39 2011/08/20 17:27:11 rlar Exp $   
 */
    
-#include <ngspice/ngspice.h>
-#include <ngspice/cpdefs.h>
-#include <ngspice/ftedefs.h>
-#include <ngspice/dvec.h>
+#include "ngspice/ngspice.h"
+#include "ngspice/cpdefs.h"
+#include "ngspice/ftedefs.h"
+#include "ngspice/dvec.h"
 
 #include "rawfile.h"
 #include "variable.h"
 #include "numparam/numpaif.h"
-#include <ngspice/missing_math.h>
+#include "ngspice/missing_math.h"
 #include "com_measure2.h"
 #include "com_let.h"
 #include "com_commands.h"

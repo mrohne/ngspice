@@ -1,5 +1,4 @@
 ## Process this file with automake to produce Makefile.in
-## $Id: Makefile.am,v 1.40 2011/08/09 18:41:36 pnenzi Exp $
 
 SUBDIRS = plotting help parser wdisp numparam trannoise
 DIST_SUBDIRS = plotting help parser wdisp numparam trannoise
@@ -194,7 +193,7 @@ libfte_la_SOURCES =	\
 # testcommands_LDADD = libfte.a plotting/libplotting.a ../misc/libmisc.a
 
 
-AM_CPPFLAGS = -I$(top_srcdir)/src/include @X_CFLAGS@
+AM_CPPFLAGS = @AM_CPPFLAGS@ -I$(top_srcdir)/src/include @X_CFLAGS@
 
 MAINTAINERCLEANFILES = Makefile.in
 

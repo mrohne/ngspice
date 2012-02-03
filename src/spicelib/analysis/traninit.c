@@ -3,22 +3,24 @@ Copyright 1991 Regents of the University of California.  All rights reserved.
 Modified: 2000 AlansFixes
 **********/
 
-#include <ngspice/ngspice.h>
-#include <ngspice/cktdefs.h>
-#include <ngspice/trandefs.h>
-#include <ngspice/iferrmsg.h>
+#include "ngspice/ngspice.h"
+#include "ngspice/cktdefs.h"
+#include "ngspice/trandefs.h"
+#include "ngspice/iferrmsg.h"
 
 /*
  * this used to be in setup, but we need it here now
  * (must be done after mode is set as below)
  */
 
-int TRANinit(CKTcircuit	*ckt, JOB *job)
+int TRANinit(CKTcircuit	*ckt, JOB *anal)
 {
-    ckt->CKTfinalTime = ((TRANan*)job)->TRANfinalTime;
-    ckt->CKTstep = ((TRANan*)job)->TRANstep;
-    ckt->CKTinitTime = ((TRANan*)job)->TRANinitTime;
-    ckt->CKTmaxStep = ((TRANan*)job)->TRANmaxStep;
+    TRANan *job = (TRANan *) anal;
+
+    ckt->CKTfinalTime = job->TRANfinalTime;
+    ckt->CKTstep      = job->TRANstep;
+    ckt->CKTinitTime  = job->TRANinitTime;
+    ckt->CKTmaxStep   = job->TRANmaxStep;
    
    
     
@@ -38,8 +40,13 @@ int TRANinit(CKTcircuit	*ckt, JOB *job)
 
    
     
+<<<<<<< traninit.c
     ckt->CKTdelmin = 1e-14*ckt->CKTmaxStep;	/* XXX */
     ckt->CKTmode = ((TRANan*)job)->TRANmode;
+=======
+    ckt->CKTdelmin = 1e-11*ckt->CKTmaxStep;	/* XXX */
+    ckt->CKTmode = job->TRANmode;
+>>>>>>> 1.9
 
     return OK;
 }

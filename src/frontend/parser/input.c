@@ -1,20 +1,19 @@
 /**********
 Copyright 1990 Regents of the University of California.  All rights reserved.
 Author: 1988 Jeffrey M. Hsu
-$Id: input.c,v 1.10 2011/08/20 17:27:11 rlar Exp $
 **********/
 
 /*
  * Stand-alone input routine.
  */
-#include <config.h>
-#include <ngspice/ngspice.h>
+#include "ngspice/config.h"
+#include "ngspice/ngspice.h"
 
 #include <errno.h>
 
-#include <ngspice/fteinput.h>
+#include "ngspice/fteinput.h"
 #include "input.h"
-#include <ngspice/cpextern.h>
+#include "ngspice/cpextern.h"
 #include "../display.h"
 #ifdef _MSC_VER
 #include "BaseTsd.h" /* for SSIZE_T */

@@ -147,7 +147,7 @@ June. 2008  (revised in June 2011)
 /* #include <ieeefp.h> */
 #endif
 
-#include <ngspice/ngspice.h>
+#include "ngspice/ngspice.h"
 
 /*-----------------------------------*
 * HiSIM macros
@@ -246,6 +246,8 @@ double TMF0 , TMF1 , TMF2 , TMF3 , TMF4 , TMF5 , TMF6 ;
     TMF2 = sqrt ( ( x ) *  ( x ) + 4.0 * ( delta ) * ( delta) ) ; \
     dx = 0.5 * ( 1.0 + ( x ) / TMF2 ) ; \
     y = 0.5 * ( ( x ) + TMF2 ) ; \
+    if (y < 0) \
+        y = 0 ; \
   }
 
 

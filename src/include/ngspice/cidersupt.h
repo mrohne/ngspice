@@ -2,16 +2,15 @@
  * cidersupt.h
  * 
  * CIDER support library header
- * $Id: cidersupt.h,v 1.1 2011/08/20 17:43:07 rlar Exp $
  */
  
 #ifndef _CIDERSUPT_H
 #define _CIDERSUPT_H
 
-#include <ngspice/numglobs.h>
-#include <ngspice/material.h>
-#include <ngspice/gendev.h>
-#include <ngspice/profile.h>
+#include "ngspice/numglobs.h"
+#include "ngspice/material.h"
+#include "ngspice/gendev.h"
+#include "ngspice/profile.h"
 
 /* externals for database.c */
 extern struct plot* DBread( char *);

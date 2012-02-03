@@ -9,12 +9,12 @@ Modified by Dietmar Warning 2003 and Paolo Nenzi 2003
  * for fast matrix loading
  */
 
-#include <ngspice/ngspice.h>
-#include <ngspice/smpdefs.h>
-#include <ngspice/cktdefs.h>
+#include "ngspice/ngspice.h"
+#include "ngspice/smpdefs.h"
+#include "ngspice/cktdefs.h"
 #include "diodefs.h"
-#include <ngspice/sperror.h>
-#include <ngspice/suffix.h>
+#include "ngspice/sperror.h"
+#include "ngspice/suffix.h"
 
 int
 DIOsetup(SMPmatrix *matrix, GENmodel *inModel, CKTcircuit *ckt, int *states)
@@ -101,6 +101,12 @@ DIOsetup(SMPmatrix *matrix, GENmodel *inModel, CKTcircuit *ckt, int *states)
         }
         if(!model->DIOctpGiven) {
             model->DIOctp = 0.0;
+        }
+        if(!model->DIOtbpGiven) {
+            model->DIOtbp = 0.0;
+        }
+        if(!model->DIOtphpGiven) {
+            model->DIOtphp = 0.0;
         }
         if(!model->DIOfNcoefGiven) {
             model->DIOfNcoef = 0.0;

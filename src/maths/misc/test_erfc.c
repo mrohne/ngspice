@@ -1,6 +1,5 @@
 /* Paolo Nenzi 2002 - This program tests erfc function
  * implementations.
- * $Id: test_erfc.c,v 1.3 2008/05/13 19:45:43 dwarning Exp $
  */
 
 

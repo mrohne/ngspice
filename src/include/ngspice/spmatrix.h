@@ -32,9 +32,6 @@
  *  California make no representations as to the suitability of this
  *  software for any purpose.  It is provided `as is', without express
  *  or implied warranty.
- *
- *  $Date: 2011/08/20 17:43:07 $
- *  $Revision: 1.1 $
  */
 
 
@@ -83,7 +80,7 @@
  *      and warnings.
  */
 
-#include <ngspice/sperror.h>  /* Spice error definitions. */
+#include "ngspice/sperror.h"  /* Spice error definitions. */
 
 /* Begin error macros. */
 #define  spOKAY                 OK

@@ -1,6 +1,5 @@
 /* Paolo Nenzi 2002 - This program tests some machine
  * dependent variables.
- * $Id: test_accuracy.c,v 1.2 2005/05/22 20:39:07 sjborley Exp $
  */
 
 /* Nota:

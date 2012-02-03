@@ -1,4 +1,3 @@
-/* $Id: cfunc.mod,v 1.4 2010/09/07 18:57:23 rlar Exp $ */
 
 void ucm_d_to_real (ARGS)
 {

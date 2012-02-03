@@ -11,8 +11,6 @@ Georgia Tech Research Corporation
 Atlanta, Georgia 30332
 All Rights Reserved
 
-$Id: cm.h,v 1.1 2011/08/20 17:43:07 rlar Exp $
-
 PROJECT A-8503
 
 AUTHORS
@@ -41,11 +39,11 @@ NON-STANDARD FEATURES
 
 =========================================================================== */
 
-#include <ngspice/cmtypes.h>
-#include <ngspice/cmconstants.h> /* K.A. wrong name */
+#include "ngspice/cmtypes.h"
+#include "ngspice/cmconstants.h" /* K.A. wrong name */
 /*#include "Cmconsta.h" */
-#include <ngspice/cmproto.h>
-#include <ngspice/mifcmdat.h>
+#include "ngspice/cmproto.h"
+#include "ngspice/mifcmdat.h"
 
 
 #endif /* CM_DEFINED */

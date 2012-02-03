@@ -3,12 +3,12 @@ Copyright 1990 Regents of the University of California.  All rights reserved.
 Author: 1987 Gary W. Ng
 **********/
 
-#include <ngspice/ngspice.h>
+#include "ngspice/ngspice.h"
 #include "bjtdefs.h"
-#include <ngspice/cktdefs.h>
-#include <ngspice/iferrmsg.h>
-#include <ngspice/noisedef.h>
-#include <ngspice/suffix.h>
+#include "ngspice/cktdefs.h"
+#include "ngspice/iferrmsg.h"
+#include "ngspice/noisedef.h"
+#include "ngspice/suffix.h"
 
 /*
  * BJTnoise (mode, operation, firstModel, ckt, data, OnDens)
@@ -25,6 +25,8 @@ int
 BJTnoise (int mode, int operation, GENmodel *genmodel, CKTcircuit *ckt, 
           Ndata *data, double *OnDens)
 {
+    NOISEAN *job = (NOISEAN *) ckt->CKTcurJob;
+
     BJTmodel *firstModel = (BJTmodel *) genmodel;
     BJTmodel *model;
     BJTinstance *inst;
@@ -61,7 +63,7 @@ for (model=firstModel; model != NULL; model=model->BJTnextModel) {
 		/* see if we have to to produce a summary report */
 		/* if so, name all the noise generators */
 
-		if (((NOISEAN*)ckt->CKTcurJob)->NStpsSm != 0) {
+		if (job->NStpsSm != 0) {
 		    switch (mode) {
 
 		    case N_DENS:
@@ -162,7 +164,7 @@ if (!data->namelist) return(E_NOMEM);
 
 			/* clear out our integration variables if it's the first pass */
 
-			if (data->freq == ((NOISEAN*)ckt->CKTcurJob)->NstartFreq) {
+			if (data->freq == job->NstartFreq) {
 			    for (i=0; i < BJTNSRCS; i++) {
 				inst->BJTnVar[OUTNOIZ][i] = 0.0;
 				inst->BJTnVar[INNOIZ][i] = 0.0;
@@ -183,7 +185,7 @@ if (!data->namelist) return(E_NOMEM);
 				inst->BJTnVar[LNLSTDENS][i] = lnNdens[i];
 				data->outNoiz += tempOnoise;
 				data->inNoise += tempInoise;
-				if (((NOISEAN*)ckt->CKTcurJob)->NStpsSm != 0) {
+				if (job->NStpsSm != 0) {
 				    inst->BJTnVar[OUTNOIZ][i] += tempOnoise;
 				    inst->BJTnVar[OUTNOIZ][BJTTOTNOIZ] += tempOnoise;
 				    inst->BJTnVar[INNOIZ][i] += tempInoise;
@@ -200,7 +202,7 @@ if (!data->namelist) return(E_NOMEM);
 		    break;
 
 		case INT_NOIZ:        /* already calculated, just output */
-		    if (((NOISEAN*)ckt->CKTcurJob)->NStpsSm != 0) {
+		    if (job->NStpsSm != 0) {
 			for (i=0; i < BJTNSRCS; i++) {
 			    data->outpVector[data->outNumber++] = inst->BJTnVar[OUTNOIZ][i];
 			    data->outpVector[data->outNumber++] = inst->BJTnVar[INNOIZ][i];

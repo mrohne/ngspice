@@ -1,5 +1,4 @@
 ## Process this file with automake to produce Makefile.in
-## $Id: Makefile.am,v 1.19 2010/09/17 16:11:26 rlar Exp $
 
 noinst_LTLIBRARIES = libmisc.la
 
@@ -20,7 +19,6 @@ libmisc_la_SOURCES = \
 		printnum.c	\
 		printnum.h	\
 		string.c	\
-		stringutil.h	\
 		tilde.c		\
 		tilde.h		\
 		misc_time.c	\
@@ -36,5 +34,5 @@ libmisc_la_SOURCES = \
 
 
 
-AM_CPPFLAGS = -I$(top_srcdir)/src/include
+AM_CPPFLAGS = @AM_CPPFLAGS@ -I$(top_srcdir)/src/include
 MAINTAINERCLEANFILES = Makefile.in

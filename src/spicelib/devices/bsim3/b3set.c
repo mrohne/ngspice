@@ -9,16 +9,16 @@
  * Author: 2001  Xuemei Xi
  **********/
 
-#include <ngspice/ngspice.h>
-#include <ngspice/smpdefs.h>
-#include <ngspice/cktdefs.h>
+#include "ngspice/ngspice.h"
+#include "ngspice/smpdefs.h"
+#include "ngspice/cktdefs.h"
 #include "bsim3def.h"
-#include <ngspice/const.h>
-#include <ngspice/sperror.h>
-#include <ngspice/suffix.h>
+#include "ngspice/const.h"
+#include "ngspice/sperror.h"
+#include "ngspice/suffix.h"
 
 #ifdef USE_OMP3
-#include <ngspice/cpextern.h>
+#include "ngspice/cpextern.h"
 int nthreads;
 #endif
 
@@ -959,10 +959,12 @@ int nthreads;
 
  /* internal charge node */
 
-            if ((here->BSIM3nqsMod) && (here->BSIM3qNode == 0))
+            if (here->BSIM3nqsMod)
+            {   if (here->BSIM3qNode == 0)
             {   error = CKTmkVolt(ckt,&tmp,here->BSIM3name,"charge");
                 if(error) return(error);
                 here->BSIM3qNode = tmp->number;
+            }
             }
             else
             {   here->BSIM3qNode = 0;

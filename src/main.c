@@ -5,10 +5,9 @@
    Author: 1985 Wayne A. Christopher
 
    The main routine for ngspice
-   $Id: main.c,v 1.158 2011/10/31 10:53:51 rlar Exp $
 */
 
-#include <ngspice/ngspice.h>
+#include "ngspice/ngspice.h"
 
 #ifdef HAVE_ASPRINTF
 # ifdef HAVE_LIBIBERTY_H /* asprintf */
@@ -22,7 +21,6 @@
 
 #include <setjmp.h>
 #include <signal.h>
-#include <fenv.h>
 
 /* MINGW: random, srandom in libiberty.a, but not in libiberty.h */
 #if defined(__MINGW32__) && defined(HAVE_RANDOM)
@@ -44,9 +42,9 @@
  extern int rl_catch_signals;        /* missing from editline/readline.h */
 #endif
 
-#include <ngspice/iferrmsg.h>
-#include <ngspice/ftedefs.h>
-#include <ngspice/devdefs.h>
+#include "ngspice/iferrmsg.h"
+#include "ngspice/ftedefs.h"
+#include "ngspice/devdefs.h"
 #include "spicelib/devices/dev.h"
 #include "spicelib/analysis/analysis.h"
 #include "misc/ivars.h"
@@ -68,19 +66,19 @@
 #include "frontend/display.h"  /* added by SDB to pick up Input() fcn */
 #include "frontend/signal_handler.h"
 #include "frontend/misccoms.h"
-#include <ngspice/compatmode.h>
+#include "ngspice/compatmode.h"
 
 /* saj xspice headers */
 #ifdef XSPICE
-# include <ngspice/ipctiein.h>
-# include <ngspice/mif.h>
-# include <ngspice/enh.h>
-# include <ngspice/mifproto.h>
-# include <ngspice/evtproto.h>
+# include "ngspice/ipctiein.h"
+# include "ngspice/mif.h"
+# include "ngspice/enh.h"
+# include "ngspice/mifproto.h"
+# include "ngspice/evtproto.h"
 #endif
 
 #ifdef CIDER
-# include <ngspice/numenum.h>
+# include "ngspice/numenum.h"
 # include "maths/misc/accuracy.h"
 #endif
 
@@ -438,10 +436,12 @@ COMPATMODE_T ngspice_compat_mode(void)
          return( COMPATMODE_ALL ) ;
       if (strcasecmp(behaviour, "hs")==0)
          return( COMPATMODE_HS ) ;
+      if (strcasecmp(behaviour, "ps")==0)
+         return( COMPATMODE_PS ) ;
       if (strcasecmp(behaviour, "spice3")==0)
          return( COMPATMODE_SPICE3 ) ;
    }
-   return(COMPATMODE_NATIVE) ;
+   return(COMPATMODE_ALL) ;
 } /* end ngspice_compat_mode() */
 
 /* -------------------------------------------------------------------------- */
@@ -469,18 +469,7 @@ SIMinit(IFfrontEnd *frontEnd, IFsimulator **simulator)
     CONSTroot2 = sqrt(2.);
     CONSTvt0 = CONSTboltz * (27 /* deg c */ + CONSTCtoK ) / CHARGE;
     CONSTKoverQ = CONSTboltz / CHARGE;
-    CONSTe = exp((double)1.0);
-
-#ifdef EXPERIMENTAL_CODE   
-    /* Set up floating point environment */
-    {
-      fenv_t fenv;
-      fegetenv(&fenv);
-      fenv.__control &= ~((FE_OVERFLOW|FE_INVALID) << 0);
-      fenv.__mxcsr &= ~((FE_OVERFLOW|FE_INVALID) << 7);
-      fesetenv(&fenv);
-    }
-#endif /* EXPERIMENTAL_CODE */
+    CONSTe = exp(1.0);
     return(OK);
 }
 

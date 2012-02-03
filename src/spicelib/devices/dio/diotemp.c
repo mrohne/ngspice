@@ -7,12 +7,12 @@ Modified by Dietmar Warning 2003 and Paolo Nenzi 2003
 
     /* perform the temperature update to the diode */
 
-#include <ngspice/ngspice.h>
-#include <ngspice/cktdefs.h>
+#include "ngspice/ngspice.h"
+#include "ngspice/cktdefs.h"
 #include "diodefs.h"
-#include <ngspice/const.h>
-#include <ngspice/sperror.h>
-#include <ngspice/suffix.h>
+#include "ngspice/const.h"
+#include "ngspice/sperror.h"
+#include "ngspice/suffix.h"
 
 int
 DIOtemp(GENmodel *inModel, CKTcircuit *ckt)
@@ -132,6 +132,7 @@ DIOtemp(GENmodel *inModel, CKTcircuit *ckt)
                     here->DIOtJctCap *= 1+here->DIOtGradingCoeff*
                             (400e-6*(here->DIOtemp-REFTEMP)-gmanew);
             } else if (model->DIOtlevc == 1) {
+                    here->DIOtJctPot = model->DIOjunctionPot - model->DIOtbp*(here->DIOtemp-REFTEMP);
                     here->DIOtJctCap = model->DIOjunctionCap *
                             (model->DIOcta*(here->DIOtemp-REFTEMP));
             }
@@ -147,6 +148,7 @@ DIOtemp(GENmodel *inModel, CKTcircuit *ckt)
                     here->DIOtJctSWCap *= 1+model->DIOgradingSWCoeff*
                             (400e-6*(here->DIOtemp-REFTEMP)-gmaSWnew);
             } else if (model->DIOtlevc == 1) {
+                    here->DIOtJctSWPot = model->DIOjunctionSWPot - model->DIOtphp*(here->DIOtemp-REFTEMP);
                     here->DIOtJctSWCap = model->DIOjunctionSWCap *
                             (model->DIOctp*(here->DIOtemp-REFTEMP));
             }

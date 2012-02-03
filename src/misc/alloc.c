@@ -1,12 +1,11 @@
 /**********
 Copyright 1990 Regents of the University of California.  All rights reserved.
-$Id: alloc.c,v 1.18 2011/08/20 17:27:12 rlar Exp $
 **********/
 
 /*
  * Memory alloction functions
  */
-#include <ngspice/ngspice.h>
+#include "ngspice/ngspice.h"
 
 #ifndef HAVE_LIBGC
 

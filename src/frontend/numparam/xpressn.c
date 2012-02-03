@@ -2,7 +2,6 @@
 
    This file is part of Numparam, see:  readme.txt
    Free software under the terms of the GNU Lesser General Public License
-   $Id: xpressn.c,v 1.75 2011/10/31 10:53:51 rlar Exp $
  */
 
 #include <stdio.h>                /* for function message() only. */
@@ -10,12 +9,12 @@
 
 #include "general.h"
 #include "numparam.h"
-#include <ngspice/ngspice.h>
-#include <ngspice/cpdefs.h>
-#include <ngspice/ftedefs.h>
-#include <ngspice/dvec.h>
+#include "ngspice/ngspice.h"
+#include "ngspice/cpdefs.h"
+#include "ngspice/ftedefs.h"
+#include "ngspice/dvec.h"
 #include "../frontend/variable.h"
-#include <ngspice/compatmode.h>
+#include "ngspice/compatmode.h"
 #include "../frontend/error.h"
 
 /* random numbers in /maths/misc/randnumb.c */
@@ -89,7 +88,7 @@ initkeys (void)
               " include for to downto is var");
     scopy_up (&fmathS,
               "sqr sqrt sin cos exp ln arctan abs pow pwr max min int log sinh cosh"
-              " tanh ternary_fcn v agauss sgn gauss unif aunif limit");
+              " tanh ternary_fcn v agauss sgn gauss unif aunif limit ceil floor");
 }
 
 static double
@@ -150,10 +149,16 @@ mathfunction (int f, double z, double x)
     case 17:
         y=sinh(x)/cosh(x);
         break;
-    case 21:
+    case 21: /* sgn */
         if (x>0) y=1.;
         else if (x == 0) y=0.;
         else y = -1.;
+        break;
+    case 26:
+        y=ceil(x);
+        break;
+    case 27:
+        y=floor(x);
         break;
     default:
         y = x;
@@ -1394,7 +1399,7 @@ evaluate (tdico * dico, SPICE_DSTRINGPTR qstr_p, char *t, unsigned char mode)
          */
 
         char buf[17+1];
-        if(snprintf(buf, sizeof(buf), "% 17.9le", u) != 17) {
+        if(snprintf(buf, sizeof(buf), "% 17.9e", u) != 17) {
             fprintf(stderr, "ERROR: xpressn.c, %s(%d)\n", __FUNCTION__, __LINE__);
             controlled_exit(1);
         }
@@ -1957,7 +1962,7 @@ nupa_subcktcall (tdico * dico, char *s, char *x, bool err)
    x= a matching subckt call line, with actual params
 */
 {
-    int n, m, i, j, k, g, h, narg = 0, ls, nest;
+    int n, i, j, k, g, h, narg = 0, ls, nest;
     SPICE_DSTRING subname ;
     SPICE_DSTRING tstr ;
     SPICE_DSTRING ustr ;
@@ -2012,36 +2017,48 @@ nupa_subcktcall (tdico * dico, char *s, char *x, bool err)
 
     if (i >= 0)
     {
+        const char *optr, *jptr;
+
         pscopy (&tstr, spice_dstring_value(&tstr), i + 7, spice_dstring_length (&tstr));
-        while (j = cpos ('=', spice_dstring_value(&tstr)), j >= 0)
+
+        /* search identifier to the left of '=' assignments */
+
+        for (optr = spice_dstring_value(&tstr);
+             (jptr = strchr(optr, '=')) != NULL; optr = jptr + 1)
         {
-            /* isolate idents to the left of =-signs */
-            k = j - 1;
-            t_p = spice_dstring_value(&tstr) ;
-            while ((k >= 0) && (t_p[k] <= ' '))
-                k--;
+            const char *kptr, *hptr;
 
-            h = k;
+            /* skip "==" */
+            if(jptr[1] == '=') {
+                jptr++;
+                continue;
+            }
 
-            while ((h >= 0) && alfanum (t_p[h]))
-                h--;
+            /* skip "<=" ">=" "!=" */
+            if(jptr > optr && strchr("<>!", jptr[-1]))
+                continue;
 
-            if (alfa (t_p[h + 1]) && (k > h))
+            kptr = jptr;
+            while (--kptr >= optr && isspace(*kptr))
+                ;
+
+            hptr = kptr;
+            while (hptr >= optr && alfanum(*hptr))
+                hptr--;
+
+            if (hptr < kptr && alfa(hptr[1]))
             {
-                /* we have some id */
-                for (m = (h + 1); m <= k; m++)
-                    cadd (&idlist, t_p[m]);
+                while(hptr++ < kptr)
+                    cadd (&idlist, *hptr);
 
                 sadd (&idlist, "=$;");
                 n++;
             }
             else
                 message (dico, "identifier expected.");
-
-            /* It is j+1 to skip over the '=' */
-            pscopy (&tstr, spice_dstring_value(&tstr), j+1, spice_dstring_length (&tstr));
         }
     }
+
     /***** next, analyze the circuit call line */
     if (!err)
     {

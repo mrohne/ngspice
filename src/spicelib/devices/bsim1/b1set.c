@@ -3,13 +3,13 @@ Copyright 1990 Regents of the University of California.  All rights reserved.
 Author: 1985 Hong J. Park, Thomas L. Quarles
 **********/
 
-#include <ngspice/ngspice.h>
-#include <ngspice/smpdefs.h>
-#include <ngspice/cktdefs.h>
+#include "ngspice/ngspice.h"
+#include "ngspice/smpdefs.h"
+#include "ngspice/cktdefs.h"
 #include "bsim1def.h"
-#include <ngspice/const.h>
-#include <ngspice/sperror.h>
-#include <ngspice/suffix.h>
+#include "ngspice/const.h"
+#include "ngspice/sperror.h"
+#include "ngspice/suffix.h"
 
 int
 B1setup(SMPmatrix *matrix, GENmodel *inModel, CKTcircuit *ckt, 
@@ -328,8 +328,8 @@ B1setup(SMPmatrix *matrix, GENmodel *inModel, CKTcircuit *ckt,
             
             /* process drain series resistance */
             if( (model->B1sheetResistance != 0) && 
-                    (here->B1drainSquares != 0.0 ) &&
-                    (here->B1dNodePrime == 0) ) {
+                    (here->B1drainSquares != 0.0 ))
+            {   if(here->B1dNodePrime == 0) {
                 error = CKTmkVolt(ckt,&tmp,here->B1name,"drain");
                 if(error) return(error);
                 here->B1dNodePrime = tmp->number;
@@ -341,14 +341,14 @@ B1setup(SMPmatrix *matrix, GENmodel *inModel, CKTcircuit *ckt,
                      }
                   }
                 }
+            }
             } else {
                     here->B1dNodePrime = here->B1dNode;
             }
                    
             /* process source series resistance */
             if( (model->B1sheetResistance != 0) && 
-                    (here->B1sourceSquares != 0.0 ) &&
-                    (here->B1sNodePrime == 0) ) {
+                    (here->B1sourceSquares != 0.0 )) {
                 if(here->B1sNodePrime == 0) {
                     error = CKTmkVolt(ckt,&tmp,here->B1name,"source");
                     if(error) return(error);

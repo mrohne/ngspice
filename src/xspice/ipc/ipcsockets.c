@@ -6,8 +6,6 @@
   Georgia Tech Research Corporation, Atlanta, Georgia 30332
   All Rights Reserved
 
-  $Id: ipcsockets.c,v 1.15 2011/08/20 17:27:16 rlar Exp $
-
   PROJECT ATESSE A-8503
 
   AUTHOR
@@ -90,7 +88,7 @@
 
 =============================================================================*/
 
-#include <ngspice/ngspice.h>
+#include "ngspice/ngspice.h"
 
 #ifdef IPC_UNIX_SOCKETS
 
@@ -99,8 +97,8 @@
 #include <assert.h>
 #include <errno.h>
 
-#include <ngspice/ipc.h>
-#include <ngspice/ipctiein.h>
+#include "ngspice/ipc.h"
+#include "ngspice/ipctiein.h"
 
 
 /*=== TYPE DEFINITIONS ===*/  
@@ -121,7 +119,7 @@ static Ipc_Sock_State_t        sock_state = IPC_SOCK_UNINITIALIZED;
 
 /*=== INCLUDE FILES ===*/
 
-#include <ngspice/ipcproto.h>
+#include "ngspice/ipcproto.h"
 
 /*=============================================================================
 

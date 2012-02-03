@@ -2,13 +2,13 @@
 Copyright 1990 Regents of the University of California.  All rights reserved.
 **********/
 
-#include <ngspice/ngspice.h>
-#include <ngspice/complex.h>
-#include <ngspice/cktdefs.h>
-#include <ngspice/smpdefs.h>
-#include <ngspice/pzdefs.h>
-#include <ngspice/trandefs.h>   /* only to get the 'mode' definitions */
-#include <ngspice/sperror.h>
+#include "ngspice/ngspice.h"
+#include "ngspice/complex.h"
+#include "ngspice/cktdefs.h"
+#include "ngspice/smpdefs.h"
+#include "ngspice/pzdefs.h"
+#include "ngspice/trandefs.h"   /* only to get the 'mode' definitions */
+#include "ngspice/sperror.h"
 
 
 #define DEBUG	if (0)
@@ -17,7 +17,8 @@ Copyright 1990 Regents of the University of California.  All rights reserved.
 int
 PZan(CKTcircuit *ckt, int reset)
 {
-    PZAN *pzan = (PZAN *) ckt->CKTcurJob;
+    PZAN *job = (PZAN *) ckt->CKTcurJob;
+
     int error;
     int numNames;
     IFuid *nameList;
@@ -45,28 +46,30 @@ PZan(CKTcircuit *ckt, int reset)
 	/* Dump operating point. */
 	error = CKTnames(ckt,&numNames,&nameList);
 	if(error) return(error);
-	error = SPfrontEnd->OUTpBeginPlot (ckt,
-	    ckt->CKTcurJob, "Distortion Operating Point",
-	    NULL, IF_REAL, numNames, nameList, IF_REAL, &plot);
+        error = SPfrontEnd->OUTpBeginPlot (
+            ckt, ckt->CKTcurJob,
+            "Distortion Operating Point",
+            NULL, IF_REAL,
+            numNames, nameList, IF_REAL, &plot);
 	if(error) return(error);
 	CKTdump(ckt, 0.0, plot);
 	SPfrontEnd->OUTendPlot (plot);
     }
 
-    if (pzan->PZwhich & PZ_DO_POLES) {
+    if (job->PZwhich & PZ_DO_POLES) {
 	error = CKTpzSetup(ckt, PZ_DO_POLES);
 	if (error != OK)
 	    return error;
-        error = CKTpzFindZeros(ckt, &pzan->PZpoleList, &pzan->PZnPoles);
+        error = CKTpzFindZeros(ckt, &job->PZpoleList, &job->PZnPoles);
         if (error != OK)
 	    return(error);
     }
 
-    if (pzan->PZwhich & PZ_DO_ZEROS) {
+    if (job->PZwhich & PZ_DO_ZEROS) {
 	error = CKTpzSetup(ckt, PZ_DO_ZEROS);
 	if (error != OK)
 	    return error;
-        error = CKTpzFindZeros(ckt, &pzan->PZzeroList, &pzan->PZnZeros);
+        error = CKTpzFindZeros(ckt, &job->PZzeroList, &job->PZnZeros);
         if (error != OK)
 	    return(error);
     }
@@ -81,7 +84,7 @@ PZan(CKTcircuit *ckt, int reset)
 int
 PZinit(CKTcircuit *ckt)
 {
-    PZAN *pzan = (PZAN *) ckt->CKTcurJob;
+    PZAN *job = (PZAN *) ckt->CKTcurJob;
     int	i;
 
     i = CKTtypelook("transmission line");
@@ -93,24 +96,24 @@ PZinit(CKTcircuit *ckt)
     if (i != -1 && ckt->CKThead[i] != NULL)
 	MERROR(E_XMISSIONLINE, "Transmission lines not supported")
 
-    pzan->PZpoleList = NULL;
-    pzan->PZzeroList = NULL;
-    pzan->PZnPoles = 0;
-    pzan->PZnZeros = 0;
+    job->PZpoleList = NULL;
+    job->PZzeroList = NULL;
+    job->PZnPoles = 0;
+    job->PZnZeros = 0;
 
-    if (pzan->PZin_pos == pzan->PZin_neg)
+    if (job->PZin_pos == job->PZin_neg)
 	MERROR(E_SHORT, "Input is shorted")
 
-    if (pzan->PZout_pos == pzan->PZout_neg)
+    if (job->PZout_pos == job->PZout_neg)
 	MERROR(E_SHORT, "Output is shorted")
 
-    if (pzan->PZin_pos == pzan->PZout_pos
-        && pzan->PZin_neg == pzan->PZout_neg
-	&& pzan->PZinput_type == PZ_IN_VOL)
+    if (job->PZin_pos == job->PZout_pos
+        && job->PZin_neg == job->PZout_neg
+	&& job->PZinput_type == PZ_IN_VOL)
 	MERROR(E_INISOUT, "Transfer function is unity")
-    else if (pzan->PZin_pos == pzan->PZout_neg
-        && pzan->PZin_neg == pzan->PZout_pos
-	&& pzan->PZinput_type == PZ_IN_VOL)
+    else if (job->PZin_pos == job->PZout_neg
+        && job->PZin_neg == job->PZout_pos
+	&& job->PZinput_type == PZ_IN_VOL)
 	MERROR(E_INISOUT, "Transfer function is -1")
 
     return(OK);
@@ -123,7 +126,7 @@ PZinit(CKTcircuit *ckt)
 int
 PZpost(CKTcircuit *ckt)
 {
-    PZAN	*pzan = (PZAN *) ckt->CKTcurJob;
+    PZAN	*job = (PZAN *) ckt->CKTcurJob;
     void	*pzPlotPtr = NULL; /* the plot pointer for front end */
     IFcomplex	*out_list;
     IFvalue	outData;    /* output variable (points to out_list) */
@@ -133,28 +136,30 @@ PZpost(CKTcircuit *ckt)
     char	name[50];
     int		i, j;
 
-    namelist = TMALLOC(IFuid, pzan->PZnPoles + pzan->PZnZeros);
-    out_list = TMALLOC(IFcomplex, pzan->PZnPoles + pzan->PZnZeros);
+    namelist = TMALLOC(IFuid, job->PZnPoles + job->PZnZeros);
+    out_list = TMALLOC(IFcomplex, job->PZnPoles + job->PZnZeros);
 
     j = 0;
-    for (i = 0; i < pzan->PZnPoles; i++) {
+    for (i = 0; i < job->PZnPoles; i++) {
 	sprintf(name, "pole(%-u)", i+1);
 	SPfrontEnd->IFnewUid (ckt, &(namelist[j++]), NULL,
 		name, UID_OTHER, NULL);
     }
-    for (i = 0; i < pzan->PZnZeros; i++) {
+    for (i = 0; i < job->PZnZeros; i++) {
 	sprintf(name, "zero(%-u)", i+1);
 	SPfrontEnd->IFnewUid (ckt, &(namelist[j++]), NULL,
 		name, UID_OTHER, NULL);
     }
 
-    SPfrontEnd->OUTpBeginPlot (ckt, (JOB *)pzan, pzan->JOBname,
-	    NULL, 0, pzan->PZnPoles + pzan->PZnZeros, namelist,
-	    IF_COMPLEX, &pzPlotPtr);
+    SPfrontEnd->OUTpBeginPlot (
+        ckt, ckt->CKTcurJob,
+        ckt->CKTcurJob->JOBname,
+        NULL, 0,
+        job->PZnPoles + job->PZnZeros, namelist, IF_COMPLEX, &pzPlotPtr);
 
     j = 0;
-    if (pzan->PZnPoles > 0) {
-	for (root = pzan->PZpoleList; root != NULL; root = root->next) {
+    if (job->PZnPoles > 0) {
+	for (root = job->PZpoleList; root != NULL; root = root->next) {
 	    for (i = 0; i < root->multiplicity; i++) {
 		out_list[j].real = root->s.real;
 		out_list[j].imag = root->s.imag;
@@ -170,8 +175,8 @@ PZpost(CKTcircuit *ckt)
 	}
     }
 
-    if (pzan->PZnZeros > 0) {
-	for (root = pzan->PZzeroList; root != NULL; root = root->next) {
+    if (job->PZnZeros > 0) {
+	for (root = job->PZzeroList; root != NULL; root = root->next) {
 	    for (i = 0; i < root->multiplicity; i++) {
 		out_list[j].real = root->s.real;
 		out_list[j].imag = root->s.imag;
@@ -187,8 +192,12 @@ PZpost(CKTcircuit *ckt)
 	}
     }
 
+<<<<<<< pzan.c
     refVal.rValue = 0.0;
     outData.v.numValue = pzan->PZnPoles + pzan->PZnZeros;
+=======
+    outData.v.numValue = job->PZnPoles + job->PZnZeros;
+>>>>>>> 1.20
     outData.v.vec.cVec = out_list;
 
     (*SPfrontEnd->OUTpData)(pzPlotPtr, &refVal, &outData); 

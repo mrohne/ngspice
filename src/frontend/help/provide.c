@@ -12,11 +12,11 @@ Modified 1999 Emmanuel Rouat
  * Toss the help window up on the screen, and deal with the graph...
  */
 
-#include <config.h>
-#include <ngspice/ngspice.h>
-#include <ngspice/cpstd.h>
-#include <ngspice/hlpdefs.h>
-#include <ngspice/suffix.h>
+#include "ngspice/config.h"
+#include "ngspice/ngspice.h"
+#include "ngspice/cpstd.h"
+#include "ngspice/hlpdefs.h"
+#include "ngspice/suffix.h"
 
 bool hlp_usex = FALSE;
 

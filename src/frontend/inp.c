@@ -1,7 +1,6 @@
 /**********
 Copyright 1990 Regents of the University of California.  All rights reserved.
 Author: 1985 Wayne A. Christopher
-$Id: inp.c,v 1.70 2011/11/13 11:11:09 h_vogt Exp $
 **********/
 
 /*
@@ -9,13 +8,13 @@ $Id: inp.c,v 1.70 2011/11/13 11:11:09 h_vogt Exp $
  * the listing routines.
  */
 
-#include <ngspice/ngspice.h>
+#include "ngspice/ngspice.h"
 
-#include <ngspice/cpdefs.h>
-#include <ngspice/inpdefs.h>
-#include <ngspice/ftedefs.h>
-#include <ngspice/dvec.h>
-#include <ngspice/fteinp.h>
+#include "ngspice/cpdefs.h"
+#include "ngspice/inpdefs.h"
+#include "ngspice/ftedefs.h"
+#include "ngspice/dvec.h"
+#include "ngspice/fteinp.h"
 #include "inp.h"
 
 #include "runcoms.h"
@@ -30,11 +29,12 @@ $Id: inp.c,v 1.70 2011/11/13 11:11:09 h_vogt Exp $
 #include "subckt.h"
 #include "spiceif.h"
 #include "error.h" /* controlled_exit() */
+#include "com_let.h"
 
 #ifdef XSPICE
 /* include new stuff */
-#include <ngspice/ipctiein.h>
-#include <ngspice/enh.h>
+#include "ngspice/ipctiein.h"
+#include "ngspice/enh.h"
 /* */
 #endif
 
@@ -557,6 +557,37 @@ inp_spsource(FILE *fp, bool comfile, char *filename)
                 ;
                 (void) fclose(fdo);
             }
+            for(dd = deck; dd != NULL; dd = dd->li_next) {
+                /* get csparams and create vectors */
+                if ( ciprefix(".csparam", dd->li_line) ) {
+                    wordlist *wlist = NULL;
+                    wordlist *wl = NULL;
+                    wordlist *cwl;
+                    char *cstoken[3];
+                    int i;
+                    s = dd->li_line;
+                    *s='*';
+                    s = dd->li_line + 8;
+                    while ( isspace(*s) ) s++;
+                    cstoken[0]=gettok_char(&s, '=', FALSE);                   
+                    cstoken[1]=gettok_char(&s, '=', TRUE);
+                    cstoken[2]=gettok(&s);
+                    for (i=0; i<3;i++) {
+                        cwl = alloc(struct wordlist);
+                        cwl->wl_prev = wl;
+                        if (wl)
+                            wl->wl_next = cwl;
+                        else {
+                            wlist = cwl;
+                            cwl->wl_next = NULL;
+                        }
+                        cwl->wl_word = cstoken[i];
+                        wl = cwl;
+                    }
+                    com_let(wlist);
+                    wl_free(wlist);
+                }
+            }
 
             /*merge the two option line structs*/
             if (!options && com_options)
@@ -830,13 +861,16 @@ inp_dodeck(
                 if (q)
                     *q = 0;
 
-                if (p == dd->li_error)
+                if (p == dd->li_error) {
                     if (strstr(dd->li_line, ".model"))
                         out_printf("Model issue on line %d : %.*s ...\n%s\n",
                                    dd->li_linenum_orig, 56, dd->li_line, dd->li_error);
                     else
                         out_printf("Error on line %d : %s\n%s\n",
                                    dd->li_linenum_orig, dd->li_line, dd->li_error);
+                    if (ft_stricterror)
+                        controlled_exit(EXIT_BAD);
+                }
                 else
                     out_printf("%s\n", p);
 

@@ -1,18 +1,17 @@
 /**********
 Copyright 1990 Regents of the University of California.  All rights reserved.
-$Id: graphdb.c,v 1.11 2011/08/20 17:27:11 rlar Exp $
 **********/
 
 /*
     Manage graph data structure.
 */
 
-#include <ngspice/ngspice.h>
-#include <ngspice/graph.h>
-#include <ngspice/ftedebug.h>
-#include <ngspice/fteext.h>
+#include "ngspice/ngspice.h"
+#include "ngspice/graph.h"
+#include "ngspice/ftedebug.h"
+#include "ngspice/fteext.h"
 
-#include <ngspice/ftedbgra.h>
+#include "ngspice/ftedbgra.h"
 #include "graphdb.h"
 #include "../breakp2.h"
 #include "../error.h"

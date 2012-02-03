@@ -2,7 +2,7 @@
 %option prefix="ifs_yy"
 %option yylineno
 %option noyywrap
-%{ /* $Id: ifs_lex.l,v 1.10 2010/10/15 18:53:58 rlar Exp $ */
+%{
 
 /*============================================================================
 FILE  ifs_lex.l

@@ -8,8 +8,6 @@ Georgia Tech Research Corporation
 Atlanta, Georgia 30332
 All Rights Reserved
 
-$Id: ipc.c,v 1.16 2011/08/20 17:27:16 rlar Exp $
-
 PROJECT A-8503
 
 AUTHORS
@@ -70,17 +68,17 @@ SUMMARY
 
 ============================================================================*/
 
-#include <ngspice/ngspice.h>
+#include "ngspice/ngspice.h"
 
 #include <assert.h>
-#include <ngspice/memory.h>     /* NOTE: I think this is a Sys5ism (there is not man
+#include "ngspice/memory.h"     /* NOTE: I think this is a Sys5ism (there is not man
                          * page for it under Bsd, but it's in /usr/include
                          * and it has a BSD copyright header. Go figure.
                          */
 
-#include <ngspice/ipc.h>
-#include <ngspice/ipctiein.h>
-#include <ngspice/ipcproto.h>
+#include "ngspice/ipc.h"
+#include "ngspice/ipctiein.h"
+#include "ngspice/ipcproto.h"
 
  
 /*

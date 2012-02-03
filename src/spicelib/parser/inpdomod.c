@@ -3,10 +3,13 @@ Copyright 1990 Regents of the University of California.  All rights reserved.
 Author: 1985 Thomas L. Quarles
 **********/
 
-#include <ngspice/ngspice.h>
-#include <ngspice/iferrmsg.h>
-#include <ngspice/inpdefs.h>
+#include "ngspice/ngspice.h"
+#include "ngspice/iferrmsg.h"
+#include "ngspice/inpdefs.h"
 #include "inp.h"
+#if ADMS >= 3
+#include "error.h" /* controlled_exit() */
+#endif
 
 /*--------------------------------------------------------------
  * This fcn takes the model card & examines it.  Depending upon
@@ -42,6 +45,24 @@ char *INPdomodel(CKTcircuit *ckt, card * image, INPtables * tab)
     INPinsert(&modname, tab);	   /* stick model name into table */
     INPgetTok(&line, &type_name, 1);     /* get model type */
     
+#if ADMS >= 3
+    if ((type=load_vadev(ckt,type_name)) && type>=0) {
+                          INPmodel *thismodel;
+                          char *error;
+#ifdef TRACE
+                          printf("inpdomod.c: got model %s from dynamic library - create device # %i\n",type_name,type);
+#endif    
+                          INPmakeMod(modname, type, image);
+                          thismodel=NULL;
+                          error=INPgetMod(ckt, modname, &thismodel, tab);
+                          if (thismodel == NULL)
+                          {
+                             fprintf(stderr, "%s\nPlease check model, level or number of terminals!\n", error);
+                             controlled_exit(EXIT_BAD);
+                          }
+    } 
+    else
+#endif
     /*  -----  Check if model is a BJT --------- */
     if (strcmp(type_name, "npn") == 0 || strcmp(type_name, "pnp") == 0) {
 			err = INPfindLev(line,&lev);
@@ -88,7 +109,11 @@ char *INPdomodel(CKTcircuit *ckt, card * image, INPtables * tab)
 #endif
 				default: /* placeholder; use level 4 for the next model */
 				err = INPmkTemp(
+#ifdef ADMS
 				  "Only BJT levels 1-2, 4,6-9 are supported in this binary\n");
+#else
+				  "Only BJT levels 1-2, 4, 9 are supported in this binary\n");
+#endif
 				break;
 
 			}	
@@ -206,7 +231,7 @@ char *INPdomodel(CKTcircuit *ckt, card * image, INPtables * tab)
 			}
 			INPmakeMod(modname, type, image);
     } 
-    
+
     /*  --------  Check if model is a MOSFET --------- */
     else if ((strcmp(type_name, "nmos") == 0)
 	       || (strcmp(type_name, "pmos") == 0)

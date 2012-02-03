@@ -10,13 +10,13 @@
  * Modified bt Paolo Nenzi 2002 and Dietmar Warning 2003
  **********/
 
-#include <ngspice/ngspice.h>
+#include "ngspice/ngspice.h"
 #include "bsim3v32def.h"
-#include <ngspice/cktdefs.h>
-#include <ngspice/iferrmsg.h>
-#include <ngspice/noisedef.h>
-#include <ngspice/suffix.h>
-#include <ngspice/const.h>  /* jwan */
+#include "ngspice/cktdefs.h"
+#include "ngspice/iferrmsg.h"
+#include "ngspice/noisedef.h"
+#include "ngspice/suffix.h"
+#include "ngspice/const.h"  /* jwan */
 
 /*
  * BSIM3v32noise (mode, operation, firstModel, ckt, data, OnDens)
@@ -65,7 +65,7 @@ static double
 StrongInversionNoiseEvalNew(double Vds, BSIM3v32model *model,
 			    BSIM3v32instance *here, double freq, double temp)
 {
-struct bsim3SizeDependParam *pParam;
+struct bsim3v32SizeDependParam *pParam;
 double cd, esat, DelClm, EffFreq, N0, Nl;
 double T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, Ssi;
 
@@ -111,7 +111,7 @@ static double
 StrongInversionNoiseEvalOld(double vgs, double vds, BSIM3v32model *model,
 			    BSIM3v32instance *here, double freq, double temp)
 {
-  struct bsim3SizeDependParam *pParam;
+  struct bsim3v32SizeDependParam *pParam;
   double cd, esat, DelClm, EffFreq, N0, Nl, Vgst;
   double T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, Ssi;
 
@@ -178,9 +178,11 @@ int
 BSIM3v32noise (int mode, int operation, GENmodel *inModel, CKTcircuit *ckt,
 	    Ndata *data, double *OnDens)
 {
+NOISEAN *job = (NOISEAN *) ckt->CKTcurJob;
+
 BSIM3v32model *model = (BSIM3v32model *)inModel;
 BSIM3v32instance *here;
-struct bsim3SizeDependParam *pParam;
+struct bsim3v32SizeDependParam *pParam;
 char name[N_MXVLNTH];
 double tempOnoise;
 double tempInoise;
@@ -216,7 +218,7 @@ int i;
 		     /* see if we have to to produce a summary report */
 		     /* if so, name all the noise generators */
 
-		      if (((NOISEAN*)ckt->CKTcurJob)->NStpsSm != 0)
+		      if (job->NStpsSm != 0)
 		      {   switch (mode)
 			  {  case N_DENS:
 			          for (i = 0; i < BSIM3v32NSRCS; i++)
@@ -418,7 +420,7 @@ int i;
 				     if it's the first pass
 				   */
 			          if (data->freq ==
-				      ((NOISEAN*) ckt->CKTcurJob)->NstartFreq)
+				      job->NstartFreq)
 				  {   for (i = 0; i < BSIM3v32NSRCS; i++)
 				      {    here->BSIM3v32nVar[OUTNOIZ][i] = 0.0;
 				           here->BSIM3v32nVar[INNOIZ][i] = 0.0;
@@ -444,8 +446,7 @@ int i;
 						lnNdens[i];
 				           data->outNoiz += tempOnoise;
 				           data->inNoise += tempInoise;
-				           if (((NOISEAN*)
-					       ckt->CKTcurJob)->NStpsSm != 0)
+				           if (job->NStpsSm != 0)
 					   {   here->BSIM3v32nVar[OUTNOIZ][i]
 						     += tempOnoise;
 				               here->BSIM3v32nVar[OUTNOIZ][BSIM3v32TOTNOIZ]
@@ -468,7 +469,7 @@ int i;
 		              break;
 		         case INT_NOIZ:
 			      /* already calculated, just output */
-		              if (((NOISEAN*)ckt->CKTcurJob)->NStpsSm != 0)
+		              if (job->NStpsSm != 0)
 			      {   for (i = 0; i < BSIM3v32NSRCS; i++)
 				  {    data->outpVector[data->outNumber++]
 					     = here->BSIM3v32nVar[OUTNOIZ][i];

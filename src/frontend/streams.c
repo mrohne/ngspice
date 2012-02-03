@@ -1,17 +1,16 @@
 /*************
 * streams.c
-* $Id: streams.c,v 1.8 2011/08/20 17:27:11 rlar Exp $
 ************/
 
-#include <config.h>
-#include <ngspice/ngspice.h>
-#include <ngspice/wordlist.h>
-#include <ngspice/bool.h>
+#include "ngspice/config.h"
+#include "ngspice/ngspice.h"
+#include "ngspice/wordlist.h"
+#include "ngspice/bool.h"
 
 #include "variable.h"
 #include "terminal.h"
 #include "quote.h"
-#include <ngspice/cpextern.h>
+#include "ngspice/cpextern.h"
 #include "streams.h"
 
 bool cp_debug = FALSE;

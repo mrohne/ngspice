@@ -6,12 +6,12 @@ Author: 1985 Thomas L. Quarles
 #ifndef DEV
 #define DEV
 
-#include <ngspice/optdefs.h>
-#include <ngspice/gendefs.h>
-#include <ngspice/ifsim.h>
-#include <ngspice/cktdefs.h>
-#include <ngspice/noisedef.h>
-#include <ngspice/complex.h>
+#include "ngspice/optdefs.h"
+#include "ngspice/gendefs.h"
+#include "ngspice/ifsim.h"
+#include "ngspice/cktdefs.h"
+#include "ngspice/noisedef.h"
+#include "ngspice/complex.h"
 
 double DEVlimvds(double,double);
 double DEVpnjlim(double,double,double,double,int*);
@@ -102,6 +102,15 @@ typedef struct SPICEdev {
     int *DEVmodSize;     /* size of a model */
 
 } SPICEdev;  /* instance of structure for each possible type of device */
+
+#if ADMS >= 3
+typedef struct SPICEadmsdev {
+    SPICEdev spicedev;
+    int (*DEVunsetup)(GENmodel*,CKTcircuit*);
+    int (*mkn)(GENmodel *, CKTcircuit *);
+    int (*mkj)(CKTcircuit *, GENmodel *, IFuid);
+} SPICEadmsdev;
+#endif
 
 
 extern SPICEdev **DEVices;

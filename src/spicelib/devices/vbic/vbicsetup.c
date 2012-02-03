@@ -12,14 +12,14 @@ Spice3 Implementation: 2003 Dietmar Warning DAnalyse GmbH
  * affected by emitter, collector, and base resistances)
  */
 
-#include <ngspice/ngspice.h>
-#include <ngspice/cktdefs.h>
-#include <ngspice/smpdefs.h>
+#include "ngspice/ngspice.h"
+#include "ngspice/cktdefs.h"
+#include "ngspice/smpdefs.h"
 #include "vbicdefs.h"
-#include <ngspice/const.h>
-#include <ngspice/sperror.h>
-#include <ngspice/ifsim.h>
-#include <ngspice/suffix.h>
+#include "ngspice/const.h"
+#include "ngspice/sperror.h"
+#include "ngspice/ifsim.h"
+#include "ngspice/suffix.h"
 
 int
 VBICsetup(SMPmatrix *matrix, GENmodel *inModel, CKTcircuit *ckt, int *states)
@@ -456,17 +456,23 @@ matrixpointers:
                 }
             }
 
+            if(here->VBICcollCINode == 0) {
             error = CKTmkVolt(ckt, &tmp, here->VBICname, "collCI");
             if(error) return(error);
             here->VBICcollCINode = tmp->number;  
+            }
 
+            if(here->VBICbaseBPNode == 0) {
             error = CKTmkVolt(ckt, &tmp, here->VBICname, "baseBP");
             if(error) return(error);
             here->VBICbaseBPNode = tmp->number;  
+            }
 
+            if(here->VBICbaseBINode == 0) {
             error = CKTmkVolt(ckt, &tmp, here->VBICname, "baseBI");
             if(error) return(error);
             here->VBICbaseBINode = tmp->number;  
+            }
 
 /* macro to make elements with built in test for out of memory */
 #define TSTALLOC(ptr,first,second) \

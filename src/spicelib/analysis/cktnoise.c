@@ -12,17 +12,19 @@ Author: 1987 Gary W. Ng
  *   it evaluates the noise for the entire circuit.
  */
 
-#include <ngspice/ngspice.h>
-#include <ngspice/cktdefs.h>
-#include <ngspice/devdefs.h>
-#include <ngspice/iferrmsg.h>
-#include <ngspice/noisedef.h>
-#include <ngspice/sperror.h>
+#include "ngspice/ngspice.h"
+#include "ngspice/cktdefs.h"
+#include "ngspice/devdefs.h"
+#include "ngspice/iferrmsg.h"
+#include "ngspice/noisedef.h"
+#include "ngspice/sperror.h"
 
 
 int
 CKTnoise (CKTcircuit *ckt, int mode, int operation, Ndata *data)
 {
+    NOISEAN *job = (NOISEAN *) ckt->CKTcurJob;
+
     double outNdens;
     int i;
     IFvalue outData;    /* output variable (points to list of outputs)*/
@@ -93,7 +95,7 @@ CKTnoise (CKTcircuit *ckt, int mode, int operation, Ndata *data)
 	switch (mode) {
 
 	case N_DENS:
-            if ((((NOISEAN*)ckt->CKTcurJob)->NStpsSm == 0)
+            if ((job->NStpsSm == 0)
 		|| data->prtSummary)
 	    {
 		data->outpVector[data->outNumber++] = outNdens;

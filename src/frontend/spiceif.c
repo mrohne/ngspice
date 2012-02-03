@@ -2,7 +2,6 @@
 Copyright 1990 Regents of the University of California.  All rights reserved.
 Author: 1985 Wayne A. Christopher, U. C. Berkeley CAD Group
 Modified: 2000 AlansFixes
-$Id: spiceif.c,v 1.61 2011/09/18 09:03:55 h_vogt Exp $
 **********/
 
 /*
@@ -46,15 +45,15 @@ they should be fairly 'safe'. However, ...
 
 CDHW*/
 
-#include <ngspice/ngspice.h>
-#include <ngspice/cktdefs.h>
-#include <ngspice/cpdefs.h>
-#include <ngspice/tskdefs.h> /* Is really needed ? */
-#include <ngspice/ftedefs.h>
-#include <ngspice/fteinp.h>
-#include <ngspice/inpdefs.h>
-#include <ngspice/iferrmsg.h>
-#include <ngspice/ifsim.h>
+#include "ngspice/ngspice.h"
+#include "ngspice/cktdefs.h"
+#include "ngspice/cpdefs.h"
+#include "ngspice/tskdefs.h" /* Is really needed ? */
+#include "ngspice/ftedefs.h"
+#include "ngspice/fteinp.h"
+#include "ngspice/inpdefs.h"
+#include "ngspice/iferrmsg.h"
+#include "ngspice/ifsim.h"
 
 #include "circuits.h"
 #include "spiceif.h"
@@ -64,12 +63,12 @@ CDHW*/
 
 #ifdef XSPICE
 /* gtri - add - wbk - 11/9/90 - include MIF function prototypes */
-#include <ngspice/mifproto.h>
+#include "ngspice/mifproto.h"
 /* gtri - end - wbk - 11/9/90 */
 
 /* gtri - evt - wbk - 5/20/91 - Add stuff for user-defined nodes */
-#include <ngspice/evtproto.h>
-#include <ngspice/evtudn.h>
+#include "ngspice/evtproto.h"
+#include "ngspice/evtudn.h"
 /* gtri - end - wbk - 5/20/91 - Add stuff for user-defined nodes */
 #endif
 
@@ -216,9 +215,12 @@ if_run(CKTcircuit *ckt, char *what, wordlist *args, INPtables *tab)
             || eq(what, "sens")
             || eq(what,"tf")
             || eq(what, "noise")
+#ifdef WITH_PSS
             /* SP: Steady State Analysis */
-            || eq(what, "pss"))
+            || eq(what, "pss")
         /* SP */
+#endif
+        )
     {
         s = wl_flatten(args); /* va: tfree char's tmalloc'ed in wl_flatten */
         (void) sprintf(buf, ".%s", s);
@@ -332,9 +334,11 @@ if_run(CKTcircuit *ckt, char *what, wordlist *args, INPtables *tab)
             ||(eq(what, "adjsen"))
             ||(eq(what, "sens"))
             ||(eq(what,"tf"))
+#ifdef WITH_PSS
             /* SP: Steady State Analysis */
             ||(eq(what, "pss"))
             /* SP */
+#endif
             ||(eq(what, "run"))  )  {
 
         /*CDHW Run the analysis pointed to by ci_curTask CDHW*/
@@ -1310,8 +1314,8 @@ if_getstat(CKTcircuit *ckt, char *name) {
 
 #ifdef EXPERIMENTAL_CODE
 
-#include <ngspice/cktdefs.h>
-#include <ngspice/trandefs.h>
+#include "ngspice/cktdefs.h"
+#include "ngspice/trandefs.h"
 
 /* arg0: circuit file, arg1: data file */
 void com_loadsnap(wordlist *wl)
@@ -1550,10 +1554,11 @@ do {\
         }
         SPfrontEnd->IFnewUid (ckt, &timeUid, NULL,
                               "time", UID_OTHER, NULL);
-        error = SPfrontEnd->OUTpBeginPlot (ckt,
-                                           ckt->CKTcurJob,
-                                           ckt->CKTcurJob->JOBname,timeUid,IF_REAL,numNames,nameList,
-                                           IF_REAL,&(((TRANan*)ckt->CKTcurJob)->TRANplot));
+        error = SPfrontEnd->OUTpBeginPlot (
+            ckt, ckt->CKTcurJob,
+            ckt->CKTcurJob->JOBname,
+            timeUid, IF_REAL,
+            numNames, nameList, IF_REAL, &(((TRANan*)ckt->CKTcurJob)->TRANplot));
         if(error) {
             fprintf(cp_err,"error in CKTnames\n");
             return;

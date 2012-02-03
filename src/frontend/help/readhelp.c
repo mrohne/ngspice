@@ -11,11 +11,11 @@ Modified 1999 Emmanuel Rouat
  * when a complete match is not found - additional code based on code in MacSpice.
  */
 
-#include <config.h>
-#include <ngspice/ngspice.h>
-#include <ngspice/cpstd.h>
-#include <ngspice/hlpdefs.h>
-#include <ngspice/suffix.h>
+#include "ngspice/config.h"
+#include "ngspice/ngspice.h"
+#include "ngspice/cpstd.h"
+#include "ngspice/hlpdefs.h"
+#include "ngspice/suffix.h"
 
 #if defined (_MSC_VER)
 #define strncasecmp _strnicmp

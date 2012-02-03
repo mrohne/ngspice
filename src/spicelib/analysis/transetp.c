@@ -3,11 +3,11 @@ Copyright 1990 Regents of the University of California.  All rights reserved.
 Author: 1985 Thomas L. Quarles
 **********/
 
-#include <ngspice/ngspice.h>
-#include <ngspice/ifsim.h>
-#include <ngspice/iferrmsg.h>
-#include <ngspice/trandefs.h>
-#include <ngspice/cktdefs.h>
+#include "ngspice/ngspice.h"
+#include "ngspice/ifsim.h"
+#include "ngspice/iferrmsg.h"
+#include "ngspice/trandefs.h"
+#include "ngspice/cktdefs.h"
 
 #include "analysis.h"
 
@@ -15,6 +15,8 @@ Author: 1985 Thomas L. Quarles
 int 
 TRANsetParm(CKTcircuit *ckt, JOB *anal, int which, IFvalue *value)
 {
+    TRANan *job = (TRANan *) anal;
+
     NG_IGNORE(ckt);
 
     switch(which) {
@@ -22,33 +24,33 @@ TRANsetParm(CKTcircuit *ckt, JOB *anal, int which, IFvalue *value)
     case TRAN_TSTOP:
         if (value->rValue <= 0.0) {
 	        errMsg = copy("TST0P is invalid, must be greater than zero.");
-                ((TRANan *)anal)->TRANfinalTime = 1.0;
+                job->TRANfinalTime = 1.0;
 	        return(E_PARMVAL);
 	    }
-        ((TRANan *)anal)->TRANfinalTime = value->rValue;
+        job->TRANfinalTime = value->rValue;
         break;
     case TRAN_TSTEP:
           if (value->rValue <= 0.0) {
            errMsg = copy( "TSTEP is invalid, must be greater than zero." );
-           ((TRANan *)anal)->TRANstep = 1.0;
+           job->TRANstep = 1.0;
 	       return(E_PARMVAL);
 	    }
-        ((TRANan *)anal)->TRANstep = value->rValue;
+        job->TRANstep = value->rValue;
         break;
     case TRAN_TSTART:
-        if (value->rValue >= ((TRANan *)anal)->TRANfinalTime ) {
+        if (value->rValue >= job->TRANfinalTime) {
 	        errMsg = copy("TSTART is invalid, must be less than TSTOP.");
-                ((TRANan *)anal)->TRANinitTime = 0.0;
+                job->TRANinitTime = 0.0;
 	        return(E_PARMVAL);
 	    }
-        ((TRANan *)anal)->TRANinitTime = value->rValue;
+        job->TRANinitTime = value->rValue;
         break;
     case TRAN_TMAX:
-        ((TRANan *)anal)->TRANmaxStep = value->rValue;
+        job->TRANmaxStep = value->rValue;
         break;
     case TRAN_UIC:
         if(value->iValue) {
-            ((TRANan *)anal)->TRANmode |= MODEUIC;
+            job->TRANmode |= MODEUIC;
         }
         break;
 

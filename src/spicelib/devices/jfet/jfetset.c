@@ -7,13 +7,13 @@ Sydney University mods Copyright(c) 1989 Anthony E. Parker, David J. Skellern
 	Sydney University Department of Electrical Engineering, Australia
 **********/
 
-#include <ngspice/ngspice.h>
-#include <ngspice/smpdefs.h>
-#include <ngspice/cktdefs.h>
+#include "ngspice/ngspice.h"
+#include "ngspice/smpdefs.h"
+#include "ngspice/cktdefs.h"
 #include "jfetdefs.h"
-#include <ngspice/const.h>
-#include <ngspice/sperror.h>
-#include <ngspice/suffix.h>
+#include "ngspice/const.h"
+#include "ngspice/sperror.h"
+#include "ngspice/suffix.h"
 
 int
 JFETsetup(SMPmatrix *matrix, GENmodel *inModel, CKTcircuit *ckt, int *states)
@@ -101,7 +101,8 @@ JFETsetup(SMPmatrix *matrix, GENmodel *inModel, CKTcircuit *ckt, int *states)
             *states += 13;
 
 matrixpointers:
-            if(model->JFETsourceResist != 0 && here->JFETsourcePrimeNode==0) {
+            if(model->JFETsourceResist != 0) {
+                if(here->JFETsourcePrimeNode == 0) {
                 error = CKTmkVolt(ckt,&tmp,here->JFETname,"source");
                 if(error) return(error);
                 here->JFETsourcePrimeNode = tmp->number;
@@ -117,11 +118,13 @@ matrixpointers:
                      }
                   }
                 }
+                }
                 
             } else {
                 here->JFETsourcePrimeNode = here->JFETsourceNode;
             }
-            if(model->JFETdrainResist != 0 && here->JFETdrainPrimeNode==0) {
+            if(model->JFETdrainResist != 0) {
+                if(here->JFETdrainPrimeNode == 0) {
                 error = CKTmkVolt(ckt,&tmp,here->JFETname,"drain");
                 if(error) return(error);
                 here->JFETdrainPrimeNode = tmp->number;
@@ -136,6 +139,7 @@ matrixpointers:
                        tmp->nsGiven=tmpNode->nsGiven; 
                      }
                   }
+                }
                 }
                 
             } else {

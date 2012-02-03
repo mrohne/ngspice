@@ -2,19 +2,18 @@
 Copyright 1990 Regents of the University of California.  All rights reserved.
 Author: 1985 Wayne A. Christopher, U. C. Berkeley CAD Group
 Modified: 2000 AlansFixes
-$Id: runcoms.c,v 1.34 2011/08/21 08:55:58 rlar Exp $
 **********/
 
 /*
  * Circuit simulation commands.
  */
 
-#include <ngspice/ngspice.h>
-#include <ngspice/cpdefs.h>
-#include <ngspice/ftedefs.h>
-#include <ngspice/ftedev.h>
-#include <ngspice/ftedebug.h>
-#include <ngspice/dvec.h>
+#include "ngspice/ngspice.h"
+#include "ngspice/cpdefs.h"
+#include "ngspice/ftedefs.h"
+#include "ngspice/ftedev.h"
+#include "ngspice/ftedebug.h"
+#include "ngspice/dvec.h"
 
 #include "circuits.h"
 #include "completion.h"
@@ -25,7 +24,7 @@ $Id: runcoms.c,v 1.34 2011/08/21 08:55:58 rlar Exp $
 
 #ifdef XSPICE
 /* gtri - add - 12/12/90 - wbk - include ipc stuff */
-#include <ngspice/ipctiein.h>
+#include "ngspice/ipctiein.h"
 /* gtri - end - 12/12/90 */
 #endif
 
@@ -169,6 +168,7 @@ com_noise(wordlist *wl)
     return;
 }
 
+#ifdef WITH_PSS
 /* SP: Steady State Analysis */
 void 
 com_pss(wordlist *wl)
@@ -177,6 +177,7 @@ com_pss(wordlist *wl)
     return;
 }
 /* SP */
+#endif
 
 static int
 dosim(
@@ -383,9 +384,10 @@ ft_dorun(char *file)
 
     wl.wl_word = file;
     if (file)
-      return dosim("run", &wl);
-    else
-      return dosim("run", NULL);
+        return dosim("run", &wl);
+    else {
+        return dosim("run", NULL);
+    }
 }
 
 /* ARGSUSED */ /* until the else clause gets put back */

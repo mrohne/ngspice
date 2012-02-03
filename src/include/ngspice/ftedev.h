@@ -4,8 +4,6 @@ Author: 1987 Jeffrey M. Hsu
 **********/
 
 /*
-    $Header: /cvsroot/ngspice/ngspice/ng-spice-rework/src/include/ngspice/ftedev.h,v 1.1 2011/08/20 17:43:07 rlar Exp $
-
     The display device structure.
 */
 

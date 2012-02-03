@@ -6,13 +6,13 @@ Modified by Dietmar Warning 2003 and Paolo Nenzi 2003
 /*
  */
 
-#include <ngspice/ngspice.h>
-#include <ngspice/const.h>
-#include <ngspice/cktdefs.h>
-#include <ngspice/ifsim.h>
+#include "ngspice/ngspice.h"
+#include "ngspice/const.h"
+#include "ngspice/cktdefs.h"
+#include "ngspice/ifsim.h"
 #include "diodefs.h"
-#include <ngspice/sperror.h>
-#include <ngspice/suffix.h>
+#include "ngspice/sperror.h"
+#include "ngspice/suffix.h"
 
 
 /* ARGSUSED */
@@ -103,6 +103,12 @@ DIOmAsk (CKTcircuit *ckt, GENmodel *inModel, int which, IFvalue *value)
             return(OK);
         case DIO_MOD_CTP:
             value->rValue = model->DIOctp;
+            return(OK);
+        case DIO_MOD_TBP:
+            value->rValue = model->DIOtbp;
+            return(OK);
+        case DIO_MOD_TPHP:
+            value->rValue = model->DIOtphp;
             return(OK);
         case DIO_MOD_FC:
             value->rValue = model->DIOdepletionCapCoeff;

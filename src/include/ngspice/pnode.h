@@ -1,4 +1,3 @@
-/* $Id: pnode.h,v 1.1 2011/08/20 17:43:07 rlar Exp $ */
 #ifndef _PNODE_H
 #define _PNODE_H
 

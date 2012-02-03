@@ -6,8 +6,8 @@ Copyright 1990 Regents of the University of California.  All rights reserved.
  * Date and time utility functions
  */
 
-#include <config.h>
-#include <ngspice/ngspice.h>
+#include "ngspice/config.h"
+#include "ngspice/ngspice.h"
 #include <string.h>
 #include "misc_time.h"
 

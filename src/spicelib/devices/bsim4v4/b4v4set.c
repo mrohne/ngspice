@@ -13,14 +13,14 @@
  * Modified by Xuemei Xi, 03/04/2004.
  **********/
 
-#include <ngspice/ngspice.h>
-#include <ngspice/jobdefs.h>
-#include <ngspice/ftedefs.h>
-#include <ngspice/smpdefs.h>
-#include <ngspice/cktdefs.h>
+#include "ngspice/ngspice.h"
+#include "ngspice/jobdefs.h"
+#include "ngspice/ftedefs.h"
+#include "ngspice/smpdefs.h"
+#include "ngspice/cktdefs.h"
 #include "bsim4v4def.h"
-#include <ngspice/const.h>
-#include <ngspice/sperror.h>
+#include "ngspice/const.h"
+#include "ngspice/sperror.h"
 
 #define MAX_EXP 5.834617425e14
 #define MIN_EXP 1.713908431e-15
@@ -1748,10 +1748,12 @@ JOB   *job;
                              createNode = 1;
                      }
             }
-            if ( createNode != 0  && (here->BSIM4v4dNodePrime == 0))
+            if ( createNode != 0 )
+            {   if (here->BSIM4v4dNodePrime == 0)
             {   error = CKTmkVolt(ckt,&tmp,here->BSIM4v4name,"drain");
                 if(error) return(error);
                 here->BSIM4v4dNodePrime = tmp->number;
+            }
             }
             else
             {   here->BSIM4v4dNodePrime = here->BSIM4v4dNode;
@@ -1780,26 +1782,32 @@ JOB   *job;
                              createNode = 1;
                      }
             }
-            if ( createNode != 0  && here->BSIM4v4sNodePrime == 0)
+            if ( createNode != 0 )
+            {   if (here->BSIM4v4sNodePrime == 0)
             {   error = CKTmkVolt(ckt,&tmp,here->BSIM4v4name,"source");
                 if(error) return(error);
                 here->BSIM4v4sNodePrime = tmp->number;
             }
+            }
             else
                 here->BSIM4v4sNodePrime = here->BSIM4v4sNode;
 
-            if ((here->BSIM4v4rgateMod > 0) && (here->BSIM4v4gNodePrime == 0))
+            if (here->BSIM4v4rgateMod > 0)
+            {   if (here->BSIM4v4gNodePrime == 0)
             {   error = CKTmkVolt(ckt,&tmp,here->BSIM4v4name,"gate");
                 if(error) return(error);
                    here->BSIM4v4gNodePrime = tmp->number;
             }
+            }
             else
                 here->BSIM4v4gNodePrime = here->BSIM4v4gNodeExt;
 
-            if ((here->BSIM4v4rgateMod == 3) && (here->BSIM4v4gNodeMid == 0))
+            if (here->BSIM4v4rgateMod == 3)
+            {   if (here->BSIM4v4gNodeMid == 0)
             {   error = CKTmkVolt(ckt,&tmp,here->BSIM4v4name,"midgate");
                 if(error) return(error);
                    here->BSIM4v4gNodeMid = tmp->number;
+            }
             }
             else
                 here->BSIM4v4gNodeMid = here->BSIM4v4gNodeExt;
@@ -1828,10 +1836,12 @@ JOB   *job;
                                   = here->BSIM4v4bNode;
 
             /* NQS node */
-            if ((here->BSIM4v4trnqsMod) && (here->BSIM4v4qNode == 0))
+            if (here->BSIM4v4trnqsMod)
+            {   if (here->BSIM4v4qNode == 0)
             {   error = CKTmkVolt(ckt,&tmp,here->BSIM4v4name,"charge");
                 if(error) return(error);
                 here->BSIM4v4qNode = tmp->number;
+            }
             }
             else
                 here->BSIM4v4qNode = 0;

@@ -2,15 +2,14 @@
    Entry point is function get_measure2(), called by fcn do_measure()
    from measure.c.
    Patches by Bill Swartz from 2009-05-18 and 2009-08-21 are included.
-
-   $Id: com_measure2.c,v 1.37 2011/09/18 09:08:40 h_vogt Exp $
 */
-#include <config.h>
-#include <ngspice/ngspice.h>
-#include <ngspice/memory.h>
 
-#include <ngspice/fteext.h>
-#include <ngspice/wordlist.h>
+#include "ngspice/config.h"
+#include "ngspice/ngspice.h"
+#include "ngspice/memory.h"
+
+#include "ngspice/fteext.h"
+#include "ngspice/wordlist.h"
 
 #include "vectors.h"
 #include <math.h>

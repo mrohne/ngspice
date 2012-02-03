@@ -2,27 +2,26 @@
 Copyright 1991 Regents of the University of California.  All rights reserved.
 Author:	1987 Kartikeya Mayaram, U. C. Berkeley CAD Group
 Author:	1991 David A. Gates, U. C. Berkeley CAD Group
-$Id: onesolve.c,v 1.6 2011/08/20 17:27:10 rlar Exp $
 **********/
 
 /*
  * Functions needed to calculate solutions for 1D devices.
  */
 
-#include <ngspice/ngspice.h>
-#include <ngspice/numglobs.h>
-#include <ngspice/numenum.h>
-#include <ngspice/onedev.h>
-#include <ngspice/onemesh.h>
-#include <ngspice/spmatrix.h>
-#include <ngspice/bool.h>
-#include <ngspice/macros.h>
+#include "ngspice/ngspice.h"
+#include "ngspice/numglobs.h"
+#include "ngspice/numenum.h"
+#include "ngspice/onedev.h"
+#include "ngspice/onemesh.h"
+#include "ngspice/spmatrix.h"
+#include "ngspice/bool.h"
+#include "ngspice/macros.h"
 #include "onedext.h"
 #include "oneddefs.h"
-#include <ngspice/cidersupt.h>
+#include "ngspice/cidersupt.h"
 #include "../../maths/misc/norm.h"
 
-#include <ngspice/ifsim.h>
+#include "ngspice/ifsim.h"
 extern IFfrontEnd *SPfrontEnd;
 
 

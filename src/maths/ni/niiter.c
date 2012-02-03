@@ -13,11 +13,11 @@ Modified: 2001 AlansFixes
  *  convergence test function, and the convergence parameters
  */
 
-#include <ngspice/ngspice.h>
-#include <ngspice/trandefs.h>
-#include <ngspice/cktdefs.h>
-#include <ngspice/smpdefs.h>
-#include <ngspice/sperror.h>
+#include "ngspice/ngspice.h"
+#include "ngspice/trandefs.h"
+#include "ngspice/cktdefs.h"
+#include "ngspice/smpdefs.h"
+#include "ngspice/sperror.h"
 #include "niiter.h"
 
 
@@ -97,13 +97,6 @@ NIiter(CKTcircuit *ckt, int maxIter)
             if(!(ckt->CKTniState & NIDIDPREORDER)) {
                 error = SMPpreOrder(ckt->CKTmatrix);
                 if(error) {
-                    SMPgetError(ckt->CKTmatrix,&i,&j);
-                    message = (char *)TMALLOC(char, 1000); /* should be enough */
-                    (void)sprintf(message,
-                            "singular matrix:  check nodes %s and %s",
-                            NODENAME(ckt,i),NODENAME(ckt,j));
-                    (*(SPfrontEnd->IFerror))(ERR_WARNING,message,(IFuid *)NULL);
-                    FREE(message);
                     ckt->CKTstat->STATnumIter += iterno;
 #ifdef STEPDEBUG
                     printf("pre-order returned error \n");
@@ -131,7 +124,7 @@ NIiter(CKTcircuit *ckt, int maxIter)
                     SMPgetError(ckt->CKTmatrix,&i,&j);
                     message = TMALLOC(char, 1000); /* should be enough */
                     (void)sprintf(message,
-                            "singular matrix:  check nodes %s and %s",
+                            "singular matrix:  check nodes %s and %s\n",
                             NODENAME(ckt,i),NODENAME(ckt,j));
                     SPfrontEnd->IFerror (ERR_WARNING, message, NULL);
                     FREE(message);
@@ -158,13 +151,6 @@ NIiter(CKTcircuit *ckt, int maxIter)
                     /*CKTload(ckt);*/
                     /*SMPprint(ckt->CKTmatrix,stdout);*/
                     /* seems to be singular - pass the bad news up */
-                    SMPgetError(ckt->CKTmatrix,&i,&j);
-                    message = (char *)TMALLOC(char, 1000); /* should be enough */
-                    (void)sprintf(message,
-                            "singular matrix:  check nodes %s and %s",
-                            NODENAME(ckt,i),NODENAME(ckt,j));
-                    (*(SPfrontEnd->IFerror))(ERR_WARNING,message,(IFuid *)NULL);
-                    FREE(message);
                     ckt->CKTstat->STATnumIter += iterno;
 #ifdef STEPDEBUG
                     printf("lufac returned error \n");
@@ -185,22 +171,6 @@ NIiter(CKTcircuit *ckt, int maxIter)
             SMPsolve(ckt->CKTmatrix,ckt->CKTrhs,ckt->CKTrhsSpare);
             ckt->CKTstat->STATsolveTime += SPfrontEnd->IFseconds() -
                     startTime;
-	    
-	    error = OK;
-	    for (node = ckt->CKTnodes->next; node; node = node->next) {
-	      i = node->number;
-	      if (isinf(ckt->CKTrhs[i]) || isnan(ckt->CKTrhs[i])) {
-		message = (char *)TMALLOC(char, 1000); /* should be enough */
-		(void)sprintf(message,
-			      "diverging solution:  check node %s",
-			      NODENAME(ckt,i));
-		(*(SPfrontEnd->IFerror))(ERR_WARNING,message,(IFuid *)NULL);
-		FREE(message);
-		error = E_ITERLIM;
-	      };
-	    };
-	    if (error) return(error);
-
 #ifdef STEPDEBUG
 /*XXXX*/
 	    if (*ckt->CKTrhs != 0.0)

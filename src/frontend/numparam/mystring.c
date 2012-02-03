@@ -2,20 +2,19 @@
  *
  *  This file is part of Numparam, see:  readme.txt
  *  Free software under the terms of the GNU Lesser General Public License
- * $Id: mystring.c,v 1.35 2011/08/20 17:27:11 rlar Exp $
  */
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
 #include <string.h>
-#include <ngspice/memory.h>
+#include "ngspice/memory.h"
 #include <math.h>
 #include <stdarg.h>
 
-#include "config.h"
+#include "ngspice/config.h"
 #ifdef HAS_WINDOWS
-#include <ngspice/wstdio.h>
+#include "ngspice/wstdio.h"
 #endif
 
 #include "general.h"

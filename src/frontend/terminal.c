@@ -1,7 +1,6 @@
 /**********
 Copyright 1990 Regents of the University of California.  All rights reserved.
 Author: 1986 Wayne A. Christopher, U. C. Berkeley CAD Group
-$Id: terminal.c,v 1.24 2011/08/20 17:27:11 rlar Exp $
 **********/
 
 /*
@@ -9,8 +8,8 @@ $Id: terminal.c,v 1.24 2011/08/20 17:27:11 rlar Exp $
  * dependencies in here, and it isn't clear that versions of this stuff
  * can be written for every possible machine...
  */
-#include <ngspice/ngspice.h>
-#include "config.h"
+#include "ngspice/ngspice.h"
+#include "ngspice/config.h"
 
 #include <stdarg.h>
 
@@ -47,7 +46,7 @@ extern int vasprintf(char **out, const char *fmt, va_list ap);
 #include <ncurses/termcap.h>
 #endif
 
-#include <ngspice/cpdefs.h>
+#include "ngspice/cpdefs.h"
 
 #include "variable.h"
 #include "terminal.h"

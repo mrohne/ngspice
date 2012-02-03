@@ -1,12 +1,11 @@
 /*
  * numparam.h 
- * $Id: numparam.h,v 1.24 2011/08/20 17:27:11 rlar Exp $
  */
 
 /*** interface to spice frontend  subckt.c ***/
 
 #include "numpaif.h"
-#include <ngspice/hash.h>
+#include "ngspice/hash.h"
 
 /***** numparam internals ********/
 

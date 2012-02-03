@@ -1,6 +1,5 @@
 /****
  BSIM4.4.0  Released by Xuemei (Jane) Xi 03/04/2004
- $Id: b4v4ld.c,v 1.8 2011/08/20 17:27:14 rlar Exp $
 ****/
 /* ngspice multirevision code extension covering 4.2.1 & 4.3.0 & 4.4.0 */
 
@@ -17,13 +16,13 @@
  * Modified by Xuemei Xi, 03/04/2004.
  **********/
 
-#include <ngspice/ngspice.h>
-#include <ngspice/cktdefs.h>
+#include "ngspice/ngspice.h"
+#include "ngspice/cktdefs.h"
 #include "bsim4v4def.h"
-#include <ngspice/trandefs.h>
-#include <ngspice/const.h>
-#include <ngspice/sperror.h>
-#include <ngspice/devdefs.h>
+#include "ngspice/trandefs.h"
+#include "ngspice/const.h"
+#include "ngspice/sperror.h"
+#include "ngspice/devdefs.h"
 
 #define MAX_EXP 5.834617425e14
 #define MIN_EXP 1.713908431e-15

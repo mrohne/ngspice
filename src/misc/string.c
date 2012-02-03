@@ -6,9 +6,9 @@ Copyright 1990 Regents of the University of California.  All rights reserved.
  * String functions
  */
 
-#include <ngspice/ngspice.h>
-#include "stringutil.h"
-#include <ngspice/dstring.h>
+#include "ngspice/ngspice.h"
+#include "ngspice/stringutil.h"
+#include "ngspice/dstring.h"
 
 int
 prefix(register char *p, register char *s)
@@ -350,6 +350,40 @@ gettok_instance(char **s)
         )  {
         spice_dstring_append_char( &buf, *(*s)++ ) ;
     }
+
+    /* Now iterate up to next non-whitespace char */
+    while ( isspace(**s) )
+        (*s)++;  
+
+    token = copy( spice_dstring_value(&buf) ) ;
+    spice_dstring_free(&buf) ;
+    return ( token ) ;
+}
+
+/* get the next token starting at next non white spice, stopping
+   at p, if inc_p is true, then including p, else excluding p
+*/
+char *
+gettok_char(char **s, char p, bool inc_p)
+{
+    char c;
+    char *token ;				/* return token */
+    SPICE_DSTRING buf ;				/* allow any length string */
+
+    while ( isspace(**s) )
+        (*s)++;   /* iterate over whitespace */
+
+    if (!**s)
+        return (NULL);  /* return NULL if we come to end of line */
+
+    spice_dstring_init(&buf) ;
+    while ((c = **s) != '\0' && 
+         ( **s != p )
+        )  {
+        spice_dstring_append_char( &buf, *(*s)++ ) ;
+    }
+    if (inc_p)
+        spice_dstring_append_char( &buf, *(*s)++ ) ;
 
     /* Now iterate up to next non-whitespace char */
     while ( isspace(**s) )

@@ -1,7 +1,6 @@
 /**********
 Copyright 1990 Regents of the University of California.  All rights reserved.
 Author: 1985 Wayne A. Christopher, U. C. Berkeley CAD Group
-$Id: options.c,v 1.17 2011/08/20 17:27:11 rlar Exp $
 **********/
 
 /*
@@ -11,11 +10,11 @@ $Id: options.c,v 1.17 2011/08/20 17:27:11 rlar Exp $
  */
 
 
-#include <ngspice/ngspice.h>
-#include <ngspice/cpdefs.h>
-#include <ngspice/ftedefs.h>
-#include <ngspice/dvec.h>
-#include <ngspice/fteinp.h>
+#include "ngspice/ngspice.h"
+#include "ngspice/cpdefs.h"
+#include "ngspice/ftedefs.h"
+#include "ngspice/dvec.h"
+#include "ngspice/fteinp.h"
 
 #include "circuits.h"
 #include "options.h"
@@ -29,7 +28,7 @@ static void setdb(char *str);
 
 bool ft_acctprint = FALSE, ft_noacctprint = FALSE, ft_listprint = FALSE;
 bool ft_nodesprint = FALSE, ft_optsprint = FALSE, ft_noinitprint = FALSE;
-bool ft_ngdebug = FALSE;
+bool ft_ngdebug = FALSE, ft_stricterror = FALSE;
 
 /* The user-supplied routine to query the values of variables. This
  * recognises the $&varname notation, and also searches the values of
@@ -292,6 +291,8 @@ cp_usrset(struct variable *var, bool isset)
         ft_optsprint = isset;
     } else if (eq(var->va_name, "strictnumparse")) {
         ft_strictnumparse = isset;
+    } else if (eq(var->va_name, "strict_errorhandling")) {
+        ft_stricterror = isset;
     } else if (eq(var->va_name, "rawfileprec")) {
         if ((var->va_type == CP_BOOL) && (isset == FALSE))
             raw_prec = -1;

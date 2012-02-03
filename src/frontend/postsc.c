@@ -1,20 +1,19 @@
 /**********
 Copyright 1990 Regents of the University of California.  All rights reserved.
 Author: 1988 Jeffrey M. Hsu
-$Id: postsc.c,v 1.20 2011/08/20 17:27:11 rlar Exp $
 **********/
 
 /*
     Postscript driver
 */
 
-#include <ngspice/ngspice.h>
-#include <ngspice/cpdefs.h>
-#include <ngspice/graph.h>
-#include <ngspice/ftedbgra.h>
-#include <ngspice/ftedev.h>
-#include <ngspice/fteinput.h>
-#include <ngspice/fteext.h>
+#include "ngspice/ngspice.h"
+#include "ngspice/cpdefs.h"
+#include "ngspice/graph.h"
+#include "ngspice/ftedbgra.h"
+#include "ngspice/ftedev.h"
+#include "ngspice/fteinput.h"
+#include "ngspice/fteext.h"
 
 #include "postsc.h"
 #include "variable.h"

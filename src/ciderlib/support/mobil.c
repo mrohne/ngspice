@@ -1,16 +1,15 @@
 /**********
 Copyright 1991 Regents of the University of California.  All rights reserved.
 Author:	1992 David A. Gates, U. C. Berkeley CAD Group
-$Id: mobil.c,v 1.4 2011/08/20 17:27:10 rlar Exp $
 **********/
 
-#include <ngspice/ngspice.h>
-#include <ngspice/numglobs.h>
-#include <ngspice/numconst.h>
-#include <ngspice/numenum.h>
-#include <ngspice/macros.h>
-#include <ngspice/material.h>
-#include <ngspice/cidersupt.h>
+#include "ngspice/ngspice.h"
+#include "ngspice/numglobs.h"
+#include "ngspice/numconst.h"
+#include "ngspice/numenum.h"
+#include "ngspice/macros.h"
+#include "ngspice/material.h"
+#include "ngspice/cidersupt.h"
 
 void MOBdefaults(MaterialInfo *info , int carrier, int type, 
                  int concmodel, int fieldmodel )

@@ -1,7 +1,6 @@
 /**********
 Copyright 1990 Regents of the University of California.  All rights reserved.
 Author: 1985 Wayne A. Christopher, U. C. Berkeley CAD Group
-$Id: backq.c,v 1.7 2011/08/20 17:27:11 rlar Exp $
 **********/
 
 /*
@@ -9,9 +8,9 @@ $Id: backq.c,v 1.7 2011/08/20 17:27:11 rlar Exp $
  * Do backquote substitution on a word list. 
  */
 
-#include <config.h>
-#include <ngspice/ngspice.h>
-#include <ngspice/cpdefs.h>
+#include "ngspice/config.h"
+#include "ngspice/ngspice.h"
+#include "ngspice/cpdefs.h"
 #include "backq.h"
 
 

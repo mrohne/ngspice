@@ -7,9 +7,9 @@ Author: 1985 Wayne A. Christopher, U. C. Berkeley CAD Group
  * Initial lexer.
  */
 
-#include <config.h>
-#include <ngspice/ngspice.h>
-#include <ngspice/cpdefs.h>
+#include "ngspice/config.h"
+#include "ngspice/ngspice.h"
+#include "ngspice/cpdefs.h"
 
 #include <errno.h>
 
@@ -44,7 +44,7 @@ Author: 1985 Wayne A. Christopher, U. C. Berkeley CAD Group
 
 #define NEW_BSIZE_SP 2*BSIZE_SP
 
-#include <ngspice/fteinput.h>
+#include "ngspice/fteinput.h"
 #include "lexical.h"
 
 static void prompt(void);

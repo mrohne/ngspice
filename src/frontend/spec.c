@@ -1,22 +1,21 @@
 /**********
 Copyright 1994 Macquarie University, Sydney Australia.  All rights reserved.
 Author:   1994 Anthony E. Parker, Department of Electronics, Macquarie Uni.
-$Id: spec.c,v 1.20 2011/08/20 17:27:11 rlar Exp $
 **********/
 
 /*
  * Code to do fourier transforms on data.
  */
 
-#include <ngspice/ngspice.h>
-#include <ngspice/ftedefs.h>
-#include <ngspice/dvec.h>
-#include <ngspice/sim.h>
+#include "ngspice/ngspice.h"
+#include "ngspice/ftedefs.h"
+#include "ngspice/dvec.h"
+#include "ngspice/sim.h"
 
 #include "spec.h"
 #include "parse.h"
 #include "variable.h"
-#include <ngspice/missing_math.h>
+#include "ngspice/missing_math.h"
 #include "../misc/misc_time.h"
 
 void
