@@ -3915,22 +3915,24 @@ static void inp_compat(struct line *deck)
         if ( *curr_line == 'e' ) {
             /*    Exxx n1 n2 VCVS n3 n4 gain --> Exxx n1 n2 n3 n4 gain
                   remove vcvs */
-            if ((str_ptr = strstr( curr_line, "vcvs" )) != NULL) {
+            if ((str_ptr = strstr( curr_line, " vcvs" )) != NULL) {
                 *str_ptr = ' ';
                 *(str_ptr + 1) = ' ';
                 *(str_ptr + 2) = ' ';
                 *(str_ptr + 3) = ' ';
+                *(str_ptr + 4) = ' ';
             }
 
             /* Exxx n1 n2 value={equation}
                -->
                Exxx n1 n2   vol={equation} */
-            if ((str_ptr = strstr( curr_line, "value=" )) != NULL) {
+            if ((str_ptr = strstr( curr_line, " value=" )) != NULL) {
                 *str_ptr = ' ';
                 *(str_ptr + 1) = ' ';
-                *(str_ptr + 2) = 'v';
-                *(str_ptr + 3) = 'o';
-                *(str_ptr + 4) = 'l';
+                *(str_ptr + 2) = ' ';
+                *(str_ptr + 3) = 'v';
+                *(str_ptr + 4) = 'o';
+                *(str_ptr + 5) = 'l';
             }
             /* Exxx n1 n2 TABLE {expression} = (x0, y0) (x1, y1) (x2, y2)
                -->
@@ -4098,22 +4100,24 @@ static void inp_compat(struct line *deck)
         } else if ( *curr_line == 'g' ) {
             /* Gxxx n1 n2 VCCS n3 n4 tr --> Gxxx n1 n2 n3 n4 tr
                remove vccs */
-            if ((str_ptr = strstr( curr_line, "vccs" )) != NULL) {
+            if ((str_ptr = strstr( curr_line, " vccs" )) != NULL) {
                 *str_ptr = ' ';
                 *(str_ptr + 1) = ' ';
                 *(str_ptr + 2) = ' ';
                 *(str_ptr + 3) = ' ';
+                *(str_ptr + 4) = ' ';
             }
 
             /* Gxxx n1 n2 value={equation}
                -->
                Gxxx n1 n2   cur={equation} */
-            if ((str_ptr = strstr( curr_line, "value=" )) != NULL) {
+            if ((str_ptr = strstr( curr_line, " value=" )) != NULL) {
                 *str_ptr = ' ';
                 *(str_ptr + 1) = ' ';
-                *(str_ptr + 2) = 'c';
-                *(str_ptr + 3) = 'u';
-                *(str_ptr + 4) = 'r';
+                *(str_ptr + 2) = ' ';
+                *(str_ptr + 3) = 'c';
+                *(str_ptr + 4) = 'u';
+                *(str_ptr + 5) = 'r';
             }
 
             /* Gxxx n1 n2 TABLE {expression} = (x0, y0) (x1, y1) (x2, y2)
