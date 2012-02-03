@@ -69,7 +69,7 @@ check_autoconf()
 	DIE=1
     }
 
-    (libtoolize --version) < /dev/null > /dev/null 2>&1 || {
+    (glibtoolize --version) < /dev/null > /dev/null 2>&1 || {
 	echo
 	echo "You must have libtool installed to compile $PROJECT."
 	echo "See http://www.gnu.org/software/libtool/"
@@ -200,7 +200,7 @@ aclocal $ACLOCAL_FLAGS \
     || error_and_exit "aclocal failed"
 
 echo "Running libtoolize"
-libtoolize --copy --force \
+glibtoolize --copy --force \
     || error_and_exit "libtoolize failed"
 
 # optional feature: autoheader
