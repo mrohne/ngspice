@@ -130,6 +130,7 @@ PZpost(CKTcircuit *ckt)
     runDesc	*pzPlotPtr = NULL; /* the plot pointer for front end */
     IFcomplex	*out_list;
     IFvalue	outData;    /* output variable (points to out_list) */
+    IFvalue     refVal; /* reference variable (always 0)*/
     IFuid	*namelist;
     PZtrial	*root;
     char	name[50];
@@ -189,10 +190,11 @@ PZpost(CKTcircuit *ckt)
 	}
     }
 
+    refVal.rValue = 0.0;
     outData.v.numValue = job->PZnPoles + job->PZnZeros;
     outData.v.vec.cVec = out_list;
 
-    SPfrontEnd->OUTpData (pzPlotPtr, NULL, &outData);
+    SPfrontEnd->OUTpData (pzPlotPtr, &refVal, &outData);
     SPfrontEnd->OUTendPlot (pzPlotPtr);
 
     return(OK);
