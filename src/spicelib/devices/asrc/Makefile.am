@@ -19,7 +19,7 @@ libasrc_la_SOURCES =	\
 	asrcmdel.c	\
 	asrcpar.c	\
 	asrcpzld.c	\
-	asrcset.c \
+	asrcset.c       \
 	asrctemp.c
 
 
