@@ -114,9 +114,9 @@ gr_init(double *xlims, double *ylims, /* The size of the screen. */
     }
 
     if (cp_getvar("ticlist", CP_LIST, ticlist)) {
-	wl = (wordlist *)vareval("ticlist");
-	ticlist = (char *)wl_flatten(wl);
-	graph->ticdata = (double *) readtics(ticlist);
+	wl = vareval("ticlist");
+	ticlist = wl_flatten(wl);
+	graph->ticdata = readtics(ticlist);
     } else
 	graph->ticdata = NULL;
 
@@ -688,7 +688,7 @@ iplot(struct plot *pl, int id)
         Input(&reqst, 0);
         /* First see if we have to make the screen bigger */
         dy = (isreal(xs) ? xs->v_realdata[len - 1] :
-                realpart(&xs->v_compdata[len - 1]));
+                realpart(xs->v_compdata[len - 1]));
         if (ft_grdb)
             fprintf(cp_err, "x = %G\n", dy);
         if (!if_tranparams(ft_curckt, &start, &stop, &step) ||
@@ -744,7 +744,7 @@ iplot(struct plot *pl, int id)
             if (!(v->v_flags & VF_PLOT))
                 continue;
             dy = (isreal(v) ? v->v_realdata[len - 1] :
-                    realpart(&v->v_compdata[len - 1]));
+                    realpart(v->v_compdata[len - 1]));
             if (ft_grdb)
                 fprintf(cp_err, "y = %G\n", dy);
             /* checking for y lo */
@@ -798,13 +798,13 @@ iplot(struct plot *pl, int id)
                 if (v->v_flags & VF_PLOT) {
                     gr_point(v, 
                     (isreal(xs) ? xs->v_realdata[len - 1] :
-                    realpart(&xs->v_compdata[len - 1])),
+                    realpart(xs->v_compdata[len - 1])),
                     (isreal(v) ? v->v_realdata[len - 1] :
-                    realpart(&v->v_compdata[len - 1])),
+                    realpart(v->v_compdata[len - 1])),
                     (isreal(xs) ? xs->v_realdata[len - 2] :
-                    realpart(&xs->v_compdata[len - 2])),
+                    realpart(xs->v_compdata[len - 2])),
                     (isreal(v) ? v->v_realdata[len - 2] :
-                    realpart(&v->v_compdata[len - 2])),
+                    realpart(v->v_compdata[len - 2])),
                     len - 1);
                 }
         }

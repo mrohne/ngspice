@@ -1,3 +1,241 @@
+2012-02-19  Holger Vogt
+ * com_cdump.c, commands.c, main.c:
+   dummy functions for SMPprint() and SMPprintRHS() to allow making of ngnutmeg,
+   small updates, comments
+
+2012-02-19  Dietmar Warning
+ * src/spicelib/devices/asrc/*.c,*.h
+ * src/frontend/inpcom.c,
+   Add reciprocal temperature behaviour for B sources used for nonlinear
+   resistors, capacitors and inductors (the latter non-reciprocal)
+
+2012-02-19  Holger Vogt
+ * com_cdump.c, com_cdump.h, commands.c, smpdefs.h, spoutput.c, spsmp.c,
+   command mrdump to dump the RHS of the matrix to stdout or to a file
+
+2012-02-19  Holger Vogt
+ * spiceif.c: savesnap, loadsnap enabled (still experimental!)
+ * com_cdump.c, com_cdump.h, commands.c, smpdefs.h, spoutput.c, spsmp.c,
+   cktpzstr.c, txlload.c: command mdump to dump the matrix to stdout or to a file
+
+2012-02-11  Dietmar Warning
+ * src/spicelib/devices/asrc/*.c,*.h,Makefile.am
+ * src/frontend/inpcom.c,
+ * vngspice.vcproj
+   Add temperature coefficients for B sources
+
+2012-02-11  Holger Vogt
+ * inpcom.c: Robert's patch, reading libs, incs etc.
+ 
+2012-02-11  Holger Vogt
+ * tclspice.c, winmain.c, outitf.c, vectors.c, alloc.c:
+   outheap (under Windows) removed
+   
+2012-02-11  Holger Vogt
+ * ngspice.h: fprintf --> tcl_fprintf added 
+ * tclspice.c: small updates for Windows 
+ * outitf.c, vectors.c, alloc.c:
+   outheap (under Windows) provided, but deactivated
+
+2012-02-11  Robert Larice
+ * src/spicelib/parser/inpptree-parser.c ,
+ * src/spicelib/parser/inpptree-parser.h :
+   update bison generated files
+
+2012-02-11  Robert Larice
+ * src/spicelib/parser/inpptree-parser.y ,
+ * src/spicelib/parser/inpptree.c :
+   upgrade INPgetTree()
+     this parser did parse the *whole* line,
+     now it parses as much as it can, and passes the rest back in arg `line'
+
+2012-02-10   Holger Vogt / (Robert Larice)
+ * src/frontend/cpitf.c :
+   search for tclspinit in `cwd' as well
+
+2012-02-10   Holger Vogt / (Robert Larice)
+ * src/frontend/postcoms.c :
+   NG_IGNORE something
+
+2012-02-10  Dietmar Warning
+ * src/spicelib/devices/dio/*.c,*.h: Typo with junction potential name
+
+2012-02-09  Robert Larice
+ * src/frontend/com_sysinfo.c ,
+ * src/frontend/mw_coms.c ,
+ * src/frontend/outitf.c :
+   make use of TMALLOC()
+
+2012-02-09  Robert Larice
+ * src/main.c ,
+ * src/tclspice.c ,
+ * src/maths/cmaths/cmath2.c ,
+ * src/maths/misc/randnumb.c :
+   unuse srandom() and random()
+
+2012-02-08 Francesco Lannutti (Robert Larice)
+ * Makefile.am :
+   polish make maintainer-clean, make mrproper
+
+2012-02-07  Robert Larice
+ * src/include/ngspice/complex.h :
+   #4/4 finish the switch from ngcomplex* args to ngcomplex
+
+2012-02-07  Robert Larice
+ * src/ngsconvert.c ,
+ * src/tclspice.c ,
+ * src/ciderlib/support/database.c ,
+ * src/frontend/breakp.c ,
+ * src/frontend/com_compose.c ,
+ * src/frontend/cpitf.c ,
+ * src/frontend/diff.c ,
+ * src/frontend/evaluate.c ,
+ * src/frontend/options.c ,
+ * src/frontend/points.c ,
+ * src/frontend/postcoms.c ,
+ * src/frontend/rawfile.c ,
+ * src/frontend/vectors.c ,
+ * src/frontend/plotting/agraf.c ,
+ * src/frontend/plotting/gnuplot.c ,
+ * src/frontend/plotting/graf.c ,
+ * src/frontend/plotting/plotcurv.c ,
+ * src/frontend/plotting/plotit.c ,
+ * src/frontend/plotting/xgraph.c ,
+ * src/include/ngspice/complex.h ,
+ * src/maths/cmaths/cmath1.c ,
+ * src/maths/cmaths/cmath2.c ,
+ * src/maths/cmaths/cmath3.c ,
+ * src/maths/cmaths/cmath4.c ,
+ * src/maths/cmaths/test_cx_cph.c ,
+ * src/maths/cmaths/test_cx_j.c ,
+ * src/maths/cmaths/test_cx_mag.c ,
+ * src/maths/cmaths/test_cx_ph.c :
+   #3/4 switch realpart() and imagpart() args from ngcomplex* to ngcomplex
+
+2012-02-07  Robert Larice
+ * src/frontend/diff.c ,
+ * src/include/ngspice/complex.h ,
+ * src/maths/cmaths/cmath1.c ,
+ * src/maths/cmaths/cmath2.c ,
+ * src/maths/cmaths/cmath3.c ,
+ * src/maths/cmaths/cmath4.c :
+   #2/4 switch cph() and cmag() args from ngcomplex* to ngcomplex
+
+2012-02-07  Robert Larice
+ * src/include/ngspice/complex.h :
+   #1/4 drop cast (enable compiler type check)
+
+2012-02-07  Holger Vogt / Robert Larice
+ * src/tclspice.c :
+   fix varags usage, tcl_printf(), tcl_fprintf(), tcl_vfprintf()
+
+2012-02-07  Robert Larice
+ * src/include/ngspice/devdefs.h ,
+ * src/spicelib/devices/dev.c ,
+ * src/spicelib/devices/adms/admst/ngspice.xml :
+   adms3, fix some types
+
+2012-02-07  Robert Larice
+ * src/frontend/vectors.c ,
+ * src/frontend/parser/complete.c ,
+ * src/include/ngspice/cpextern.h ,
+ * src/include/ngspice/ftedefs.h ,
+ * src/include/ngspice/plot.h :
+   use type `struct ccom'
+
+2012-02-07  Robert Larice
+ * src/main.c ,
+ * src/frontend/outitf.c ,
+ * src/frontend/outitf.h ,
+ * src/include/ngspice/ifsim.h ,
+ * src/include/ngspice/noisedef.h ,
+ * src/include/ngspice/trandefs.h ,
+ * src/spicelib/analysis/acan.c ,
+ * src/spicelib/analysis/cktsens.c ,
+ * src/spicelib/analysis/dcop.c ,
+ * src/spicelib/analysis/dctrcurv.c ,
+ * src/spicelib/analysis/distoan.c ,
+ * src/spicelib/analysis/pzan.c ,
+ * src/spicelib/analysis/tfanal.c :
+   use type `runDesc'
+
+2012-02-07  Robert Larice
+ * src/frontend/outitf.h ,
+ * src/include/ngspice/typedefs.h :
+   struct runDesc forward declaration
+
+2012-02-07  Robert Larice
+ * src/frontend/rawfile.c :
+   comment/pinpoint a local misuse of a structure element
+
+2012-02-06  Robert Larice
+ * src/tclspice.c :
+   drop some (char*) casts
+
+2012-02-06  Robert Larice
+ * src/frontend/vectors.c ,
+ * src/misc/wlist.c :
+   preserve const'ness of some casts
+
+2012-02-06  Robert Larice
+ * src/frontend/numparam/spicenum.c :
+   drop (void*) cast of the dispose() argument
+
+2012-02-06  Robert Larice
+ * src/frontend/terminal.c :
+   drop tgetstr() return value cast
+
+2012-02-06  Robert Larice
+ * src/frontend/parser/complete.c :
+   drop (char*) cast in the third argument of ioctl()
+
+2012-02-06  Robert Larice
+ * src/frontend/outitf.c ,
+ * src/frontend/spiceif.c ,
+ * src/frontend/subckt.c ,
+ * src/frontend/plotting/graf.c ,
+ * src/spicelib/analysis/cktnames.c ,
+ * src/spicelib/devices/hisim2/hsm2noi.c ,
+ * src/spicelib/devices/hisimhv/hsmhvnoi.c ,
+ * src/spicelib/parser/ifnewuid.c ,
+ * src/spicelib/parser/inpptree.c ,
+ * src/xspice/mif/mifsetup.c :
+   drop some more casts
+
+2012-02-06  Robert Larice
+ * src/spicelib/analysis/analysis.c ,
+ * src/spicelib/devices/urc/urcsetup.c :
+   drop some casts
+
+2012-02-06  Robert Larice
+ * src/xspice/cm/cm.c ,
+ * src/xspice/evt/evtsetup.c ,
+ * src/xspice/evt/evttermi.c ,
+ * src/xspice/mif/mifconvt.c ,
+ * src/xspice/mif/mifload.c ,
+ * src/xspice/mif/mifsetup.c :
+   drop some (char*) casts
+
+2012-02-06  Robert Larice
+ * src/include/ngspice/inpdefs.h ,
+ * src/spicelib/parser/inplkmod.c :
+   rewrite INPlookMod(), return INPmodel*/NULL instead of int 1/0
+
+2012-02-06  Robert Larice
+ * src/frontend/com_compose.c ,
+ * src/frontend/define.c ,
+ * src/frontend/device.c ,
+ * src/frontend/inpcom.c ,
+ * src/frontend/parse.c ,
+ * src/frontend/vectors.c ,
+ * src/frontend/parser/complete.c ,
+ * src/frontend/parser/unixcom.c ,
+ * src/frontend/wdisp/windisp.c ,
+ * src/include/ngspice/ngspice.h ,
+ * src/spicelib/parser/inpptree.c :
+   use strchr() instead of index()
+     which is depreciated
+
 ============================ ngspice-24 ==================================
 2012-01-30  Dietmar Warning
  * src/spicelib/devices/dio/diotemp.c: Add temperature dependent

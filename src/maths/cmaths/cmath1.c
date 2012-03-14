@@ -49,7 +49,7 @@ cx_mag(void *data, short int type, int length, int *newlength, short int *newtyp
             d[i] = FTEcabs(dd[i]);
     else
         for (i = 0; i < length; i++)
-            d[i] = cmag(&cc[i]);
+            d[i] = cmag(cc[i]);
     return ((void *) d);
 }
 
@@ -64,7 +64,7 @@ cx_ph(void *data, short int type, int length, int *newlength, short int *newtype
     *newtype = VF_REAL;
     if (type == VF_COMPLEX)
         for (i = 0; i < length; i++) {
-            d[i] = radtodeg(cph(&cc[i]));
+            d[i] = radtodeg(cph(cc[i]));
         }
     /* Otherwise it is 0, but tmalloc zeros the stuff already. */
     return ((void *) d);
@@ -81,10 +81,10 @@ cx_cph(void *data, short int type, int length, int *newlength, short int *newtyp
     *newlength = length;
     *newtype = VF_REAL;
     if (type == VF_COMPLEX) {
-        double last_ph = cph(&cc[0]);
+        double last_ph = cph(cc[0]);
         d[0] = radtodeg(last_ph);
         for (i = 1; i < length; i++) {
-            double ph = cph(&cc[i]);
+            double ph = cph(cc[i]);
             last_ph = ph - (2*M_PI) * floor((ph - last_ph)/(2*M_PI) + 0.5);
             d[i] = radtodeg(last_ph);
         }
@@ -107,12 +107,12 @@ cx_j(void *data, short int type, int length, int *newlength, short int *newtype)
     *newtype = VF_COMPLEX;
     if (type == VF_COMPLEX)
         for (i = 0; i < length; i++) {
-            realpart(&c[i]) = - imagpart(&cc[i]);
-            imagpart(&c[i]) = realpart(&cc[i]);
+            realpart(c[i]) = - imagpart(cc[i]);
+            imagpart(c[i]) = realpart(cc[i]);
         }
     else
         for (i = 0; i < length; i++) {
-            imagpart(&c[i]) = dd[i];
+            imagpart(c[i]) = dd[i];
             /* Real part is already 0. */
         }
     return ((void *) c);
@@ -130,7 +130,7 @@ cx_real(void *data, short int type, int length, int *newlength, short int *newty
     *newtype = VF_REAL;
     if (type == VF_COMPLEX)
         for (i = 0; i < length; i++)
-            d[i] = realpart(&cc[i]);
+            d[i] = realpart(cc[i]);
     else
         for (i = 0; i < length; i++)
             d[i] = dd[i];
@@ -149,7 +149,7 @@ cx_imag(void *data, short int type, int length, int *newlength, short int *newty
     *newtype = VF_REAL;
     if (type == VF_COMPLEX)
         for (i = 0; i < length; i++)
-            d[i] = imagpart(&cc[i]);
+            d[i] = imagpart(cc[i]);
     else
         for (i = 0; i < length; i++)
             d[i] = dd[i];
@@ -170,7 +170,7 @@ cx_pos(void *data, short int type, int length, int *newlength, short int *newtyp
     *newtype = VF_REAL;
     if (type == VF_COMPLEX)
         for (i = 0; i < length; i++)
-            d[i] = ((realpart(&cc[i]) > 0.0) ? 1.0 : 0.0);
+            d[i] = ((realpart(cc[i]) > 0.0) ? 1.0 : 0.0);
     else
         for (i = 0; i < length; i++)
             d[i] = ((dd[i] > 0.0) ? 1.0 : 0.0);
@@ -190,7 +190,7 @@ cx_db(void *data, short int type, int length, int *newlength, short int *newtype
     *newtype = VF_REAL;
     if (type == VF_COMPLEX)
         for (i = 0; i < length; i++) {
-            tt = cmag(&cc[i]);
+            tt = cmag(cc[i]);
             rcheck(tt > 0, "db");
             /*
                 if (tt == 0.0)
@@ -226,18 +226,18 @@ cx_log(void *data, short int type, int length, int *newlength, short int *newtyp
         for (i = 0; i < length; i++) {
             double td;
 
-            td = cmag(&cc[i]);
+            td = cmag(cc[i]);
             /* Perhaps we should trap when td = 0.0, but Ken wants
              * this to be possible...
              */
             rcheck(td >= 0, "log");
             if (td == 0.0) {
-                realpart(&c[i]) = - log10(HUGE);
-                imagpart(&c[i]) = 0.0;
+                realpart(c[i]) = - log10(HUGE);
+                imagpart(c[i]) = 0.0;
             } else {
-                realpart(&c[i]) = log10(td);
-                imagpart(&c[i]) = atan2(imagpart(&cc[i]),
-                                        realpart(&cc[i]));
+                realpart(c[i]) = log10(td);
+                imagpart(c[i]) = atan2(imagpart(cc[i]),
+                                        realpart(cc[i]));
             }
         }
         return ((void *) c);
@@ -273,15 +273,15 @@ cx_ln(void *data, short int type, int length, int *newlength, short int *newtype
         for (i = 0; i < length; i++) {
             double td;
 
-            td = cmag(&cc[i]);
+            td = cmag(cc[i]);
             rcheck(td >= 0, "ln");
             if (td == 0.0) {
-                realpart(&c[i]) = - log(HUGE);
-                imagpart(&c[i]) = 0.0;
+                realpart(c[i]) = - log(HUGE);
+                imagpart(c[i]) = 0.0;
             } else {
-                realpart(&c[i]) = log(td);
-                imagpart(&c[i]) = atan2(imagpart(&cc[i]),
-                                        realpart(&cc[i]));
+                realpart(c[i]) = log(td);
+                imagpart(c[i]) = atan2(imagpart(cc[i]),
+                                        realpart(cc[i]));
             }
         }
         return ((void *) c);
@@ -317,9 +317,9 @@ cx_exp(void *data, short int type, int length, int *newlength, short int *newtyp
         for (i = 0; i < length; i++) {
             double td;
 
-            td = exp(realpart(&cc[i]));
-            realpart(&c[i]) = td * cos(imagpart(&cc[i]));
-            imagpart(&c[i]) = td * sin(imagpart(&cc[i]));
+            td = exp(realpart(cc[i]));
+            realpart(c[i]) = td * cos(imagpart(cc[i]));
+            imagpart(c[i]) = td * sin(imagpart(cc[i]));
         }
         return ((void *) c);
     } else {
@@ -358,49 +358,49 @@ cx_sqrt(void *data, short int type, int length, int *newlength, short int *newty
     *newlength = length;
     if (type == VF_COMPLEX) {
         for (i = 0; i < length; i++) {
-            if (realpart(&cc[i]) == 0.0) {
-                if (imagpart(&cc[i]) == 0.0) {
-                    realpart(&c[i]) = 0.0;
-                    imagpart(&c[i]) = 0.0;
-                } else if (imagpart(&cc[i]) > 0.0) {
-                    realpart(&c[i]) = sqrt (0.5 *
-                                            imagpart(&cc[i]));
-                    imagpart(&c[i]) = realpart(&c[i]);
+            if (realpart(cc[i]) == 0.0) {
+                if (imagpart(cc[i]) == 0.0) {
+                    realpart(c[i]) = 0.0;
+                    imagpart(c[i]) = 0.0;
+                } else if (imagpart(cc[i]) > 0.0) {
+                    realpart(c[i]) = sqrt (0.5 *
+                                            imagpart(cc[i]));
+                    imagpart(c[i]) = realpart(c[i]);
                 } else {
-                    imagpart(&c[i]) = sqrt( -0.5 *
-                                            imagpart(&cc[i]));
-                    realpart(&c[i]) = - imagpart(&c[i]);
+                    imagpart(c[i]) = sqrt( -0.5 *
+                                            imagpart(cc[i]));
+                    realpart(c[i]) = - imagpart(c[i]);
                 }
-            } else if (realpart(&cc[i]) > 0.0) {
-                if (imagpart(&cc[i]) == 0.0) {
-                    realpart(&c[i]) =
-                        sqrt(realpart(&cc[i]));
-                    imagpart(&c[i]) = 0.0;
-                } else if (imagpart(&cc[i]) < 0.0) {
-                    realpart(&c[i]) = -sqrt(0.5 *
-                                            (cmag(&cc[i]) + realpart(&cc[i])));
+            } else if (realpart(cc[i]) > 0.0) {
+                if (imagpart(cc[i]) == 0.0) {
+                    realpart(c[i]) =
+                        sqrt(realpart(cc[i]));
+                    imagpart(c[i]) = 0.0;
+                } else if (imagpart(cc[i]) < 0.0) {
+                    realpart(c[i]) = -sqrt(0.5 *
+                                            (cmag(cc[i]) + realpart(cc[i])));
                 } else {
-                    realpart(&c[i]) = sqrt(0.5 *
-                                           (cmag(&cc[i]) + realpart(&cc[i])));
+                    realpart(c[i]) = sqrt(0.5 *
+                                           (cmag(cc[i]) + realpart(cc[i])));
                 }
-                imagpart(&c[i]) = imagpart(&cc[i]) / (2.0 *
-                                                      realpart(&c[i]));
-            } else { /* realpart(&cc[i]) < 0.0) */
-                if (imagpart(&cc[i]) == 0.0) {
-                    realpart(&c[i]) = 0.0;
-                    imagpart(&c[i]) =
-                        sqrt(- realpart(&cc[i]));
+                imagpart(c[i]) = imagpart(cc[i]) / (2.0 *
+                                                      realpart(c[i]));
+            } else { /* realpart(cc[i]) < 0.0) */
+                if (imagpart(cc[i]) == 0.0) {
+                    realpart(c[i]) = 0.0;
+                    imagpart(c[i]) =
+                        sqrt(- realpart(cc[i]));
                 } else {
-                    if (imagpart(&cc[i]) < 0.0)
-                        imagpart(&c[i]) = - sqrt(0.5 *
-                                                 (cmag(&cc[i]) -
-                                                  realpart(&cc[i])));
+                    if (imagpart(cc[i]) < 0.0)
+                        imagpart(c[i]) = - sqrt(0.5 *
+                                                 (cmag(cc[i]) -
+                                                  realpart(cc[i])));
                     else
-                        imagpart(&c[i]) = sqrt(0.5 *
-                                               (cmag(&cc[i]) -
-                                                realpart(&cc[i])));
-                    realpart(&c[i]) = imagpart(&cc[i]) /
-                                      (2.0 * imagpart(&c[i]));
+                        imagpart(c[i]) = sqrt(0.5 *
+                                               (cmag(cc[i]) -
+                                                realpart(cc[i])));
+                    realpart(c[i]) = imagpart(cc[i]) /
+                                      (2.0 * imagpart(c[i]));
                 }
             }
         }
@@ -408,9 +408,9 @@ cx_sqrt(void *data, short int type, int length, int *newlength, short int *newty
     } else if (cres) {
         for (i = 0; i < length; i++)
             if (dd[i] < 0.0)
-                imagpart(&c[i]) = sqrt(- dd[i]);
+                imagpart(c[i]) = sqrt(- dd[i]);
             else
-                realpart(&c[i]) = sqrt(dd[i]);
+                realpart(c[i]) = sqrt(dd[i]);
         return ((void *) c);
     } else {
         for (i = 0; i < length; i++)
@@ -431,10 +431,10 @@ cx_sin(void *data, short int type, int length, int *newlength, short int *newtyp
         c = alloc_c(length);
         *newtype = VF_COMPLEX;
         for (i = 0; i < length; i++) {
-            realpart(&c[i]) = sin(degtorad(realpart(&cc[i]))) *
-                              cosh(degtorad(imagpart(&cc[i])));
-            imagpart(&c[i]) = cos(degtorad(realpart(&cc[i]))) *
-                              sinh(degtorad(imagpart(&cc[i])));
+            realpart(c[i]) = sin(degtorad(realpart(cc[i]))) *
+                              cosh(degtorad(imagpart(cc[i])));
+            imagpart(c[i]) = cos(degtorad(realpart(cc[i]))) *
+                              sinh(degtorad(imagpart(cc[i])));
         }
         return ((void *) c);
     } else {
@@ -464,10 +464,10 @@ cx_sinh(void *data, short int type, int length, int *newlength, short int *newty
         *newtype = VF_COMPLEX;
         for (i = 0; i < length; i++) {
             /* sinh(x+iy) = sinh(x)*cos(y) + i * cosh(x)*sin(y) */
-            u = degtorad(realpart(&cc[i]));
-            v = degtorad(imagpart(&cc[i]));
-            realpart(&c[i]) = sinh(u)*cos(v);
-            imagpart(&c[i]) = cosh(u)*sin(v);
+            u = degtorad(realpart(cc[i]));
+            v = degtorad(imagpart(cc[i]));
+            realpart(c[i]) = sinh(u)*cos(v);
+            imagpart(c[i]) = cosh(u)*sin(v);
         }
         return ((void *) c);
     } else {
@@ -496,10 +496,10 @@ cx_cos(void *data, short int type, int length, int *newlength, short int *newtyp
         c = alloc_c(length);
         *newtype = VF_COMPLEX;
         for (i = 0; i < length; i++) {
-            realpart(&c[i]) = cos(degtorad(realpart(&cc[i]))) *
-                              cosh(degtorad(imagpart(&cc[i])));
-            imagpart(&c[i]) = - sin(degtorad(realpart(&cc[i]))) *
-                              sinh(degtorad(imagpart(&cc[i])));
+            realpart(c[i]) = cos(degtorad(realpart(cc[i]))) *
+                              cosh(degtorad(imagpart(cc[i])));
+            imagpart(c[i]) = - sin(degtorad(realpart(cc[i]))) *
+                              sinh(degtorad(imagpart(cc[i])));
         }
         return ((void *) c);
     } else {
@@ -531,10 +531,10 @@ cx_cosh(void *data, short int type, int length, int *newlength, short int *newty
         *newtype = VF_COMPLEX;
         for (i = 0; i < length; i++) {
             /* cosh(x+iy) = cosh(x)*cos(y) + i * sinh(x)*sin(y) */
-            u = degtorad(realpart(&cc[i]));
-            v = degtorad(imagpart(&cc[i]));
-            realpart(&c[i]) = cosh(u)*cos(v);
-            imagpart(&c[i]) = sinh(u)*sin(v);
+            u = degtorad(realpart(cc[i]));
+            v = degtorad(imagpart(cc[i]));
+            realpart(c[i]) = cosh(u)*cos(v);
+            imagpart(c[i]) = sinh(u)*sin(v);
         }
         return ((void *) c);
     } else {
@@ -588,12 +588,12 @@ c_tan(ngcomplex_t *cc, int length)
     for (i = 0; i < length; i++) {
         double u, v;
 
-        rcheck(cos(degtorad(realpart(&cc[i]))) *
-               cosh(degtorad(imagpart(&cc[i]))), "tan");
-        rcheck(sin(degtorad(realpart(&cc[i]))) *
-               sinh(degtorad(imagpart(&cc[i]))), "tan");
-        u = degtorad(realpart(&cc[i]));
-        v = degtorad(imagpart(&cc[i]));
+        rcheck(cos(degtorad(realpart(cc[i]))) *
+               cosh(degtorad(imagpart(cc[i]))), "tan");
+        rcheck(sin(degtorad(realpart(cc[i]))) *
+               sinh(degtorad(imagpart(cc[i]))), "tan");
+        u = degtorad(realpart(cc[i]));
+        v = degtorad(imagpart(cc[i]));
         /* The Lattice C compiler won't take multi-line macros, and
          * CMS won't take >80 column lines....
          */
@@ -601,7 +601,7 @@ c_tan(ngcomplex_t *cc, int length)
 #define xx2 cos(u) * sinh(v)
 #define xx3 cos(u) * cosh(v)
 #define xx4 -sin(u) * sinh(v)
-        cdiv(xx1, xx2, xx3, xx4, realpart(&c[i]), imagpart(&c[i]));
+        cdiv(xx1, xx2, xx3, xx4, realpart(c[i]), imagpart(c[i]));
     }
     return c;
 }
@@ -619,8 +619,8 @@ c_tanh(ngcomplex_t *cc, int length)
 
     for (i = 0; i < length; i++) {
         /* multiply by i */
-        t[0].cx_real = -1. * imagpart(&cc[i]);
-        t[0].cx_imag = realpart(&cc[i]);
+        t[0].cx_real = -1. * imagpart(cc[i]);
+        t[0].cx_imag = realpart(cc[i]);
         /* get complex tangent */
         s = c_tan(t, 1);
         /* if check in c_tan fails */
@@ -629,8 +629,8 @@ c_tanh(ngcomplex_t *cc, int length)
             return (NULL);
         }
         /* multiply by -i */
-        realpart(&c[i]) = imagpart(&s[0]);
-        imagpart(&c[i]) = -1. * realpart(&s[0]);
+        realpart(c[i]) = imagpart(s[0]);
+        imagpart(c[i]) = -1. * realpart(s[0]);
     }
     tfree(s);
     tfree(t);
@@ -676,7 +676,7 @@ cx_atan(void *data, short int type, int length, int *newlength, short int *newty
         int i;
 
         for (i = 0; i < length; i++)
-            d[i] = radtodeg(atan(realpart(&cc[i])));
+            d[i] = radtodeg(atan(realpart(cc[i])));
     } else {
         double *dd = (double *) data;
         int i;

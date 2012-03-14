@@ -16,11 +16,7 @@ uname = $(shell uname)
 CC = @CC@
 
 # Spice header include path
-<<<<<<< makedefs.in
-INCLUDES = -I$(top_srcdir)/src/include/ngspice -I$(top_srcdir)/src/include -I$(top_builddir)
-=======
 INCLUDES = -I$(top_srcdir)/src/include -I$(top_builddir)/src/include
->>>>>>> 1.14
 
 # CFLAGS to use here
 CFLAGS = @CFLAGS@ -fPIC

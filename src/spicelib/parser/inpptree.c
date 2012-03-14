@@ -928,7 +928,7 @@ static INPparseNode *mkinode(char *name)
             values = TMALLOC(IFvalue, 1);
             types = TMALLOC(int, 1);
         }
-        values[i].uValue = (IFuid) name;
+        values[i].uValue = name;
         types[i] = IF_INSTANCE;
         numvalues++;
     }
@@ -1028,7 +1028,7 @@ static INPparseNode *mksnode(const char *string, void *ckt)
 
 /* The lexical analysis routine. */
 
-int PTlex (YYSTYPE *lvalp, char **line)
+int PTlex (YYSTYPE *lvalp, struct PTltype *llocp, char **line)
 {
     double td;
     int err;
@@ -1043,6 +1043,8 @@ int PTlex (YYSTYPE *lvalp, char **line)
 #endif
     while ((*sbuf == ' ') || (*sbuf == '\t'))
 	sbuf++;
+
+    llocp->start = sbuf;
 
     switch (*sbuf) {
     case '\0':
@@ -1194,7 +1196,7 @@ int PTlex (YYSTYPE *lvalp, char **line)
         char *tmp;
 	    token = TOK_STR;
 	    for (s = sbuf; *s; s++)
-		if (index(specials, *s))
+		if (strchr(specials, *s))
 		    break;
 	    tmp = TMALLOC(char, s - sbuf + 1);
 	    strncpy(tmp, sbuf, (size_t) (s - sbuf));
@@ -1210,6 +1212,7 @@ int PTlex (YYSTYPE *lvalp, char **line)
 //    printf("PTlexer: token = %d, type = %d, left = '%s'\n", 
 //        el.token, el.type, sbuf); */
 #endif
+    llocp->stop = sbuf;
     return (token);
 }
 

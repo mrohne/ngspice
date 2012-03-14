@@ -22,12 +22,6 @@
 #include <setjmp.h>
 #include <signal.h>
 
-/* MINGW: random, srandom in libiberty.a, but not in libiberty.h */
-#if defined(__MINGW32__) && defined(HAVE_RANDOM)
- extern long int random (void);
- extern void srandom (unsigned int seed);
-#endif
-
 /* Added GNU Readline Support 11/3/97 -- Andrew Veliath <veliaa@rpi.edu> */
 /* from spice3f4 patch to ng-spice. jmr */
 #ifdef HAVE_GNUREADLINE
@@ -201,14 +195,14 @@ const bool ft_nutmeg = FALSE;
 extern struct comm spcp_coms[ ];
 struct comm *cp_coms = spcp_coms;
 
-extern int OUTpBeginPlot(CKTcircuit *,JOB *,IFuid,IFuid,int,int,IFuid *,int,void **);
-extern int OUTpData(void *,IFvalue *,IFvalue *);
-extern int OUTwBeginPlot(CKTcircuit *,JOB *,IFuid,IFuid,int,int,IFuid *,int,void **);
-extern int OUTwReference(void *,IFvalue *,void **);
-extern int OUTwData(void *,int,IFvalue *,void *), OUTwEnd(void *), OUTendPlot(void *);
-extern int OUTbeginDomain(void *,IFuid,int,IFvalue *);
-extern int OUTendDomain(void *), OUTstopnow(void), OUTerror(int,char *,IFuid *);
-extern int OUTattributes(void *,IFuid,int,IFvalue *);
+extern int OUTpBeginPlot(CKTcircuit *,JOB *,IFuid,IFuid,int,int,IFuid *,int,runDesc **);
+extern int OUTpData(runDesc *,IFvalue *,IFvalue *);
+extern int OUTwBeginPlot(CKTcircuit *,JOB *,IFuid,IFuid,int,int,IFuid *,int,runDesc **);
+extern int OUTwReference(runDesc *,IFvalue *,void **);
+extern int OUTwData(runDesc *,int,IFvalue *,void *), OUTwEnd(runDesc *), OUTendPlot(runDesc *);
+extern int OUTbeginDomain(runDesc *,IFuid,int,IFvalue *);
+extern int OUTendDomain(runDesc *), OUTstopnow(void), OUTerror(int,char *,IFuid *);
+extern int OUTattributes(runDesc *,IFuid,int,IFvalue *);
 
 extern void initw(void);
 
@@ -363,6 +357,24 @@ if_getstat(CKTcircuit *ckt, char *name)
 void com_loadsnap(wordlist *wl) { return; }
 void com_savesnap(wordlist *wl) { return; }
 #endif
+
+void SMPprint( SMPmatrix *n1 , char *n2)
+{
+    NG_IGNORE(n1);
+    NG_IGNORE(n2);
+
+    return;
+};
+
+void SMPprintRHS( SMPmatrix *n1, char *n2 , double* n3 , double* n4)
+{
+    NG_IGNORE(n1);
+    NG_IGNORE(n2);
+    NG_IGNORE(n3);
+    NG_IGNORE(n4);
+
+    return;
+};
 
 #endif /* SIMULATOR */
 

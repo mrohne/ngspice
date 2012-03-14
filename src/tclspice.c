@@ -179,14 +179,11 @@ do {\
 } while(0)
 
 
-/* global handle for the output heap */
-#if defined(_MSC_VER) || defined(__MINGW32__)
-HANDLE outheap;
-#endif
-
-
 void tcl_stdflush(FILE *f);
-int  tcl_vfprintf(FILE *f, const char *fmt, ...);
+int  tcl_vfprintf(FILE *f, const char *fmt, va_list args);
+#if defined(__MINGW32__) || defined(_MSC_VER)
+__declspec(dllexport)
+#endif
 int  Spice_Init(Tcl_Interp *interp);
 int  Tcl_ExecutePerLoop(void);
 void triggerEventCheck(ClientData clientData,int flags);
@@ -255,7 +252,7 @@ static int spice_header TCL_CMDPROCARGS(clientData,interp,argc,argv){
     title = cur_run->name;
     name = cur_run->type;
     sprintf(buf,"{title \"%s\"} {name \"%s\"} {date \"%s\"} {variables %u}",title,name,date,cur_run->numData);
-    Tcl_AppendResult(interp, (char *)buf,TCL_STATIC);
+    Tcl_AppendResult(interp, buf, TCL_STATIC);
     return TCL_OK;
   }else return TCL_ERROR;
 }
@@ -285,7 +282,7 @@ static int spice_data TCL_CMDPROCARGS(clientData,interp,argc,argv) {
 	type = SV_VOLTAGE;
       sprintf(buf,"{%s %s} ",name,
 	      ft_typenames(type));
-      Tcl_AppendResult(interp, (char *)buf, TCL_STATIC);
+      Tcl_AppendResult(interp, buf, TCL_STATIC);
     }
     return TCL_OK;
   }else return TCL_ERROR;
@@ -308,7 +305,7 @@ static int spice_data TCL_CMDPROCARGS(clientData,interp,argc,argv) {
 	type = SV_VOLTAGE;
       sprintf(buf,"{%s %s} ",name,
 	      ft_typenames(type));
-      Tcl_AppendResult(interp, (char *)buf, TCL_STATIC);
+      Tcl_AppendResult(interp, buf, TCL_STATIC);
     }
     return TCL_OK;
   }
@@ -512,7 +509,7 @@ static int vectoblt TCL_CMDPROCARGS(clientData,interp,argc,argv) {
   var = (char *)argv[1];
   var_dvec = vec_get(var);
   if ( var_dvec == NULL ){
-    Tcl_SetResult(interp, "Bad spice vector",TCL_STATIC);
+    Tcl_SetResult(interp, "Bad spice vector ", TCL_STATIC);
     Tcl_AppendResult(interp, (char *)var, TCL_STATIC);
     return TCL_ERROR;
     }
@@ -1546,7 +1543,7 @@ static void dvecToBlt(Blt_Vector *Data, struct dvec *x) {
     data = TMALLOC(double, x->v_length);
 
     for(i=0;i<x->v_length;i++) {
-      data[i] = realpart(&x->v_compdata[i]);
+      data[i] = realpart(x->v_compdata[i]);
     }
 
     Blt_ResetVector (Data, data, x->v_length, x->v_length, TCL_VOLATILE);
@@ -2240,16 +2237,6 @@ int Spice_Init(Tcl_Interp *interp) {
 
   save_interp();
 
-
-#if defined(_MSC_VER) || defined(__MINGW32__)
-  /* create private heap for current process*/
-  outheap = HeapCreate(0, 10000000, 0);
-  if (!outheap) {
-    fprintf(stderr,"HeapCreate: Internal Error: can't allocate private output heap");
-    exit(EXIT_BAD);
-  }
-#endif
-
   {
     int i;
     char *key;
@@ -2273,7 +2260,8 @@ int Spice_Init(Tcl_Interp *interp) {
     /* program name*/
     cp_program = ft_sim->simulator;
     
-    srandom(getpid());
+    srand((unsigned int) getpid());
+    TausSeed();
     
     /*parameter fetcher, used in show*/
     if_getparam = spif_getparam;
@@ -2343,9 +2331,9 @@ bot:
     for (i = 0;(key = cp_coms[i].co_comname); i++) {
       sprintf(buf,"%s%s",TCLSPICE_prefix,key);
       if(Tcl_GetCommandInfo(interp,buf, &infoPtr)!= 0){
-	printf("Command '%s' can not be registered!\n", buf);
+         printf("Command '%s' can not be registered!\n", buf);
       }else{ 
-	Tcl_CreateCommand(interp, buf, _tcl_dispatch, NULL, NULL);
+         Tcl_CreateCommand(interp, buf, _tcl_dispatch, NULL, NULL);
       }
     }
     
@@ -2408,7 +2396,7 @@ bot:
 /* Redefine the vfprintf() functions for use with tkcon */
 /*------------------------------------------------------*/
 
-int tcl_vfprintf(FILE *f, const char *fmt, ...)
+int tcl_vfprintf(FILE *f, const char *fmt, va_list args)
 {
 #define ostr_sz 128
    static char outstr[ostr_sz] = "puts -nonewline std";
@@ -2417,27 +2405,25 @@ int tcl_vfprintf(FILE *f, const char *fmt, ...)
 #define ostr_off 19
   char *outptr, *bigstr = NULL, *finalstr = NULL;
   int i, nchars, result, escapes = 0;
-  va_list arg;
 
-  va_start (arg, fmt);
   if((fileno(f) !=  STDOUT_FILENO && fileno(f) != STDERR_FILENO &&
 	 f != stderr && f != stdout )
 #ifdef THREADS
      || ( fl_running && bgtid == thread_self())
 #endif
 	)
-      return fprintf(f,fmt, arg);
+      return vfprintf(f, fmt, args);
 
   strcpy (outstr + ostr_off, (f == stderr) ? "err \"" : "out \"");
   //5 characters for ->out "<-
   outptr = outstr;
-  nchars = snprintf(outptr + ostr_off + 5, ostr_sz - 5 - ostr_off, fmt, arg);
+  nchars = vsnprintf(outptr + ostr_off + 5, ostr_sz - 5 - ostr_off, fmt, args);
   if (nchars >= ostr_sz - 5 - ostr_off)
     {
       bigstr = Tcl_Alloc(nchars + 26);
       strncpy(bigstr, outptr, 24);
       outptr = bigstr;
-      snprintf(outptr + 24, nchars + 2, fmt, arg);
+      vsnprintf(outptr + 24, nchars + 2, fmt, args);
     }
   else if (nchars == -1) nchars = 126;
 
@@ -2482,11 +2468,12 @@ int tcl_vfprintf(FILE *f, const char *fmt, ...)
 
 int tcl_fprintf(FILE *f, const char *format, ...)
 {
-  va_list arg;
+  va_list args;
   int rtn;
  
-  va_start (arg, format);
-  rtn = tcl_vfprintf(f, format, arg);
+  va_start (args, format);
+  rtn = tcl_vfprintf(f, format, args);
+  va_end(args);
 
   return rtn;
 }
@@ -2497,11 +2484,12 @@ int tcl_fprintf(FILE *f, const char *format, ...)
 
 int tcl_printf(const char *format, ...)
 {
-  va_list arg;
+  va_list args;
   int rtn;
   
-  va_start (arg, format);
-  rtn = tcl_vfprintf(stdout, format, arg);
+  va_start (args, format);
+  rtn = tcl_vfprintf(stdout, format, args);
+  va_end(args); 
   
   return rtn;
 }

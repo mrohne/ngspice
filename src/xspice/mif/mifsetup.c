@@ -307,7 +307,7 @@ MIFsetup(
                                      (type == MIF_RESISTANCE || type == MIF_DIFF_RESISTANCE) ) {
 
                         /* first, make the current equation */
-                        suffix = TMALLOC(char, strlen((char *) here->MIFname) + 100);
+                        suffix = TMALLOC(char, strlen(here->MIFname) + 100);
                         sprintf(suffix, "branch_%d_%d", i, j);
                         error = CKTmkCur(ckt, &tmp, here->MIFname, suffix);
                         FREE(suffix);
@@ -330,7 +330,7 @@ MIFsetup(
                     if(is_input && (type == MIF_CURRENT || type == MIF_DIFF_CURRENT)) {
 
                         /* first, make the current equation */
-                        suffix = TMALLOC(char, strlen((char *) here->MIFname) + 100);
+                        suffix = TMALLOC(char, strlen(here->MIFname) + 100);
                         sprintf(suffix, "ibranch_%d_%d", i, j);
                         error = CKTmkCur(ckt, &tmp, here->MIFname, suffix);
                         FREE(suffix);
@@ -353,7 +353,7 @@ MIFsetup(
                         if(smp_data_out->ibranch == 0) {
                             IFuid names[2];
                             names[0] = here->MIFname;
-                            names[1] = (IFuid) here->conn[i]->port[j]->vsource_str;
+                            names[1] = here->conn[i]->port[j]->vsource_str;
                             SPfrontEnd->IFerror (ERR_FATAL,
                                     "%s: unknown controlling source %s",names);
                             return(E_BADPARM);

@@ -145,8 +145,8 @@ namecmp(const void *a, const void *b)
 {
     int i, j;
 
-    char *s = (char *) a;
-    char *t = (char *) b;
+    const char *s = (const char *) a;
+    const char *t = (const char *) b;
     for (;;) {
         while ((*s == *t) && !isdigit(*s) && *s)
             s++, t++;
@@ -365,7 +365,7 @@ vec_get(const char *vec_name)
 
     wd = word = copy(vec_name);   /* Gets mangled below... */
 
-    if (index(word, '.')) {
+    if (strchr(word, '.')) {
         /* Snag the plot... */
         for (i = 0, s = word; *s != '.'; i++, s++)
             buf[i] = *s;
@@ -691,6 +691,7 @@ plot_alloc(char *name)
 {
     struct plot *pl = alloc(struct plot), *tp;
     char *s;
+    struct ccom *ccom;
     char buf[BSIZE_SP];
 
     ZERO(pl, struct plot);
@@ -707,9 +708,9 @@ plot_alloc(char *name)
     pl->pl_typename = copy(buf);
     cp_addkword(CT_PLOT, buf);
     /* va: create a new, empty keyword tree for class CT_VECTOR, s=old tree */
-    s = cp_kwswitch(CT_VECTOR, NULL);
+    ccom = cp_kwswitch(CT_VECTOR, NULL);
     cp_addkword(CT_VECTOR, "all");
-    pl->pl_ccom = cp_kwswitch(CT_VECTOR, s);
+    pl->pl_ccom = cp_kwswitch(CT_VECTOR, ccom);
     /* va: keyword tree is old tree again, new tree is linked to pl->pl_ccom */
     return (pl);
 }
@@ -854,7 +855,7 @@ vec_basename(struct dvec *v)
     char buf[BSIZE_SP], *t, *s;
     int i;
 
-    if (index(v->v_name, '.')) {
+    if (strchr(v->v_name, '.')) {
         for (t = v->v_name, i = 0; *t; t++)
             buf[i++] = *t;
         buf[i] = '\0';
@@ -995,10 +996,10 @@ vec_transpose(struct dvec *v)
 	    joffset = 0;
 	    for ( j=0; j < dim0; j++ ) {
 		for ( i=0; i < dim1; i++ ) {
-		  realpart(&newcomp[ koffset + joffset + i ]) =
-		    realpart(&oldcomp[ koffset + i*dim0 + j ]);
-		  imagpart(&newcomp[ koffset + joffset + i ]) =
-		    imagpart(&oldcomp[ koffset + i*dim0 + j ]);
+		  realpart(newcomp[ koffset + joffset + i ]) =
+		    realpart(oldcomp[ koffset + i*dim0 + j ]);
+		  imagpart(newcomp[ koffset + joffset + i ]) =
+		    imagpart(oldcomp[ koffset + i*dim0 + j ]);
 		}
 		joffset += dim1;  /* joffset = j*dim0 */
 	    }

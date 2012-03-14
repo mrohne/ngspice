@@ -200,7 +200,7 @@ raw_write(char *name, struct plot *pl, bool app, bool binary)
                 if (i < v->v_length) {
                     if (realflag) {
                         dd = (isreal(v) ? v->v_realdata[i] :
-                              realpart(&v->v_compdata[i]));
+                              realpart(v->v_compdata[i]));
                         (void) fwrite(&dd, sizeof
                                       (double), 1, fp);
                     } else if (isreal(v)) {
@@ -211,10 +211,10 @@ raw_write(char *name, struct plot *pl, bool app, bool binary)
                         (void) fwrite(&dd, sizeof
                                       (double), 1, fp);
                     } else {
-                        dd = realpart(&v->v_compdata[i]);
+                        dd = realpart(v->v_compdata[i]);
                         (void) fwrite(&dd, sizeof
                                       (double), 1, fp);
-                        dd = imagpart(&v->v_compdata[i]);
+                        dd = imagpart(v->v_compdata[i]);
                         (void) fwrite(&dd, sizeof
                                       (double), 1, fp);
                     }
@@ -241,15 +241,15 @@ raw_write(char *name, struct plot *pl, bool app, bool binary)
                     if (realflag)
                         fprintf(fp, "\t%.*e\n", prec,
                                 isreal(v) ? v->v_realdata[i] :
-                                realpart(&v->v_compdata[i]));
+                                realpart(v->v_compdata[i]));
                     else if (isreal(v))
                         fprintf(fp, "\t%.*e,0.0\n", prec,
                                 v->v_realdata[i]);
                     else
                         fprintf(fp, "\t%.*e,%.*e\n", prec,
-                                realpart(&v->v_compdata[i]),
+                                realpart(v->v_compdata[i]),
                                 prec,
-                                imagpart(&v->v_compdata[i]));
+                                imagpart(v->v_compdata[i]));
                 } else if (raw_padding) {
                     if (realflag) {
                         fprintf(fp, "\t%.*e\n", prec, 0.0);
@@ -544,7 +544,7 @@ raw_read(char *name) {
                     } else if (ciprefix("color=", t)) {
                         v->v_defcolor = copy(t + 6);
                     } else if (ciprefix("scale=", t)) {
-                        /* This is bad, but... */
+                        // This cast is bad, but...
                         v->v_scale = (struct dvec *)
                                      copy(t + 6);
                     } else if (ciprefix("grid=", t)) {
@@ -597,7 +597,7 @@ raw_read(char *name) {
                 if (v->v_scale) {
                     for (nv = curpl->pl_dvecs; nv; nv =
                                 nv->v_next)
-                        if (cieq((char *) v->v_scale,
+                        if (cieq((char *) v->v_scale, // This cast is bad, but...
                                  nv->v_name)) {
                             v->v_scale = nv;
                             break;
@@ -605,7 +605,7 @@ raw_read(char *name) {
                     if (!nv) {
                         fprintf(cp_err,
                                 "Error: no such vector %s\n",
-                                (char *) v->v_scale);
+                                (char *) v->v_scale); // This cast is bad, but...
                         v->v_scale = NULL;
                     }
                 }
@@ -626,8 +626,8 @@ raw_read(char *name) {
                                     getout
                             } else {
                                 if (fscanf(fp, " %lf, %lf",
-                                           &realpart(&v->v_compdata[i]),
-                                           &imagpart(&v->v_compdata[i])) != 2)
+                                           &realpart(v->v_compdata[i]),
+                                           &imagpart(v->v_compdata[i])) != 2)
                                     getout
                             }
                         } else if (raw_padded) {
@@ -828,12 +828,12 @@ spar_write(char *name, struct plot *pl, double Rbaseval)
             if (i < v->v_length) {
                 if (cieq(v->v_name, "frequency"))
                     fprintf(fp, "% .*e  ", prec,
-                            realpart(&v->v_compdata[i]));
+                            realpart(v->v_compdata[i]));
                 else
                     fprintf(fp, "% .*e  % .*e  ", prec,
-                            realpart(&v->v_compdata[i]),
+                            realpart(v->v_compdata[i]),
                             prec,
-                            imagpart(&v->v_compdata[i]));
+                            imagpart(v->v_compdata[i]));
             }
         }
         (void) putc('\n', fp);

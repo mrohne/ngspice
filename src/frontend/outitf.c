@@ -64,15 +64,6 @@ static void freeRun(runDesc *run);
 #endif
 /*saj*/
 
-/* plot output data shall go into extra heap 
-   to prevent massive memory fragmentation of standard process heap.
-   This is especially required by TCL for Windows, but may help
-   also under standard Windows GUI. */
-#if (defined(HAS_TCLWIN)) && ((defined(_MSC_VER) || defined(__MINGW32__)))
-#define newrealloc hrealloc
-#else
-#define newrealloc trealloc
-#endif
 
 #define DOUBLE_PRECISION    15
 
@@ -90,7 +81,7 @@ int
 OUTpBeginPlot(CKTcircuit *circuitPtr, JOB *analysisPtr,
               IFuid analName,
               IFuid refName, int refType,
-              int numNames, IFuid *dataNames, int dataType, void **plotPtr)
+              int numNames, IFuid *dataNames, int dataType, runDesc **plotPtr)
 {
   char *name;   
 
@@ -105,25 +96,25 @@ if (ARCHme != 0) return(OK);
    name = "circuit name";
  
  return (beginPlot(analysisPtr, circuitPtr, name,
-		   (char *) analName, (char *) refName, refType, numNames,
-		   (char **) dataNames, dataType, FALSE,
-		   (runDesc **) plotPtr));
+		   analName, refName, refType, numNames,
+		   dataNames, dataType, FALSE,
+		   plotPtr));
 }
 
 int
 OUTwBeginPlot(CKTcircuit *circuitPtr, JOB *analysisPtr,
               IFuid analName,
               IFuid refName, int refType,
-              int numNames, IFuid *dataNames, int dataType, void **plotPtr)
+              int numNames, IFuid *dataNames, int dataType, runDesc **plotPtr)
 {
 #ifdef PARALLEL_ARCH
     if (ARCHme != 0) return(OK);
 #endif /* PARALLEL_ARCH */
 
     return (beginPlot(analysisPtr, circuitPtr, "circuit name",
-            (char *) analName, (char *) refName, refType, numNames,
-            (char **) dataNames, dataType, TRUE,
-            (runDesc **) plotPtr));
+            analName, refName, refType, numNames,
+            dataNames, dataType, TRUE,
+            plotPtr));
 }
 
 static int
@@ -447,9 +438,9 @@ addSpecialDesc(runDesc *run, char *name, char *devname, char *param, int depind)
 
 
 int
-OUTpData(void *plotPtr, IFvalue *refValue, IFvalue *valuePtr)
+OUTpData(runDesc *plotPtr, IFvalue *refValue, IFvalue *valuePtr)
 {
-    runDesc *run = (runDesc *) plotPtr;
+    runDesc *run = plotPtr;  // FIXME
     IFvalue val;
     int i;
 #ifdef PARALLEL_ARCH
@@ -637,7 +628,7 @@ OUTwReference(void *plotPtr, IFvalue *valuePtr, void **refPtr)
 }
 /* ARGSUSED */ /* until some code gets written */
 int
-OUTwData(void *plotPtr, int dataIndex, IFvalue *valuePtr, void *refPtr)
+OUTwData(runDesc *plotPtr, int dataIndex, IFvalue *valuePtr, void *refPtr)
 {
     NG_IGNORE(refPtr);
     NG_IGNORE(valuePtr);
@@ -649,7 +640,7 @@ OUTwData(void *plotPtr, int dataIndex, IFvalue *valuePtr, void *refPtr)
 
 /* ARGSUSED */ /* until some code gets written */
 int
-OUTwEnd(void *plotPtr)
+OUTwEnd(runDesc *plotPtr)
 {
     NG_IGNORE(plotPtr);
     return (OK);
@@ -658,9 +649,9 @@ OUTwEnd(void *plotPtr)
 
 
 int
-OUTendPlot(void *plotPtr)
+OUTendPlot(runDesc *plotPtr)
 {
-    runDesc *run = (runDesc *) plotPtr;
+    runDesc *run = plotPtr;  // FIXME
 
 #ifdef PARALLEL_ARCH
     if (ARCHme != 0) return(OK);
@@ -682,7 +673,7 @@ OUTendPlot(void *plotPtr)
 
 /* ARGSUSED */ /* until some code gets written */
 int
-OUTbeginDomain(void *plotPtr, IFuid refName, int refType, IFvalue *outerRefValue)
+OUTbeginDomain(runDesc *plotPtr, IFuid refName, int refType, IFvalue *outerRefValue)
 {
     NG_IGNORE(outerRefValue);
     NG_IGNORE(refType);
@@ -694,7 +685,7 @@ OUTbeginDomain(void *plotPtr, IFuid refName, int refType, IFvalue *outerRefValue
 
 /* ARGSUSED */ /* until some code gets written */
 int
-OUTendDomain(void *plotPtr)
+OUTendDomain(runDesc *plotPtr)
 {
     NG_IGNORE(plotPtr);
     return (OK);
@@ -704,9 +695,9 @@ OUTendDomain(void *plotPtr)
 
 /* ARGSUSED */ /* until some code gets written */
 int
-OUTattributes(void *plotPtr, IFuid varName, int param, IFvalue *value)
+OUTattributes(runDesc *plotPtr, IFuid varName, int param, IFvalue *value)
 {
-    runDesc *run = (runDesc *) plotPtr;
+    runDesc *run = plotPtr;  // FIXME
     struct dvec *d;
     GRIDTYPE type;
     int i;
@@ -843,10 +834,10 @@ fileInit_pass2(runDesc *run)
     /*  Allocate Row buffer  */
 
     if (run->binary) {
-        rowbuflen = (size_t) (run->numData) * sizeof(double);
+        rowbuflen = (size_t) (run->numData);
         if (run->isComplex)
             rowbuflen *= 2;
-        rowbuf = (double *) tmalloc(rowbuflen);
+        rowbuf = TMALLOC(double, rowbuflen);
     } else rowbuf=NULL;
 
     return;
@@ -897,7 +888,7 @@ fileEndPoint(FILE *fp, bool bin)
 {
   if (bin) {
     /*  write row buffer to file  */
-    fwrite(rowbuf, rowbuflen, 1, fp);
+    fwrite(rowbuf, sizeof(double), rowbuflen, fp);
   }; /* otherwise the data has already been written */
   return;
 }
@@ -1010,12 +1001,12 @@ plotAddRealValue(dataDesc *desc, double value)
     struct dvec *v = desc->vec;
 
     if (isreal(v)) {
-      v->v_realdata = (double *) newrealloc(v->v_realdata,
+      v->v_realdata = (double *) trealloc(v->v_realdata,
             sizeof(double) * (size_t) (v->v_length + 1));
       v->v_realdata[v->v_length] = value;
     } else {
       /* a real parading as a VF_COMPLEX */
-      v->v_compdata = (ngcomplex_t *) newrealloc(v->v_compdata,
+      v->v_compdata = (ngcomplex_t *) trealloc(v->v_compdata,
             sizeof(ngcomplex_t) * (size_t) (v->v_length + 1));
       v->v_compdata[v->v_length].cx_real = value;
       v->v_compdata[v->v_length].cx_imag = 0.0;
@@ -1031,7 +1022,7 @@ plotAddComplexValue(dataDesc *desc, IFcomplex value)
 {
     struct dvec *v = desc->vec;
 
-    v->v_compdata = (ngcomplex_t *) newrealloc(v->v_compdata,
+    v->v_compdata = (ngcomplex_t *) trealloc(v->v_compdata,
             sizeof(ngcomplex_t) * (size_t) (v->v_length + 1));
     v->v_compdata[v->v_length].cx_real = value.real;
     v->v_compdata[v->v_length].cx_imag = value.imag;

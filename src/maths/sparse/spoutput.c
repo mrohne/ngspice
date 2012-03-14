@@ -55,7 +55,10 @@
 
 int Printer_Width = PRINTER_WIDTH;
 
-
+#include "ngspice/config.h"
+#ifdef HAS_WINDOWS
+#include "ngspice/wstdio.h"
+#endif
 
 
 
@@ -603,10 +606,14 @@ spFileVector(MatrixPtr eMatrix, char *File, RealVector RHS, RealVector iRHS)
     /* Begin `spFileVector'. */
     assert( IS_SPARSE( Matrix ) && RHS != NULL);
 
-    /* Open File in append mode. */
-    pMatrixFile = fopen(File,"a");
-    if (pMatrixFile == NULL)
-	return 0;
+    if (File) {
+        /* Open File in append mode. */
+        pMatrixFile = fopen(File,"a");
+        if (pMatrixFile == NULL)
+	    return 0;
+    }
+    else 
+        pMatrixFile=stdout;
 
     /* Output vector. */
     Size = Matrix->Size;
@@ -631,7 +638,8 @@ spFileVector(MatrixPtr eMatrix, char *File, RealVector RHS, RealVector iRHS)
     }
 
     /* Close file. */
-    if (fclose(pMatrixFile) < 0) return 0;
+    if (File)
+        if (fclose(pMatrixFile) < 0) return 0;
     return 1;
 }
 

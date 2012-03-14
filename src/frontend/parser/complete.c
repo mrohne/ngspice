@@ -106,7 +106,7 @@ cp_ccom(wordlist *wlist, char *buf, bool esc)
             pmatches = ccfilec(buf);
             s =strrchr(buf, '/');
             i = (int) strlen(s ? s + 1 : buf);
-            if ((*buf == '~') && !index(buf, '/'))
+            if ((*buf == '~') && !strchr(buf, '/'))
                 i--;
         }
 
@@ -374,9 +374,9 @@ cctowl(struct ccom *cc, bool sib)
 /* We use this in com_device... */
 
 wordlist *
-cp_cctowl(char *stuff)
+cp_cctowl(struct ccom *stuff)
 {
-    return (cctowl((struct ccom *) stuff, TRUE));
+    return (cctowl(stuff, TRUE));
 }
 
 /* Turn on and off the escape break character and cooked mode. */
@@ -398,16 +398,16 @@ cp_ccon(bool on)
      * make sure we aren't in raw or cbreak mode.  Hope the (void)
      * ioctl's won't fail.
      */
-    (void) ioctl(fileno(cp_in), TIOCGETC, (char *) &tbuf);
+    (void) ioctl(fileno(cp_in), TIOCGETC, &tbuf);
     if (on)
         tbuf.t_brkc = ESCAPE;
     else
         tbuf.t_brkc = '\0';
-    (void) ioctl(fileno(cp_in), TIOCSETC, (char *) &tbuf);
+    (void) ioctl(fileno(cp_in), TIOCSETC, &tbuf);
 
-    (void) ioctl(fileno(cp_in), TIOCGETP, (char *) &sbuf);
+    (void) ioctl(fileno(cp_in), TIOCGETP, &sbuf);
     sbuf.sg_flags &= ~(RAW|CBREAK);
-    (void) ioctl(fileno(cp_in), TIOCSETP, (char *) &sbuf);
+    (void) ioctl(fileno(cp_in), TIOCSETP, &sbuf);
 #else
 
 #  ifdef HAVE_TERMIO_H
@@ -440,7 +440,7 @@ cp_ccon(bool on)
 #if HAVE_TCGETATTR
 	tcgetattr(fileno(cp_in),&OS_Buf);
 #else
-	(void) ioctl(fileno(cp_in), TERM_GET, (char *) &OS_Buf);
+	(void) ioctl(fileno(cp_in), TERM_GET, &OS_Buf);
 #endif
 	sbuf = OS_Buf;
 	sbuf.c_cc[VEOF] = 0;
@@ -449,13 +449,13 @@ cp_ccon(bool on)
 #if HAVE_TCSETATTR
 	tcsetattr(fileno(cp_in),TCSANOW,&sbuf);
 #else
-	(void) ioctl(fileno(cp_in), TERM_SET, (char *) &sbuf);
+	(void) ioctl(fileno(cp_in), TERM_SET, &sbuf);
 #endif
     } else {
 #ifdef HAVE_TCSETATTR
 	tcsetattr(fileno(cp_in),TCSANOW,&OS_Buf);
 #else
-	(void) ioctl(fileno(cp_in), TERM_SET, (char *) &OS_Buf);
+	(void) ioctl(fileno(cp_in), TERM_SET, &OS_Buf);
 #endif
     }
 
@@ -553,18 +553,18 @@ cp_remkword(int kw_class, char *word)
  * that position, and the keyword class given is set to the argument.
  */
 
-char *
-cp_kwswitch(int kw_class, char *tree)
+struct ccom *
+cp_kwswitch(int kw_class, struct ccom *tree)
 {
-    char *old;
+    struct ccom *old;
 
     if ((kw_class < 1) || (kw_class >= NCLASSES)) {
         fprintf(cp_err, "cp_addkword: Internal Error: bad class %d\n",
                 kw_class);
         return (NULL);
     }
-    old = (char *) keywords[kw_class];
-    keywords[kw_class] = (struct ccom *) tree;
+    old = keywords[kw_class];
+    keywords[kw_class] = tree;
     return (old);
 }
 

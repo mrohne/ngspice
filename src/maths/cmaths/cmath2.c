@@ -23,12 +23,6 @@ Author: 1985 Wayne A. Christopher, U. C. Berkeley CAD Group
 #include "cmath2.h"
 
 
-/* MINGW: random, srandom in libiberty.a, but not in libiberty.h 
-#if defined(__MINGW32__) && defined(HAVE_RANDOM)
-extern long int random (void);
-extern void srandom (unsigned int seed);
-#endif
-*/
 extern void checkseed(void); /* seed random or set by 'set rndseed=value'*/
 extern double drand(void);  /* from randnumb.c */
 extern double gauss0(void);  /* from randnumb.c */
@@ -46,8 +40,8 @@ cx_max_local(void *data, short int type, int length)
 	int i;
 
         for (i = 0; i < length; i++)
-            if (cmag(&cc[i]) > largest)
-                largest = cmag(&cc[i]);
+            if (cmag(cc[i]) > largest)
+                largest = cmag(cc[i]);
     } else {
 	double *dd = (double *) data;
 	int i;
@@ -82,8 +76,8 @@ cx_norm(void *data, short int type, int length, int *newlength, short int *newty
         *newtype = VF_COMPLEX;
 
         for (i = 0; i < length; i++) {
-            realpart(&c[i]) = realpart(&cc[i]) / largest;
-            imagpart(&c[i]) = imagpart(&cc[i]) / largest;
+            realpart(c[i]) = realpart(cc[i]) / largest;
+            imagpart(c[i]) = imagpart(cc[i]) / largest;
         }
         return ((void *) c);
     } else {
@@ -112,8 +106,8 @@ cx_uminus(void *data, short int type, int length, int *newlength, short int *new
         c = alloc_c(length);
         *newtype = VF_COMPLEX;
         for (i = 0; i < length; i++) {
-            realpart(&c[i]) = - realpart(&cc[i]);
-            imagpart(&c[i]) = - imagpart(&cc[i]);
+            realpart(c[i]) = - realpart(cc[i]);
+            imagpart(c[i]) = - imagpart(cc[i]);
         }
         return ((void *) c);
     } else {
@@ -150,10 +144,10 @@ cx_rnd(void *data, short int type, int length, int *newlength, short int *newtyp
         *newtype = VF_COMPLEX;
         for (i = 0; i < length; i++) {
             int j, k;
-            j = (int)floor(realpart(&cc[i]));
-            k = (int)floor(imagpart(&cc[i]));
-            realpart(&c[i]) = j ? rand() % j : 0;
-            imagpart(&c[i]) = k ? rand() % k : 0;
+            j = (int)floor(realpart(cc[i]));
+            k = (int)floor(imagpart(cc[i]));
+            realpart(c[i]) = j ? rand() % j : 0;
+            imagpart(c[i]) = k ? rand() % k : 0;
         }
         return ((void *) c);
     } else {
@@ -189,8 +183,8 @@ cx_sunif(void *data, short int type, int length, int *newlength, short int *newt
         c = alloc_c(length);
         *newtype = VF_COMPLEX;
         for (i = 0; i < length; i++) {
-            realpart(&c[i]) = drand();
-            imagpart(&c[i]) = drand();
+            realpart(c[i]) = drand();
+            imagpart(c[i]) = drand();
         }
         return ((void *) c);
     } else {
@@ -226,8 +220,8 @@ cx_poisson(void *data, short int type, int length, int *newlength, short int *ne
         c = alloc_c(length);
         *newtype = VF_COMPLEX;
         for (i = 0; i < length; i++) {
-            realpart(&c[i]) = poisson (realpart(&cc[i]));
-            imagpart(&c[i]) = poisson (imagpart(&cc[i]));
+            realpart(c[i]) = poisson (realpart(cc[i]));
+            imagpart(c[i]) = poisson (imagpart(cc[i]));
         }
         return ((void *) c);
     } else {
@@ -264,8 +258,8 @@ cx_exponential(void *data, short int type, int length, int *newlength, short int
         c = alloc_c(length);
         *newtype = VF_COMPLEX;
         for (i = 0; i < length; i++) {
-            realpart(&c[i]) = exprand(realpart(&cc[i]));
-            imagpart(&c[i]) = exprand(imagpart(&cc[i]));
+            realpart(c[i]) = exprand(realpart(cc[i]));
+            imagpart(c[i]) = exprand(imagpart(cc[i]));
         }
         return ((void *) c);
     } else {
@@ -299,8 +293,8 @@ cx_sgauss(void *data, short int type, int length, int *newlength, short int *new
         c = alloc_c(length);
         *newtype = VF_COMPLEX;
         for (i = 0; i < length; i++) {
-            realpart(&c[i]) = gauss0();
-            imagpart(&c[i]) = gauss0();
+            realpart(c[i]) = gauss0();
+            imagpart(c[i]) = gauss0();
         }
         return ((void *) c);
     } else {
@@ -352,11 +346,11 @@ void
         *newlength = length;
 
         for (i = 0; i < length; i++) {
-            sum_real += realpart(&cc[i]);
-            realpart(&c[i]) = sum_real / (double)(i+1);
+            sum_real += realpart(cc[i]);
+            realpart(c[i]) = sum_real / (double)(i+1);
 
-            sum_imag += imagpart(&cc[i]);
-            imagpart(&c[i]) = sum_imag / (double)(i+1);
+            sum_imag += imagpart(cc[i]);
+            imagpart(c[i]) = sum_imag / (double)(i+1);
         }
 
        return ((void *) c);
@@ -391,11 +385,11 @@ cx_mean(void *data, short int type, int length, int *newlength, short int *newty
         c = alloc_c(1);
         *newtype = VF_COMPLEX;
         for (i = 0; i < length; i++) {
-            realpart(c) += realpart(cc + i);
-            imagpart(c) += imagpart(cc + i);
+            realpart(*c) += realpart(cc[i]);
+            imagpart(*c) += imagpart(cc[i]);
         }
-        realpart(c) /= length;
-        imagpart(c) /= length;
+        realpart(*c) /= length;
+        imagpart(*c) /= length;
         return ((void *) c);
     }
 }
@@ -434,7 +428,7 @@ cx_vector(void *data, short int type, int length, int *newlength, short int *new
     if (type == VF_REAL)
         len = (int)FTEcabs(*dd);
     else
-        len = (int)cmag(cc);
+        len = (int)cmag(*cc);
     if (len == 0)
         len = 1;
     d = alloc_d(len);
@@ -461,7 +455,7 @@ cx_unitvec(void *data, short int type, int length, int *newlength, short int *ne
     if (type == VF_REAL)
         len = (int)FTEcabs(*dd);
     else
-        len = (int)cmag(cc);
+        len = (int)cmag(*cc);
     if (len == 0)
         len = 1;
     d = alloc_d(len);
@@ -500,21 +494,21 @@ cx_plus(void *data1, void *data2, short int datatype1, short int datatype2, int 
         c = alloc_c(length);
         for (i = 0; i < length; i++) {
             if (datatype1 == VF_REAL) {
-                realpart(&c1) = dd1[i];
-                imagpart(&c1) = 0.0;
+                realpart(c1) = dd1[i];
+                imagpart(c1) = 0.0;
             } else {
-                realpart(&c1) = realpart(&cc1[i]);
-                imagpart(&c1) = imagpart(&cc1[i]);
+                realpart(c1) = realpart(cc1[i]);
+                imagpart(c1) = imagpart(cc1[i]);
             }
             if (datatype2 == VF_REAL) {
-                realpart(&c2) = dd2[i];
-                imagpart(&c2) = 0.0;
+                realpart(c2) = dd2[i];
+                imagpart(c2) = 0.0;
             } else {
-                realpart(&c2) = realpart(&cc2[i]);
-                imagpart(&c2) = imagpart(&cc2[i]);
+                realpart(c2) = realpart(cc2[i]);
+                imagpart(c2) = imagpart(cc2[i]);
             }
-            realpart(&c[i]) = realpart(&c1) + realpart(&c2);
-            imagpart(&c[i]) = imagpart(&c1) + imagpart(&c2);
+            realpart(c[i]) = realpart(c1) + realpart(c2);
+            imagpart(c[i]) = imagpart(c1) + imagpart(c2);
         }
         return ((void *) c);
     }
@@ -540,21 +534,21 @@ cx_minus(void *data1, void *data2, short int datatype1, short int datatype2, int
         c = alloc_c(length);
         for (i = 0; i < length; i++) {
             if (datatype1 == VF_REAL) {
-                realpart(&c1) = dd1[i];
-                imagpart(&c1) = 0.0;
+                realpart(c1) = dd1[i];
+                imagpart(c1) = 0.0;
             } else {
-                realpart(&c1) = realpart(&cc1[i]);
-                imagpart(&c1) = imagpart(&cc1[i]);
+                realpart(c1) = realpart(cc1[i]);
+                imagpart(c1) = imagpart(cc1[i]);
             }
             if (datatype2 == VF_REAL) {
-                realpart(&c2) = dd2[i];
-                imagpart(&c2) = 0.0;
+                realpart(c2) = dd2[i];
+                imagpart(c2) = 0.0;
             } else {
-                realpart(&c2) = realpart(&cc2[i]);
-                imagpart(&c2) = imagpart(&cc2[i]);
+                realpart(c2) = realpart(cc2[i]);
+                imagpart(c2) = imagpart(cc2[i]);
             }
-            realpart(&c[i]) = realpart(&c1) - realpart(&c2);
-            imagpart(&c[i]) = imagpart(&c1) - imagpart(&c2);
+            realpart(c[i]) = realpart(c1) - realpart(c2);
+            imagpart(c[i]) = imagpart(c1) - imagpart(c2);
         }
         return ((void *) c);
     }
@@ -580,23 +574,23 @@ cx_times(void *data1, void *data2, short int datatype1, short int datatype2, int
         c = alloc_c(length);
         for (i = 0; i < length; i++) {
             if (datatype1 == VF_REAL) {
-                realpart(&c1) = dd1[i];
-                imagpart(&c1) = 0.0;
+                realpart(c1) = dd1[i];
+                imagpart(c1) = 0.0;
             } else {
-                realpart(&c1) = realpart(&cc1[i]);
-                imagpart(&c1) = imagpart(&cc1[i]);
+                realpart(c1) = realpart(cc1[i]);
+                imagpart(c1) = imagpart(cc1[i]);
             }
             if (datatype2 == VF_REAL) {
-                realpart(&c2) = dd2[i];
-                imagpart(&c2) = 0.0;
+                realpart(c2) = dd2[i];
+                imagpart(c2) = 0.0;
             } else {
-                realpart(&c2) = realpart(&cc2[i]);
-                imagpart(&c2) = imagpart(&cc2[i]);
+                realpart(c2) = realpart(cc2[i]);
+                imagpart(c2) = imagpart(cc2[i]);
             }
-            realpart(&c[i]) = realpart(&c1) * realpart(&c2)
-                - imagpart(&c1) * imagpart(&c2);
-            imagpart(&c[i]) = imagpart(&c1) * realpart(&c2)
-                + realpart(&c1) * imagpart(&c2);
+            realpart(c[i]) = realpart(c1) * realpart(c2)
+                - imagpart(c1) * imagpart(c2);
+            imagpart(c[i]) = imagpart(c1) * realpart(c2)
+                + realpart(c1) * imagpart(c2);
         }
         return ((void *) c);
     }
@@ -628,31 +622,31 @@ cx_mod(void *data1, void *data2, short int datatype1, short int datatype2, int l
         c = alloc_c(length);
         for (i = 0; i < length; i++) {
             if (datatype1 == VF_REAL) {
-                realpart(&c1) = dd1[i];
-                imagpart(&c1) = 0.0;
+                realpart(c1) = dd1[i];
+                imagpart(c1) = 0.0;
             } else {
-                realpart(&c1) = realpart(&cc1[i]);
-                imagpart(&c1) = imagpart(&cc1[i]);
+                realpart(c1) = realpart(cc1[i]);
+                imagpart(c1) = imagpart(cc1[i]);
             }
             if (datatype2 == VF_REAL) {
-                realpart(&c2) = dd2[i];
-                imagpart(&c2) = 0.0;
+                realpart(c2) = dd2[i];
+                imagpart(c2) = 0.0;
             } else {
-                realpart(&c2) = realpart(&cc2[i]);
-                imagpart(&c2) = imagpart(&cc2[i]);
+                realpart(c2) = realpart(cc2[i]);
+                imagpart(c2) = imagpart(cc2[i]);
             }
-            r1 = (int)floor(FTEcabs(realpart(&c1)));
+            r1 = (int)floor(FTEcabs(realpart(c1)));
             rcheck(r1 > 0, "mod");
-            r2 = (int)floor(FTEcabs(realpart(&c2)));
+            r2 = (int)floor(FTEcabs(realpart(c2)));
             rcheck(r2 > 0, "mod");
-            i1 = (int)floor(FTEcabs(imagpart(&c1)));
+            i1 = (int)floor(FTEcabs(imagpart(c1)));
             rcheck(i1 > 0, "mod");
-            i2 = (int)floor(FTEcabs(imagpart(&c2)));
+            i2 = (int)floor(FTEcabs(imagpart(c2)));
             rcheck(i2 > 0, "mod");
             r3 = r1 % r2;
             i3 = i1 % i2;
-            realpart(&c[i]) = (double) r3;
-            imagpart(&c[i]) = (double) i3;
+            realpart(c[i]) = (double) r3;
+            imagpart(c[i]) = (double) i3;
         }
         return ((void *) c);
     }
@@ -689,14 +683,14 @@ cx_max(void *data, short int type, int length, int *newlength, short int *newtyp
       
       c = alloc_c(1);
       *newtype = VF_COMPLEX;
-      largest_real=realpart(cc);
-      largest_complex=imagpart(cc);
+      largest_real=realpart(*cc);
+      largest_complex=imagpart(*cc);
       for (i = 0; i < length; i++) {
-        if (realpart(cc + i)>largest_real) largest_real=realpart(cc + i);
-        if (imagpart(cc + i)>largest_complex) largest_complex=imagpart(cc + i);
+        if (realpart(cc[i])>largest_real) largest_real=realpart(cc[i]);
+        if (imagpart(cc[i])>largest_complex) largest_complex=imagpart(cc[i]);
         }
-        realpart(c) = largest_real;
-        imagpart(c) = largest_complex;
+        realpart(*c) = largest_real;
+        imagpart(*c) = largest_complex;
         return ((void *) c);
     }
 }
@@ -730,14 +724,14 @@ cx_min(void *data, short int type, int length, int *newlength, short int *newtyp
       
       c = alloc_c(1);
       *newtype = VF_COMPLEX;
-      smallest_real=realpart(cc);
-      smallest_complex=imagpart(cc);
+      smallest_real=realpart(*cc);
+      smallest_complex=imagpart(*cc);
       for (i = 1; i < length; i++) {
-        if (realpart(cc + i)<smallest_real) smallest_real=realpart(cc + i);
-        if (imagpart(cc + i)<smallest_complex) smallest_complex=imagpart(cc + i);
+        if (realpart(cc[i])<smallest_real) smallest_real=realpart(cc[i]);
+        if (imagpart(cc[i])<smallest_complex) smallest_complex=imagpart(cc[i]);
         }
-        realpart(c) = smallest_real;
-        imagpart(c) = smallest_complex;
+        realpart(*c) = smallest_real;
+        imagpart(*c) = smallest_complex;
         return ((void *) c);
     }
 }
@@ -772,15 +766,15 @@ cx_d(void *data, short int type, int length, int *newlength, short int *newtype)
       
       c = alloc_c(length);
       *newtype = VF_COMPLEX;
-      realpart(c)=realpart(cc+1)-realpart(cc);
-      imagpart(c)=imagpart(cc+1)-imagpart(cc);
-      realpart(c+length-1)=realpart(cc+length-1)-realpart(cc+length-2);
-      imagpart(c+length-1)=imagpart(cc+length-1)-imagpart(cc+length-2);
+      realpart(*c)=realpart(cc[1])-realpart(cc[0]);
+      imagpart(*c)=imagpart(cc[1])-imagpart(cc[0]);
+      realpart(c[length-1])=realpart(cc[length-1])-realpart(cc[length-2]);
+      imagpart(c[length-1])=imagpart(cc[length-1])-imagpart(cc[length-2]);
       
       
       for (i = 1; i < (length-1); i++) {
-        realpart(c+i)=realpart(cc+i+1)-realpart(cc+i-1);
-        imagpart(c+i)=imagpart(cc+i+1)-imagpart(cc+i-1);
+        realpart(c[i])=realpart(cc[i+1])-realpart(cc[i-1]);
+        imagpart(c[i])=imagpart(cc[i+1])-imagpart(cc[i-1]);
 
         }
         return ((void *) c);
@@ -799,8 +793,8 @@ cx_floor(void *data, short int type, int length, int *newlength, short int *newt
         c = alloc_c(length);
         *newtype = VF_COMPLEX;
         for (i = 0; i < length; i++) {
-            realpart(&c[i]) = floor(realpart(&cc[i]));
-            imagpart(&c[i]) = floor(imagpart(&cc[i]));
+            realpart(c[i]) = floor(realpart(cc[i]));
+            imagpart(c[i]) = floor(imagpart(cc[i]));
         }
         return ((void *) c);
     } else {
@@ -828,8 +822,8 @@ cx_ceil(void *data, short int type, int length, int *newlength, short int *newty
         c = alloc_c(length);
         *newtype = VF_COMPLEX;
         for (i = 0; i < length; i++) {
-            realpart(&c[i]) = ceil(realpart(&cc[i]));
-            imagpart(&c[i]) = ceil(imagpart(&cc[i]));
+            realpart(c[i]) = ceil(realpart(cc[i]));
+            imagpart(c[i]) = ceil(imagpart(cc[i]));
         }
         return ((void *) c);
     } else {

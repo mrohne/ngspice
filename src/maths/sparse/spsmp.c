@@ -280,13 +280,24 @@ SMPpreOrder(SMPmatrix *Matrix)
 /*
  * SMPprint()
  */
-/*ARGSUSED*/
-void
-SMPprint(SMPmatrix *Matrix, FILE *File)
-{
-    NG_IGNORE(File);
 
-    spPrint( Matrix, 0, 1, 1 );
+void
+SMPprintRHS(SMPmatrix *Matrix, char *Filename, RealVector RHS, RealVector iRHS)
+{
+        spFileVector( Matrix, Filename, RHS, iRHS );
+}
+
+/*
+ * SMPprint()
+ */
+
+void
+SMPprint(SMPmatrix *Matrix, char *Filename)
+{
+    if (Filename)
+        spFileMatrix(Matrix, Filename, "Circuit Matrix", 0, 1, 1 );
+    else
+        spPrint( Matrix, 0, 1, 1 );
 }
 
 /*
