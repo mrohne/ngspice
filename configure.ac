@@ -29,7 +29,7 @@ dnl Create a configuration header
 AC_CONFIG_HEADER([src/include/ngspice/config.h])
 
 dnl Initialise automake stuff
-AM_INIT_AUTOMAKE([-Wall -Werror nostdinc])
+AM_INIT_AUTOMAKE([-Wall nostdinc])
 
 AC_SUBST([AM_CPPFLAGS],['-I. -I$(srcdir) -I$(top_builddir)/src/include'])
 
