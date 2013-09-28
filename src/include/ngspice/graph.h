@@ -23,7 +23,7 @@ struct _keyed;
 struct graph {
     int graphid;
     struct dveclist *plotdata;  /* normalized data */
-    char *plotname;         /* name of plot this graph is in */
+    char *plotname;         /* name of plot this graph is in */ /*!!*/
     int onevalue;           /* boolean variable,
                                  true if plotting one value
                                  against itself (real vs imaginary) */
@@ -93,7 +93,7 @@ struct graph {
       int xdatatype, ydatatype;
       int xsized, ysized;
       double xdelta, ydelta; /* if non-zero, user-specified deltas */
-      char *xlabel, *ylabel;
+      char *xlabel, *ylabel;  /*!!*/
     } grid;
 
     int numbuttons;     /* number of buttons */

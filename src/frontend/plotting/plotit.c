@@ -267,7 +267,7 @@ plotit(wordlist *wl, char *hcopy, char *devname)
     /* remove tile, xlabel, ylabel */
     nxlabel = getword(wwl, "xlabel");
     nylabel = getword(wwl, "ylabel");
-    ntitle = getword(wwl, "title");
+    ntitle = getword(wwl, "title");  /*!*/
     pname = wl_flatten(wwl->wl_next);
     (void) sprintf(cline, "plot %s", pname);
     tfree(pname);
@@ -891,6 +891,7 @@ plotit(wordlist *wl, char *hcopy, char *devname)
     if (ylim)
         tfree(ylim);
 
+    fprintf(stderr, "devname=%s\n", devname);
     /* We don't want to try to deal with smith plots for asciiplot. */
     if (devname && eq(devname, "lpr")) {
         /* check if we should (can) linearize */
@@ -1014,6 +1015,7 @@ plotit(wordlist *wl, char *hcopy, char *devname)
 
     pname = plot_cur->pl_typename;
 
+    fprintf(stderr,"in %s, invoking gr_init\n", __func__);
     if (!gr_init(xlims, ylims, (oneval ? NULL : xn),
                  title ? title : vecs->v_plot->pl_title,
                  hcopy, i,

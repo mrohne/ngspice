@@ -86,6 +86,7 @@ gr_init(double *xlims, double *ylims, /* The size of the screen. */
     if ((graph = NewGraph()) == NULL)
         return (FALSE);
 
+    fprintf(stderr,"in %s title/plotname=%s xlabel=%s\n", __func__, plotname, xlabel);
     /*
       The global currentgraph will always be the current graph.
     */
@@ -135,8 +136,9 @@ gr_init(double *xlims, double *ylims, /* The size of the screen. */
     if (!plotname)
         plotname = "(unknown)";
 
-    comb_title = TMALLOC(char, strlen(plotname) + strlen(pname) + 3);
+    comb_title = TMALLOC(char, strlen(plotname) + strlen(pname) + 3); /* plotname ... */
     sprintf(comb_title, "%s: %s", pname, plotname);
+    fprintf(stderr," comb_title=%s pname=%s, plotname=%s\n", comb_title, pname, plotname);
     graph->plotname = comb_title;
 
     /* note: have enum here or some better convention */

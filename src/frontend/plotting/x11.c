@@ -552,6 +552,7 @@ X11_Text(char *text, int x, int y)
     /* We specify text position by lower left corner, so have to adjust for
        X11's font nonsense. */
 
+    fprintf(stderr, "%s: text=%s\n", __func__, text);
     if (DEVDEP(currentgraph).isopen)
         XDrawString(display, DEVDEP(currentgraph).window,
                     DEVDEP(currentgraph).gc, x,
@@ -819,6 +820,7 @@ zoomin(GRAPH *graph)
         fy1 = ftemp;
     }
 
+    fprintf(stderr," %s, plotname=%s\n", __func__, graph->plotname);
     strncpy(buf2, graph->plotname, sizeof(buf2));
     if ((t = strchr(buf2, ':')) != NULL)
         *t = 0;
