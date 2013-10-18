@@ -125,6 +125,12 @@ gr_redrawgrid(GRAPH *graph)
 
     SetColor(1);
     SetLinestyle(1);
+    /* draw title */
+    if (graph->plotname) {
+        DevDrawText(graph->plotname,
+                    graph->fontwidth,
+                    (int) (graph->absolute.height - 1 * graph->fontheight));
+    }
     /* draw labels */
     if (graph->grid.xlabel) {
         DevDrawText(graph->grid.xlabel,

@@ -1,0 +1,13 @@
+*  title verschwindet im nervana
+
+* (exec-spice "ngspice %s")
+* (shell-command "evince /s/larice/ngspice.work/tmp-1/ng-spice-manuals/manual.pdf")
+
+.control
+
+let x = vector(5)
+let y = exp(x)
+plot y vs x xlabel my_xlabel ylabel my_ylabel
+plot y vs x xlabel my_xlabel title my_title
+
+.endc
