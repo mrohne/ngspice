@@ -6773,7 +6773,9 @@ rem_unused_xxx(struct nscope *level)
 
     struct line_assoc *p = level->subckts;
     for (; p; p = p->next)
-        rem_unused_xxx(p->line->li_next->level);
+        /* .subckt and .ends do have the level of the parent */
+        if (level != p->line->li_next->level)
+            rem_unused_xxx(p->line->li_next->level);
 }
 
 
