@@ -17,6 +17,7 @@ AUTHORS
 MODIFICATIONS
 
     7/11/2012  Holger Vogt   Replace printf by out_printf to allow output redirection
+    5/21/2017  Holger Vogt   Update 'edisplay': add node type and number of events
 
 SUMMARY
 
