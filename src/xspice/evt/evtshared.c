@@ -116,8 +116,6 @@ EVTshareddata(
     node_table = ckt->evt->info.node_table;
 
     /* Get data for the node */
-
-
     node_index = get_index(node_name);
     if(node_index < 0) {
         fprintf(cp_err, "ERROR - Node %s is not an event node.\n", node_name);
