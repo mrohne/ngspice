@@ -233,6 +233,7 @@ static bool immediate = FALSE;
 static bool coquit = FALSE;
 static jmp_buf errbufm, errbufc;
 static int intermj = 1;
+bool wantevtdata = FALSE;
 
 
 // thread IDs
@@ -967,6 +968,8 @@ bool ngSpice_SetBkpt(double time)
 IMPEXP
 int  ngSpice_Init_Evt(SendEvtData* sevtdata, SendInitEvtData* sinitevtdata, void* userData)
 {
+    if (sevtdata)
+        wantevtdata = TRUE;
 }
 
 /* get info about the event node vector */
@@ -1965,3 +1968,7 @@ sharedsync(double *pckttime, double *pcktdelta, double olddelta, double finalt,
         }
     }
 }
+
+void shared_send_event(int index, double step, double dvalue, char *svalue, void *pvalue, int len)
+{}
+
