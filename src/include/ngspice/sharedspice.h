@@ -185,7 +185,7 @@ typedef struct evt_data
 
 typedef struct evt_shared_data
 {
-    pevt_data evt_dect;
+    pevt_data *evt_dect;
     int num_steps;
 } evt_shared_data, *pevt_shared_data;
 #endif

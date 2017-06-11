@@ -981,7 +981,8 @@ int  ngSpice_Init_Evt(SendEvtData* sevtdata, SendInitEvtData* sinitevtdata, void
     return(TRUE);
 }
 
-/* get info about the event node vector */
+/* Get info about the event node vector.
+If node_name is NULL, just delete previous data */
 IMPEXP
 pevt_shared_data ngGet_Evt_NodeInfo(char* node_name)
 {
