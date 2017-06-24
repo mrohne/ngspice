@@ -61,8 +61,8 @@ NON-STANDARD FEATURES
 /* global flag, TRUE if callback is used */
 #ifdef SHARED_MODULE
 extern bool wantevtdata;
-extern void shared_send_event(int, double, double, char *, void *, int);
-extern void shared_send_dict(char*);
+extern void shared_send_event(int, double, double, char *, void *, int, int);
+extern void shared_send_dict(int, int, char*, char*);
 static void EVTshareddump(
     CKTcircuit    *ckt,  /* The circuit structure */
     Ipc_Anal_t    mode,  /* The analysis mode for this call */
@@ -403,8 +403,6 @@ static void EVTshareddump(
 
     Evt_Node_Info_t     **node_table;
 
-    char                buff[10000];
-
     Mif_Boolean_t       equal;
 
     /* Get number of event-driven nodes */
@@ -467,25 +465,16 @@ static void EVTshareddump(
         } /* end for */
     } /* end if first call */
 
-
         /* Exit if there are no nodes to be sent */
     if (num_send_nodes <= 0)
         return;
 
-
     /* If this is the first call, send the dictionary (the list of event nodes, line by line) */
     if (firstcall) {
         for (i = 0; i < num_nodes; i++) {
-            if (node_dict[i].send) {
-                sprintf(buff, "%d %s %s", node_dict[i].ipc_index,
-                    node_dict[i].node_name_str,
-                    node_dict[i].udn_type_str);
-                /* send it directly to sharedspice.c */
-                shared_send_dict(buff);
-            }
+            if (node_dict[i].send)
+                shared_send_dict(node_dict[i].ipc_index, num_nodes, node_dict[i].node_name_str, node_dict[i].udn_type_str);
         }
-        /* last entry to list */
-        shared_send_dict(NULL);
     }
 
     /* If this is the first call, send the operating point solution */

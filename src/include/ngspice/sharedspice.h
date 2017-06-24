@@ -281,12 +281,16 @@ typedef int (GetSyncData)(double, double*, double, int, int, int, void*);
 /* callback functions
 addresses received from caller with ngSpice_Init_Evt() function
 */
-typedef int (SendEvtData)(int, double, double, char *, void *, int, int, void*);
-/* int index, double step, double dvalue, char *svalue, void *pvalue, int plen, int mode */
-typedef int (SendInitEvtData)(char*, void*);
+typedef int (SendEvtData)(int, double, double, char *, void *, int, int, int, void*);
+/* int index, double step, double dvalue, char *svalue, void *pvalue, int plen, int mode, int ident  */
+typedef int (SendInitEvtData)(int, int, char*, char*, int, void*);
 /*
-   char*       string with node info: "index name udn-name"
-   void*       return pointer received from caller
+int         node index
+int         maximum node index, number of nodes
+char*       node name
+char*       udn-name, node type
+int         identification number of calling ngspice shared lib
+void*       return pointer received from caller
 */
 #endif
 
