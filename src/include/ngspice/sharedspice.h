@@ -179,8 +179,8 @@ typedef struct vecinfoall
 typedef struct evt_data
 {
     int           dcop;
-    double        step;
-    char          *node_value;
+    double        step;        /* simulation time */
+    char          *node_value; /* one of 0s, 1s, Us, 0r, 1r, Ur, 0z, 1z, Uz, 0u, 1u, Uu */
 } evt_data, *pevt_data;
 
 typedef struct evt_shared_data
@@ -189,6 +189,7 @@ typedef struct evt_shared_data
     int num_steps;
 } evt_shared_data, *pevt_shared_data;
 #endif
+
 
 /* callback functions
 addresses received from caller with ngSpice_Init() function
@@ -281,16 +282,31 @@ typedef int (GetSyncData)(double, double*, double, int, int, int, void*);
 /* callback functions
 addresses received from caller with ngSpice_Init_Evt() function
 */
+
+/* Upon time step finished, called per node */
 typedef int (SendEvtData)(int, double, double, char *, void *, int, int, int, void*);
-/* int index, double step, double dvalue, char *svalue, void *pvalue, int plen, int mode, int ident  */
+/* 
+   int         node index
+   double      step, actual simulation time
+   double      dvalue, a real value for specified structure component for plotting purposes
+   char        *svalue, a string value for specified structure component for printing
+   void        *pvalue, a binary data structure
+   int         plen, size of the structure
+   int         mode, the mode (op, dc, tran) we are in
+   int         ident, identification number of calling ngspice shared lib
+   void*       return pointer received from caller
+*/
+
+/* Upon initialization, called once per event node 
+   To build up a dictionary of nodes */
 typedef int (SendInitEvtData)(int, int, char*, char*, int, void*);
 /*
-int         node index
-int         maximum node index, number of nodes
-char*       node name
-char*       udn-name, node type
-int         identification number of calling ngspice shared lib
-void*       return pointer received from caller
+   int         node index
+   int         maximum node index, number of nodes
+   char*       node name
+   char*       udn-name, node type
+   int         identification number of calling ngspice shared lib
+   void*       return pointer received from caller
 */
 #endif
 

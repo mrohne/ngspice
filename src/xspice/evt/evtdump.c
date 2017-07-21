@@ -58,8 +58,8 @@ NON-STANDARD FEATURES
 #include "ngspice/ipctiein.h"
 #include "ngspice/ipcproto.h"
 
-/* global flag, TRUE if callback is used */
 #ifdef SHARED_MODULE
+/* global flag, TRUE if callback is used */
 extern bool wantevtdata;
 extern void shared_send_event(int, double, double, char *, void *, int, int);
 extern void shared_send_dict(int, int, char*, char*);
