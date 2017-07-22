@@ -175,18 +175,21 @@ typedef struct vecinfoall
 
 } vecinfoall, *pvecinfoall;
 
+/* to be used by ngGet_Evt_NodeInfo, returns all data of a specific node after simulation */
 #ifdef XSPICE
+/* a single data point */
 typedef struct evt_data
 {
-    int           dcop;
+    int           dcop;        /* t.b.d. */
     double        step;        /* simulation time */
     char          *node_value; /* one of 0s, 1s, Us, 0r, 1r, Ur, 0z, 1z, Uz, 0u, 1u, Uu */
 } evt_data, *pevt_data;
 
+/* a list of all data points of the node selected by the char* argument to ngGet_Evt_NodeInfo */
 typedef struct evt_shared_data
 {
-    pevt_data *evt_dect;
-    int num_steps;
+    pevt_data *evt_dect; /* array of data */
+    int num_steps;       /* length of the array */
 } evt_shared_data, *pevt_shared_data;
 #endif
 
@@ -291,7 +294,7 @@ typedef int (SendEvtData)(int, double, double, char *, void *, int, int, int, vo
    double      dvalue, a real value for specified structure component for plotting purposes
    char        *svalue, a string value for specified structure component for printing
    void        *pvalue, a binary data structure
-   int         plen, size of the structure
+   int         plen, size of the *pvalue structure
    int         mode, the mode (op, dc, tran) we are in
    int         ident, identification number of calling ngspice shared lib
    void*       return pointer received from caller
