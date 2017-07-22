@@ -108,7 +108,6 @@ int main()
 {
     char *errmsg = NULL, *loadstring, *curplot, *vecname;
     int *ret, i;
-    char ** circarray;
     char **vecarray;
 
     printf("****************************\n");
@@ -281,7 +280,7 @@ endsim:
     i = 0;
     if (vecarray) {
         char* node;
-        printf("\nWe print all node names:\n");
+        printf("\nWe print all event node names:\n");
         for (i = 0; ; i++) {
             node = vecarray[i];
             if (!vecarray[i])
@@ -325,7 +324,7 @@ endsim:
     }
     else
         printf("Not enough nodes for selection\n");
-    end1:
+
     ret = ((int * (*)(char*)) ngSpice_Command_handle)("quit");
 #if 0
     /* unload now */
@@ -432,24 +431,35 @@ ng_data(pvecvaluesall vdata, int numvecs, int ident, void* userdata)
 
 
 /* Callback function called from bg thread in ngspice once upon intialization
-   of the simulation vectors)*/
+   of the analog simulation vectors)*/
 int
 ng_initdata(pvecinfoall intdata, int ident, void* userdata)
 {
     int i;
+    /* suppress second printing (after bg_resume) */
+    static bool printonce = TRUE;
     int vn = intdata->veccount;
-    for (i = 0; i < vn; i++) {
-        printf("Vector: %s\n", intdata->vecs[i]->vecname);
-        /* find the location of V(2) */
-        if (cieq(intdata->vecs[i]->vecname, "V(2)"))
-            vecgetnumber = i;
+    if (printonce) {
+        for (i = 0; i < vn; i++) {
+            printf("Vector: %s\n", intdata->vecs[i]->vecname);
+            /* find the location of a vector */
+            char *myvec = "adacout";
+            if (cieq(intdata->vecs[i]->vecname, myvec)) {
+                vecgetnumber = i;
+                printf("Vector %s has index %d\n", myvec, i);
+            }
+        }
+        printonce = FALSE;
     }
     return 0;
 }
 
 int mindex = -1;
 char* mynode = "dout8";
-/* callback functions used by XSPICE for event data  */
+/* callback functions used by XSPICE for event data. */
+
+/* Function is executed each time EVTdump() in ngspice is called and output
+   data for the node indexed by index have changed. */
 int
 ng_getevtdata(int index, double step, double dvalue, char *svalue,
     void *pvalue, int plen, int mode, int ident, void *userdata)
@@ -462,6 +472,9 @@ ng_getevtdata(int index, double step, double dvalue, char *svalue,
         }
         return 1;
     }
+    /* Select an action only for a specific node.
+       The value of mindex for node mynode has been determined in function
+       ng_getinitevtdata() given below. */
     if (index == mindex)
         fprintf(stdout, "Index %d, Step %e, Value %s\n", index, step, svalue);
     return 0;
