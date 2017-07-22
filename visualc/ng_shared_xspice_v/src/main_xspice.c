@@ -476,7 +476,7 @@ ng_getevtdata(int index, double step, double dvalue, char *svalue,
        The value of mindex for node mynode has been determined in function
        ng_getinitevtdata() given below. */
     if (index == mindex)
-        fprintf(stdout, "Index %d, Step %e, Value %s\n", index, step, svalue);
+        fprintf(stdout, "Node %s, Index %d, Step %e, Value %s\n", mynode, index, step, svalue);
     return 0;
 }
 
