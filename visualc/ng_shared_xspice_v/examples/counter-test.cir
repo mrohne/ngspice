@@ -35,11 +35,11 @@ Xdac dlout1 dlout2 dlout3 dlout4 dlout5 dlout6 dlout7 dlout8 dlout9 dlout10 adac
 .include count-latch-dac.cir
 .tran 1u 2.5m
 
-* no tran etc inside of .control section if to be started with bg_run
-.control
-eprint dout1 dout2 dout3 dout4  dout5 dout6 dout7 dout8 dout9 dout10 > digi4b.txt
-eprint dlout1 dlout2 dlout3 dlout4 dlout5 dlout6 dlout7 dlout8 dlout9 dlout10 >> digi4b.txt
+* no .control section if to be started with bg_run
+*.control
+*eprint dout1 dout2 dout3 dout4  dout5 dout6 dout7 dout8 dout9 dout10 > digi4b.txt
+*eprint dlout1 dlout2 dlout3 dlout4 dlout5 dlout6 dlout7 dlout8 dlout9 dlout10 >> digi4b.txt
 *plot adacout
-.endc
+*.endc
 
 .end
