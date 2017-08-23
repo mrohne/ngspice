@@ -12,7 +12,7 @@
 # ---------------
 
 # Initialisation of configure
-AC_INIT([ngspice], [26], [http://ngspice.sourceforge.net/bugrep.html])
+AC_INIT([ngspice], [27], [http://ngspice.sourceforge.net/bugrep.html])
 
 # libtool versioning for shared libraries current:revision:age
 # current The most recent interface number that this library implements.
