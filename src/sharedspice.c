@@ -689,8 +689,8 @@ ngSpice_Init(SendChar* printfcn, SendStat* statusfcn, ControlledExit* ngspiceexi
     }
 #else /* ~ HAVE_PWD_H */
     /* load user's initialisation file
-    try accessing the initialisation file in the current directory
-    if that fails try the alternate name */
+       try accessing the initialisation file in the current directory
+       if that fails try the alternate name */
     if (FALSE == read_initialisation_file("", INITSTR) &&
         FALSE == read_initialisation_file("", ALT_INITSTR)) {
         /* if that failed try in the user's home directory
