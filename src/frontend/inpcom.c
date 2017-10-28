@@ -4092,7 +4092,7 @@ inp_split_multi_param_lines(struct line *card, int line_num)
             }
 
             // comment out current multi-param line
-            *(card->li_line) = '*';
+            *(card->li_line)   = '*';
             // insert new param lines immediately after current line
             for (i = 0; i < counter; i++)
                 card = insert_new_line(card, array[i], line_num++, 0);
@@ -4397,7 +4397,7 @@ inp_compat(struct line *card)
                         midline, lnumber + delta, lastlastno);
 
                 // comment out current variable e line
-                *(card->li_line) = '*';
+                *(card->li_line)   = '*';
                 // insert new B source line immediately after current line
                 for (i = 0; i < 2; i++)
                     card = insert_new_line(card, ckt_array[i], 0, 0);
@@ -4435,7 +4435,7 @@ inp_compat(struct line *card)
                         title_tok, title_tok, str_ptr);
 
                 // comment out current variable e line
-                *(card->li_line) = '*';
+                *(card->li_line)   = '*';
                 // insert new B source line immediately after current line
                 for (i = 0; i < 2; i++)
                     card = insert_new_line(card, ckt_array[i], 0, 0);
@@ -4555,7 +4555,7 @@ inp_compat(struct line *card)
                         midline, lnumber + delta, lastlastno);
 
                 // comment out current variable e line
-                *(card->li_line) = '*';
+                *(card->li_line)   = '*';
                 // insert new B source line immediately after current line
                 for (i = 0; i < 2; i++)
                     card = insert_new_line(card, ckt_array[i], 0, 0);
@@ -4605,7 +4605,7 @@ inp_compat(struct line *card)
                         title_tok, title_tok, str_ptr);
 
                 // comment out current variable g line
-                *(card->li_line) = '*';
+                *(card->li_line)   = '*';
                 // insert new B source line immediately after current line
                 for (i = 0; i < 2; i++)
                     card = insert_new_line(card, ckt_array[i], 0, 0);
@@ -4651,7 +4651,7 @@ inp_compat(struct line *card)
                 ckt_array[2] = tprintf("vb%s %s_int1 0 dc 0",
                         title_tok, title_tok);
                 // comment out current variable f line
-                *(card->li_line) = '*';
+                *(card->li_line)   = '*';
                 // insert new three lines immediately after current line
                 for (i = 0; i < 3; i++)
                     card = insert_new_line(card, ckt_array[i], 0, 0);
@@ -4697,7 +4697,7 @@ inp_compat(struct line *card)
                 ckt_array[2] = tprintf("vb%s %s_int1 0 dc 0",
                         title_tok, title_tok);
                 // comment out current variable h line
-                *(card->li_line) = '*';
+                *(card->li_line)   = '*';
                 // insert new three lines immediately after current line
                 for (i = 0; i < 3; i++)
                     card = insert_new_line(card, ckt_array[i], 0, 0);
@@ -4851,7 +4851,7 @@ inp_compat(struct line *card)
             tc1_ptr = NULL;
             tc2_ptr = NULL;
             // comment out current variable capacitor line
-            *(card->li_line) = '*';
+            *(card->li_line)   = '*';
             // insert new B source line immediately after current line
             for (i = 0; i < 3; i++)
                 card = insert_new_line(card, ckt_array[i], 0, 0);
@@ -4931,7 +4931,7 @@ inp_compat(struct line *card)
             tc1_ptr = NULL;
             tc2_ptr = NULL;
             // comment out current variable inductor line
-            *(card->li_line) = '*';
+            *(card->li_line)   = '*';
             // insert new B source line immediately after current line
             for (i = 0; i < 3; i++)
                 card = insert_new_line(card, ckt_array[i], 0, 0);
@@ -5168,7 +5168,7 @@ inp_compat(struct line *card)
                 // remove white spaces
                 card->li_line = inp_remove_ws(curr_line);
                 // comment out current variable capacitor line
-                // *(ckt_array[0]) = '*';
+                // *(ckt_array[0])   = '*';
                 // insert new B source line immediately after current line
                 for (ii = paui; ii < pai; ii++)
                     card = insert_new_line(card, ckt_array[ii], 0, 0);
