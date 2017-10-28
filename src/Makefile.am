@@ -293,19 +293,13 @@ ngspice.idx: ngmakeidx$(EXEEXT) $(srcdir)/ngspice.txt
 endif !SHWIN
 endif !WINGUI
 
-if RELPATH
-spinitpath=../lib/ngspice
-endif RELPATH
-if !RELPATH
-spinitpath=$(pkglibdir)
-endif !RELPATH
 
 ## create spinit at compile time, see
 ##   (info "(autoconf) Installation Directory Variables")
 
 edit = sed \
 	-e 's|@XSPICEINIT[@]|$(XSPICEINIT)|g' \
-	-e 's|@pkglibdir[@]|$(spinitpath)|g'
+	-e 's|@pkglibdir[@]|$(pkglibdir)|g'
 
 spinit tclspinit : Makefile
 	rm -f $@ $@.tmp
