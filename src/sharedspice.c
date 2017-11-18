@@ -830,8 +830,8 @@ pvector_info  ngGet_Vec_Info(char* vecname)
     myvec->v_compdata = newvec->v_compdata;
     myvec->v_length = newvec->v_length;
 
-    /* if newvec is derived from a XSPICE event vector, remove it here */
-    if ((newvec->v_scale) && (strcmp(newvec->v_scale->v_name, "step") == 0)) {
+    /* if newvec is derived from an XSPICE event vector, remove it here */
+    if ((newvec->v_scale) && (newvec->v_length == 1) && (strcmp(newvec->v_scale->v_name, "step") == 0)) {
         dvec_free(newvec->v_scale);
         dvec_free(newvec);
     }
