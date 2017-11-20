@@ -220,6 +220,10 @@ static GetVSRCData* getvdat;
 static GetISRCData* getidat;
 static GetSyncData* getsync;
 static pvector_info myvec = NULL;
+#ifdef XSPICE
+static double *evt_vec_data = NULL;
+static char vecnam[256];
+#endif
 char **allvecs = NULL;
 char **allplots = NULL;
 static bool noprintfwanted = FALSE;
@@ -749,6 +753,10 @@ bot:
 
     if(!myvec)
         myvec = TMALLOC(vector_info, sizeof(vector_info));
+#ifdef XSPICE
+	if(!evt_vec_data)
+		evt_vec_data = TMALLOC(double, 1);
+#endif
 
 #if !defined(low_latency)
     /* If caller has sent valid address for pfcn */
@@ -775,6 +783,9 @@ void
 sh_delete_myvec(void)
 {
     tfree(myvec);
+#ifdef XSPICE
+	tfree(evt_vec_data);
+#endif
 }
 
 
@@ -830,12 +841,19 @@ pvector_info  ngGet_Vec_Info(char* vecname)
     myvec->v_compdata = newvec->v_compdata;
     myvec->v_length = newvec->v_length;
 
-    /* if newvec is derived from an XSPICE event vector, remove it here */
-    if ((newvec->v_scale) && (newvec->v_length == 1) && (strcmp(newvec->v_scale->v_name, "step") == 0)) {
-        dvec_free(newvec->v_scale);
+#ifdef XSPICE
+    /* if newvec is derived from an XSPICE event vector, catch its real data and then remove it */
+    if ((newvec->v_scale) && (strcmp(newvec->v_scale->v_name, "step") == 0)) {
+        /* get the data contents of this vector */
+//		printf("len: %d, val: %f\n",newvec->v_length, newvec->v_realdata[newvec->v_length - 1]);
+		*evt_vec_data = newvec->v_realdata[newvec->v_length - 1];
+		strncpy(vecnam, newvec->v_name, 255);
+		myvec->v_realdata = evt_vec_data;
+		myvec->v_name = vecnam;
+		dvec_free(newvec->v_scale);
         dvec_free(newvec);
     }
-
+#endif
     return myvec;
 };
 
