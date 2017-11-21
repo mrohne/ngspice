@@ -6697,7 +6697,7 @@ static struct nscope *
 inp_add_levels(struct line *deck)
 {
     struct line *card;
-    int skip_control = 0;
+    int skip_control = 0, i = 1;
 
     struct nscope *root = TMALLOC(struct nscope, 1);
     root->next = NULL;
@@ -6711,7 +6711,6 @@ inp_add_levels(struct line *deck)
     for (card = deck; card; card = card->li_next) {
 
         char *curr_line = card->li_line;
-        int i = 1;
 
         /* exclude any command inside .control ... .endc */
         if (ciprefix(".control", curr_line)) {
