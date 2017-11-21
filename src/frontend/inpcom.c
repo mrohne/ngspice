@@ -154,6 +154,8 @@ static struct modellist *find_model(struct nscope *scope, const char *name);
 
 static bool inp_strip_braces(char *s);
 
+static struct nscope *nlevels[1000];
+static void removelevels(void);
 
 struct inp_read_t
 { struct line *cc;
@@ -670,6 +672,7 @@ inp_readall(FILE *fp, char *dir_name, bool comfile, bool intfile, bool *expr_w_t
             fprintf(stdout, "max line length %d, max subst. per line %d, number of lines %d\n",
                 (int)max_line_length, no_braces, dynmaxline);
         }
+        removelevels();
     }
     /* remove white spaces in command files */
     else if (comfile && cc) {
@@ -6702,10 +6705,13 @@ inp_add_levels(struct line *deck)
     root->models = NULL;
 
     struct nscope *lvl = root;
+    nlevels[0] = lvl;
+    nlevels[1] = NULL;
 
     for (card = deck; card; card = card->li_next) {
 
         char *curr_line = card->li_line;
+        int i = 1;
 
         /* exclude any command inside .control ... .endc */
         if (ciprefix(".control", curr_line)) {
@@ -6725,6 +6731,8 @@ inp_add_levels(struct line *deck)
                 add_subckt(lvl, card);
                 card->level = lvl;
                 lvl = TMALLOC(struct nscope, 1);
+                nlevels[i++] = lvl;
+                nlevels[i] = NULL;
                 // lvl->name = ..., or just point to the deck
                 lvl->next = card->level;
                 lvl->subckts = NULL;
@@ -6957,4 +6965,11 @@ inp_rem_unused_models(struct nscope *root, struct line *deck)
 
     // disable unused .model lines, and free the models assoc lists
     rem_unused_xxx(root);
+}
+
+static void removelevels(void)
+{
+    int i = 0;
+    for (i = 0; nlevels[i]; i++)
+        tfree(nlevels[i]);
 }
