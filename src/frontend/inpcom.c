@@ -6970,6 +6970,13 @@ inp_rem_unused_models(struct nscope *root, struct line *deck)
 static void removelevels(void)
 {
     int i = 0;
-    for (i = 0; nlevels[i]; i++)
+    for (i = 0; nlevels[i]; i++) {
+        while (nlevels[i]->subckts) {
+            struct line_assoc *scnext = nlevels[i]->subckts->next;
+            tfree(nlevels[i]->subckts->name);
+            tfree(nlevels[i]->subckts);
+            nlevels[i]->subckts = scnext;
+        }
         tfree(nlevels[i]);
+    }
 }
