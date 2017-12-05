@@ -1,6 +1,6 @@
 %{
     /*
-     * (compile (concat "bison -ydo inpptree-parser.c " (file-relative-name buffer-file-name)))
+     * (compile (concat "/usr/local/opt/bison/bin/bison -ydo inpptree-parser.c " (file-relative-name buffer-file-name)))
      */
 
   #include "ngspice/ngspice.h"
