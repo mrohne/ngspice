@@ -1338,7 +1338,7 @@ INPparseNode *PT_mksnode(const char *string, void *ckt)
 
 /* The lexical analysis routine. */
 
-int PTlex (YYSTYPE *lvalp, struct PTltype *llocp, char **line)
+int PTlex (YYSTYPE *lvalp, YYLTYPE *llocp, char **line)
 {
     double td;
     int err;

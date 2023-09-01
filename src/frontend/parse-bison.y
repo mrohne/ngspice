@@ -1,6 +1,6 @@
 %{
     /*
-     * (compile (concat "/usr/local/opt/bison/bin/bison -yvdo parse-bison.c " (file-relative-name buffer-file-name)))
+     * (compile (concat "bison -ydo parse-bison.c " (file-relative-name buffer-file-name)))
      */
 
   #include "ngspice/ngspice.h"
@@ -8,8 +8,6 @@
 
   #include <stdio.h>
   #include <stdlib.h>
-
-  # define YYLTYPE struct PPltype
 
   #include "parse.h"
   #include "parse-bison.h"
@@ -26,10 +24,10 @@
        }                                                                 \
      while (0)
 
-  static void PPerror (YYLTYPE *locp, char **line, struct pnode **retval, char const *);
-
   static char *keepline;
 %}
+
+%define api.location.type {struct PPltype}
 
 %name-prefix "PP"
 
@@ -167,8 +165,8 @@ exp:
 
 
 /* Called by yyparse on error.  */
-static void
-PPerror (YYLTYPE *locp, char **line, struct pnode **retval, char const *s)
+void
+PPerror (const YYLTYPE *locp, char **line, struct pnode **retval, const char const *s)
 {
   NG_IGNORE(locp);
   NG_IGNORE(line);

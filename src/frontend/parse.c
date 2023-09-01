@@ -759,7 +759,7 @@ void db_print_pnode_tree(struct pnode *p, char *print)
 
 
 
-int PPlex(YYSTYPE *lvalp, struct PPltype *llocp, char **line)
+int PPlex(YYSTYPE *lvalp, YYLTYPE *llocp, char **line)
 {
     static char *specials = " \t%()-^+*,/|&<>~=";
     char  *sbuf = *line;
